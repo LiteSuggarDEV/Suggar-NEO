@@ -1,0 +1,70 @@
+name: PullRequest CI/CD Pipeline
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**"
+
+jobs:
+  runTest:
+    name: Run Tests on Pull Request
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 获取完整提交历史
+          ref: ${{ github.event.pull_request.head.sha }} # 明确指定PR分支的SHA
+
+      - name: Check for ignored type checks
+        run: |
+            echo "Checking for ignored type annotations..."
+            IGNORE_COUNT=$(grep -r -E "# *(type|pyright): *ignore" ./src | wc -l)
+            if [ "$IGNORE_COUNT" -gt 0 ]; then
+              echo "::error::Found $IGNORE_COUNT ignored type checks. Please avoid using '# type: ignore' or '# pyright: ignore' unless absolutely necessary."
+              exit 1
+            fi
+
+
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: ${{ runner.os }}-uv-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set environment
+        run: |
+          uv venv .venv
+          uv sync
+
+      - name: Install dependencies
+        run : |
+            pipx install nb-cli
+
+      - name: Get Python path
+        run: |
+          PYTHON_BIN="$(uv run python -c 'import sys; print(sys.executable)')"
+          echo "PYTHON_BIN=$PYTHON_BIN" >> $GITHUB_ENV
+
+      - name: Run Pyright
+        uses: jakebailey/pyright-action@v2
+        with:
+          python-path: ${{ env.PYTHON_BIN }}
+          pylance-version: latest-release
+
+      - name: Setup database
+        run: |
+          echo "Setting up database for CI..."
+          uv run nb orm upgrade head
+
+      - name: Load test
+        run: |
+          uv run run-test.py
