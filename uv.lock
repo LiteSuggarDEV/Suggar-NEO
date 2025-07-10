@@ -671,21 +671,6 @@ wheels = [
 ]
 
 [[package]]
-name = "nonebot-plugin-luoguluck"
-version = "0.3"
-source = { registry = "https://mirrors.aliyun.com/pypi/simple" }
-dependencies = [
-    { name = "nonebot-adapter-onebot" },
-    { name = "nonebot-plugin-localstore" },
-    { name = "nonebot2" },
-    { name = "pillow" },
-]
-sdist = { url = "https://mirrors.aliyun.com/pypi/packages/13/52/5814918d77fc885fd54671dec33e517ee628ff47f78be70a87b4285ee6ff/nonebot_plugin_luoguluck-0.3.tar.gz", hash = "sha256:b06510aa304ed2923fbc544d6d5093576a1df24248fb09f84e85c25483d3c161" }
-wheels = [
-    { url = "https://mirrors.aliyun.com/pypi/packages/95/28/affe11a0e3ffd6900cac49abae058df7b6b6ecc8274d9e036c0bee5d06da/nonebot_plugin_luoguluck-0.3-py3-none-any.whl", hash = "sha256:110ed78bfc17879129b84026890b8a393a9584984651f22eb008a4fd770c6840" },
-]
-
-[[package]]
 name = "nonebot-plugin-orm"
 version = "0.8.1"
 source = { registry = "https://mirrors.aliyun.com/pypi/simple" }
@@ -1333,11 +1318,11 @@ dependencies = [
     { name = "nonebot-adapter-onebot" },
     { name = "nonebot-plugin-htmlrender" },
     { name = "nonebot-plugin-localstore" },
-    { name = "nonebot-plugin-luoguluck" },
     { name = "nonebot-plugin-orm" },
     { name = "nonebot-plugin-suggarchat" },
     { name = "nonebot-plugin-value" },
     { name = "nonebot2", extra = ["fastapi"] },
+    { name = "pillow" },
     { name = "pip" },
     { name = "psutil" },
 ]
@@ -1347,11 +1332,11 @@ requires-dist = [
     { name = "nonebot-adapter-onebot", specifier = ">=2.4.6" },
     { name = "nonebot-plugin-htmlrender", specifier = ">=0.6.6" },
     { name = "nonebot-plugin-localstore", specifier = ">=0.7.4" },
-    { name = "nonebot-plugin-luoguluck", specifier = ">=0.3" },
     { name = "nonebot-plugin-orm", specifier = ">=0.8.1" },
     { name = "nonebot-plugin-suggarchat", specifier = ">=2.4.7" },
     { name = "nonebot-plugin-value", specifier = ">=0.0.6" },
     { name = "nonebot2", extras = ["fastapi"], specifier = ">=2.4.2" },
+    { name = "pillow", specifier = ">=11.3.0" },
     { name = "pip", specifier = ">=25.1.1" },
     { name = "psutil", specifier = ">=7.0.0" },
 ]
