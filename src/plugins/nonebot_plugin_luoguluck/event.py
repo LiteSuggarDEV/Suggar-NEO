@@ -25,7 +25,7 @@ luck = on_command(
     block=True,
     state=dict(
         MatcherData(
-            rm_name="今日运势", rm_usage="luck", rm_desc="洛谷同款的今日运势！"
+            rm_name="今日运势", rm_usage="/luck", rm_desc="洛谷同款的今日运势！"
         ),
     ),
 )

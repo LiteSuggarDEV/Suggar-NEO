@@ -26,7 +26,7 @@ md_cmd = on_command(
     "md",
     aliases={"markdown"},
     state=MatcherData(
-        rm_name="md",
+        rm_name="/md",
         rm_desc="渲染 Markdown 为图片",
         rm_usage="md <content>",
     ).model_dump(),
@@ -36,7 +36,7 @@ page_cmd = on_command(
     "page",
     aliases={"页面"},
     state=MatcherData(
-        rm_name="page",
+        rm_name="/page",
         rm_desc="显示自定义页面",
         rm_usage="page <name|list>",
     ).model_dump(),
@@ -102,14 +102,14 @@ async def show_menu(matcher: Matcher, bot: Bot, event: MessageEvent):
         for markdown_menus_string in markdown_menus
     ] + [
         MessageSegment.text(
-            "Suggar-NEO开源地址：https://github.com/LiteSuggarDEV/Suggar-NEO/"
+            "Suggar开源地址：https://github.com/LiteSuggarDEV/Suggar-NEO/"
         )
     ]
 
     await send_forward_msg(
         bot,
         event,
-        name="Suggar-NEO 菜单",
+        name="Suggar 菜单",
         uin=str(bot.self_id),
         msgs=markdown_menus_pics,
     )
