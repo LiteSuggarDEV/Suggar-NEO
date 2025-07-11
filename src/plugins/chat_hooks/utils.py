@@ -24,9 +24,32 @@ async def get_love_points(uid: int) -> str:
     )
 
 
-async def change_love_points(user_id: int | str, points: int) -> str:
+async def decrease_love_points(user_id: int | str, points: int) -> str:
     before = (await get_or_create_account(str(user_id), SUGGAR_VALUE_ID)).balance
     logger.debug(f"调起了tool，尝试把{user_id}的好感度做{points}的变化！")
+    if abs(points) > 10:
+        return json.dumps(
+            {
+                "now_love_points": before,
+                "change_points": 0,
+                "message": "好感度输入的数值过小啦！记不住啦！",
+            },
+        )
+
+    await del_balance(str(user_id), -abs(points), "Chat", SUGGAR_VALUE_ID)
+
+    return json.dumps(
+        {
+            "now_love_points": before + points,
+            "change_points": points,
+            "message": "好感度成功记住啦！",
+        },
+    )
+
+
+async def add_love_points(user_id: int | str, points: int) -> str:
+    before = (await get_or_create_account(str(user_id), SUGGAR_VALUE_ID)).balance
+    logger.debug(f"调起了tool，尝试把{user_id}的好感度做+{points}的变化！")
     if abs(points) > 10:
         return json.dumps(
             {
@@ -36,10 +59,8 @@ async def change_love_points(user_id: int | str, points: int) -> str:
             },
         )
 
-    if points > 0:
-        await add_balance(str(user_id), points, "Chat", SUGGAR_VALUE_ID)
-    else:
-        await del_balance(str(user_id), points, "Chat", SUGGAR_VALUE_ID)
+    await add_balance(str(user_id), abs(points), "Chat", SUGGAR_VALUE_ID)
+
     return json.dumps(
         {
             "now_love_points": before + points,
@@ -53,14 +74,31 @@ TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "change_love_points",
-            "description": "描述：添加或减少你对这一位用户的好感度",
+            "name": "decrease_love_points",
+            "description": "降低你对这一位用户的好感度",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "delta_love_points": {
                         "type": "integer",
-                        "description": "添加或者减少你对这一位用户的好感度（整数，取值范围：-10~10）",
+                        "description": "减少你对这一位用户的好感度（负整数，取值范围：-1~-10）",
+                    }
+                },
+                "required": ["delta_love_points"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "add_love_points",
+            "description": "描述：添加你对这一位用户的好感度",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "delta_love_points": {
+                        "type": "integer",
+                        "description": "添加你对这一位用户的好感度（正整数，取值范围：1~10）",
                     }
                 },
                 "required": ["delta_love_points"],

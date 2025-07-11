@@ -11,7 +11,13 @@ from nonebot_plugin_value.api.api_balance import add_balance
 from suggar_utils.config import ConfigManager
 from suggar_utils.value import SUGGAR_EXP_ID
 
-from .utils import TOOLS, change_love_points, get_love_points, tools_caller
+from .utils import (
+    TOOLS,
+    add_love_points,
+    decrease_love_points,
+    get_love_points,
+    tools_caller,
+)
 
 chat = on_before_chat()
 
@@ -38,8 +44,13 @@ async def love_handler(event: BeforeChatEvent) -> None:
                 match function_name:
                     case "get_love_points":
                         func_response = await get_love_points(nonebot_event.user_id)
-                    case "change_love_points":
-                        func_response = await change_love_points(
+                    case "add_love_points":
+                        func_response = await add_love_points(
+                            nonebot_event.user_id,
+                            function_args.get("delta_love_points", 0),
+                        )
+                    case "decrease_love_points":
+                        func_response = await decrease_love_points(
                             nonebot_event.user_id,
                             function_args.get("delta_love_points", 0),
                         )
@@ -53,7 +64,7 @@ async def love_handler(event: BeforeChatEvent) -> None:
                     }
                 )
     except Exception as e:
-        logger.opt(exception=e).exception("ERROR!调用Tools失败！正在回滚消息......")
+        logger.exception(f"ERROR{e!s}!调用Tools失败！正在回滚消息......")
         msg_chat_list = chat_list_backup
     finally:
         exp = random.randint(1, 25)
