@@ -75,13 +75,13 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "decrease_love_points",
-            "description": "降低你对这一位用户的好感度",
+            "description": "（仅在好感度增加时必须调用）降低你对这一位用户的好感度记录值",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "delta_love_points": {
                         "type": "integer",
-                        "description": "减少你对这一位用户的好感度（负整数，取值范围：-1~-10）",
+                        "description": "减少你对这一位用户的好感度多少？（输入负整数，取值范围：-1~-10）",
                     }
                 },
                 "required": ["delta_love_points"],
@@ -92,13 +92,13 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "add_love_points",
-            "description": "描述：添加你对这一位用户的好感度",
+            "description": "（仅在好感度增加时必须调用）描述：增加你对这一位用户的好感度记录值",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "delta_love_points": {
                         "type": "integer",
-                        "description": "添加你对这一位用户的好感度（正整数，取值范围：1~10）",
+                        "description": "添加你对这一位用户的好感度多少？（输入正整数，取值范围：1~10）",
                     }
                 },
                 "required": ["delta_love_points"],
