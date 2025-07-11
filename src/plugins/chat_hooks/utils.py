@@ -38,7 +38,7 @@ async def change_love_points(user_id: int | str, points: int) -> str:
             {
                 "now_love_points": before,
                 "change_points": 0,
-                "message": "好感度输入的数值过大啦！记不住啦！请输入一个-10到10的数字！",
+                "message": "不行！改变这么多的好感度！",
             },
         )
     if points > 0:
@@ -162,10 +162,10 @@ def enforce_memory_limit(data: list):
             message["content"] = message_text
 
     # Enforce memory length limit
-    for msg in data:
-        if msg["role"] == "tool" or msg.get("tool_calls") is not None:
-            data.remove(msg)
-    while (len(data) > memory_length_limit or (data[0]["role"] != "user")) and len(
-        data
-    ) > 0:
-        del data[0]
+    while len(data) >= 1:
+        if data[1]["role"] == "tool":
+            del data[1]
+        else:
+            break
+    while (len(data) > memory_length_limit) and len(data) > 1:
+        del data[1]

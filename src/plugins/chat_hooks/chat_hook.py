@@ -31,15 +31,16 @@ async def love_handler(event: BeforeChatEvent) -> None:
     if not isinstance(nonebot_event, MessageEvent):
         return
     msg_chat_list: list[dict] = event.message
+
     enforce_memory_limit(
         msg_chat_list
     )  # 预处理，替换掉SuggarChat的enforce_memory_limit
-    chat_list_backup = deepcopy(msg_chat_list)
+    chat_list_backup = deepcopy(msg_chat_list.copy())
 
     try:
         response_msg = await tools_caller(
             [
-                *deepcopy([i for i in msg_chat_list if i["role"] == "system"]),
+                *deepcopy([i for i in msg_chat_list.copy() if i["role"] == "system"]),
                 deepcopy(event.get_send_message().copy())[-1],
             ],
             TOOLS,
