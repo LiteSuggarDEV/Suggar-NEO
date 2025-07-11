@@ -766,7 +766,7 @@ wheels = [
 
 [[package]]
 name = "openai"
-version = "1.93.3"
+version = "1.95.0"
 source = { registry = "https://mirrors.aliyun.com/pypi/simple" }
 dependencies = [
     { name = "anyio" },
@@ -778,9 +778,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://mirrors.aliyun.com/pypi/packages/e0/66/fadc0cad6a229c6a85c3aa5f222a786ec4d9bf14c2a004f80ffa21dbaf21/openai-1.93.3.tar.gz", hash = "sha256:488b76399238c694af7e4e30c58170ea55e6f65038ab27dbe95b5077a00f8af8" }
+sdist = { url = "https://mirrors.aliyun.com/pypi/packages/ef/2f/0c6f509a1585545962bfa6e201d7fb658eb2a6f52fb8c26765632d91706c/openai-1.95.0.tar.gz", hash = "sha256:54bc42df9f7142312647dd485d34cca5df20af825fa64a30ca55164be2cf4cc9" }
 wheels = [
-    { url = "https://mirrors.aliyun.com/pypi/packages/8b/b9/0df6351b25c6bd494c534d2a8191dc9460fb5bb09c88b1427775d49fde05/openai-1.93.3-py3-none-any.whl", hash = "sha256:41aaa7594c7d141b46eed0a58dcd75d20edcc809fdd2c931ecbb4957dc98a892" },
+    { url = "https://mirrors.aliyun.com/pypi/packages/19/a5/57d0bb58b938a3e3f352ff26e645da1660436402a6ad1b29780d261cc5a5/openai-1.95.0-py3-none-any.whl", hash = "sha256:a7afc9dca7e7d616371842af8ea6dbfbcb739a85d183f5f664ab1cc311b9ef18" },
 ]
 
 [[package]]
@@ -1322,6 +1322,7 @@ dependencies = [
     { name = "nonebot-plugin-suggarchat" },
     { name = "nonebot-plugin-value" },
     { name = "nonebot2", extra = ["fastapi"] },
+    { name = "openai" },
     { name = "pillow" },
     { name = "pip" },
     { name = "psutil" },
@@ -1336,6 +1337,7 @@ requires-dist = [
     { name = "nonebot-plugin-suggarchat", specifier = ">=2.4.7" },
     { name = "nonebot-plugin-value", specifier = ">=0.0.6" },
     { name = "nonebot2", extras = ["fastapi"], specifier = ">=2.4.2" },
+    { name = "openai", specifier = ">=1.95.0" },
     { name = "pillow", specifier = ">=11.3.0" },
     { name = "pip", specifier = ">=25.1.1" },
     { name = "psutil", specifier = ">=7.0.0" },

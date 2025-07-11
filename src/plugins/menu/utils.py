@@ -3,13 +3,14 @@ import hashlib
 from pathlib import Path
 
 from nonebot_plugin_htmlrender import md_to_pic
-from nonebot_plugin_localstore import get_config_dir
+
+from suggar_utils.config import CONFIG_DIR
 
 from .models import PluginData
 
 dir_path = Path(__file__).parent
 CSS_PATH = str(dir_path / "dark.css")
-PAGE_DIR = get_config_dir("Suggar-NEO") / "pages"
+PAGE_DIR = CONFIG_DIR / "pages"
 PAGE_DIR.mkdir(parents=True, exist_ok=True)
 _md_cache: dict[str, str] = {}
 
@@ -30,15 +31,9 @@ async def cached_md_to_pic(md: str, css_path: str) -> str:
     return base64_img
 
 
-
-
-
 def generate_markdown_menus(plugins: list[PluginData]) -> list[str]:
     """生成 Markdown 菜单列表"""
-    head = (
-        "# Suggar-NEO 菜单\n\n"
-        + "> 这是 Suggar-NEO 的菜单列表，包含所有可用的功能和用法。\n\n"
-    )
+    head = "# Suggar-NEO 菜单\n\n" + "> 这是 Suggar-NEO 的菜单列表！\n\n"
     head += "## 模块列表\n\n"
     for plugin in plugins:
         if not plugin.metadata or not plugin.matcher_grouping:
@@ -70,7 +65,3 @@ def generate_markdown_menus(plugins: list[PluginData]) -> list[str]:
         markdown_menus.append(plugin_markdown.strip())
 
     return markdown_menus
-
-
-
-

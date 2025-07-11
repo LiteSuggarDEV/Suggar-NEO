@@ -1,13 +1,11 @@
 import nonebot
-from nonebot import get_driver, on_command
+from nonebot import get_driver
 from nonebot.adapters.onebot.v11 import (
     Bot,
-    Message,
     MessageEvent,
     MessageSegment,
 )
 from nonebot.matcher import Matcher
-from nonebot.params import CommandArg
 
 from suggar_utils.utils import send_forward_msg
 
@@ -15,62 +13,11 @@ from .manager import menu_mamager
 from .models import MatcherData
 from .utils import (
     CSS_PATH,
-    PAGE_DIR,
     cached_md_to_pic,
     generate_markdown_menus,
 )
 
 command_start = get_driver().config.command_start
-
-md_cmd = on_command(
-    "md",
-    aliases={"markdown"},
-    state=MatcherData(
-        rm_name="/md",
-        rm_desc="渲染 Markdown 为图片",
-        rm_usage="md <content>",
-    ).model_dump(),
-)
-
-page_cmd = on_command(
-    "page",
-    aliases={"页面"},
-    state=MatcherData(
-        rm_name="/page",
-        rm_desc="显示自定义页面",
-        rm_usage="page <name|list>",
-    ).model_dump(),
-)
-
-
-@page_cmd.handle()
-async def handle_page(matcher: Matcher, args: Message = CommandArg()):
-    arg = args.extract_plain_text().strip()
-    if not arg:
-        await matcher.finish("请输入页面名或 list")
-
-    if arg == "list":
-        if pages := [p.stem for p in PAGE_DIR.glob("*.md")]:
-            await matcher.finish("可用页面:\n" + "\n".join(pages))
-        await matcher.finish("暂无页面")
-
-    page_file = PAGE_DIR / f"{arg}.md"
-    if not page_file.exists():
-        await matcher.finish("页面不存在")
-
-    md_text = page_file.read_text(encoding="utf-8")
-    img = await cached_md_to_pic(md=md_text, css_path=str(CSS_PATH))
-    await matcher.finish(MessageSegment.image(file=img))
-
-
-@md_cmd.handle()
-async def handle_md(matcher: Matcher, args: Message = CommandArg()):
-    md_text = args.extract_plain_text().strip()
-    if not md_text:
-        await matcher.finish("请输入 Markdown 内容")
-
-    img = await cached_md_to_pic(md=md_text, css_path=str(CSS_PATH))
-    await matcher.finish(MessageSegment.image(file=img))
 
 
 @nonebot.on_fullmatch(

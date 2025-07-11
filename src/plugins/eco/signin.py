@@ -43,10 +43,20 @@ async def startup():
 ).handle()
 async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
     fun_data = get_fun_data(str(event.user_id))
+
+    economy_data = await get_or_create_account(str(event.user_id))
+    love_data = await get_or_create_account(str(event.user_id), SUGGAR_VALUE_ID)
+
     if is_same_day(int(fun_data.last_daily), int(datetime.now().timestamp())):
-        await matcher.finish("今天已经签到过了喵～")
-    await get_or_create_account(str(event.user_id))
-    await get_or_create_account(str(event.user_id), SUGGAR_VALUE_ID)
+        await matcher.finish(
+            MessageSegment.at(event.user_id)
+            + MessageSegment.text(
+                "今天已经签到过了喵～\n"
+                + f"\n你的经验值：{fun_data.exp}"
+                + f"\n好感值：{int(love_data.balance)}"
+                + f"\n货币：{economy_data.balance}点"
+            )
+        )
     love = random.randint(1, 10)
     coin = random.randint(1, 100)
     exp = random.randint(1, 50)
@@ -62,6 +72,6 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
     await matcher.send(
         MessageSegment.at(event.user_id)
         + MessageSegment.text(
-            f" {formatted_datetime} 签到成功，累计签到{fun_data.daily_count}天~\n硬币+{coin}，经验+{exp}"
+            f" {formatted_datetime} 签到成功，累计签到{fun_data.daily_count}天~\n硬币+{coin}，经验+{exp}，好感度+{love}"
         )
     )

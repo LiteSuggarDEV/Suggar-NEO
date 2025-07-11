@@ -85,3 +85,7 @@ rate_limit: 3
   ```shell
   nb orm upgrade
   ```
+
+## 注意事项
+
+本项目由于添加了**Tools**的逻辑，所以**不再兼容**其他的SuggarChat**非OpenAI**大模型协议适配器，只能使用内置的OpenAI客户端适配器实现。
