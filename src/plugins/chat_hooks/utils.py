@@ -21,7 +21,6 @@ async def get_love_points(uid: int) -> str:
         {
             "now_love_points": user.balance,
         },
-        intend=4,
     )
 
 
@@ -35,7 +34,6 @@ async def change_love_points(user_id: int | str, points: int) -> str:
                 "change_points": 0,
                 "message": "好感度输入的数值过大啦！记不住啦！",
             },
-            intend=4,
         )
 
     if points > 0:
@@ -48,7 +46,6 @@ async def change_love_points(user_id: int | str, points: int) -> str:
             "change_points": points,
             "message": "好感度成功记住啦！",
         },
-        intend=4,
     )
 
 
@@ -71,7 +68,7 @@ TOOLS = [
         },
     },
     {
-        "name": "get_love_points",
+        "type": "function",
         "function": {
             "name": "get_love_points",
             "description": "获取你对这一位用户的好感度",
