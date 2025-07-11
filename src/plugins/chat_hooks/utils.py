@@ -38,7 +38,7 @@ async def change_love_points(user_id: int | str, points: int) -> str:
             {
                 "now_love_points": before,
                 "change_points": 0,
-                "message": "好感度输入的数值过小啦！记不住啦！",
+                "message": "好感度输入的数值过大啦！记不住啦！请输入一个-10到10的数字！",
             },
         )
     if points > 0:
