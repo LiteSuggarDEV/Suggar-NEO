@@ -31,11 +31,10 @@ async def love_handler(event: BeforeChatEvent) -> None:
     if not isinstance(nonebot_event, MessageEvent):
         return
     msg_chat_list: list[dict] = event.message
-
+    chat_list_backup = deepcopy(msg_chat_list.copy())
     enforce_memory_limit(
         msg_chat_list
     )  # 预处理，替换掉SuggarChat的enforce_memory_limit
-    chat_list_backup = deepcopy(msg_chat_list.copy())
 
     try:
         response_msg = await tools_caller(
@@ -73,11 +72,11 @@ async def love_handler(event: BeforeChatEvent) -> None:
                     }
                 )
     except Exception as e:
-        logger.exception(f"ERROR{e!s}!调用Tools失败！正在回滚消息......")
+        logger.error(f"ERROR{e!s}!调用Tools失败！正在回滚消息......")
         msg_chat_list = chat_list_backup
     finally:
-        exp = random.randint(1, 25)
-        coin = random.randint(1, 10)
+        exp = float(random.randint(1, 25))
+        coin = float(random.randint(1, 10))
         await add_balance(str(nonebot_event.user_id), exp, "聊天", SUGGAR_EXP_ID)
         await add_balance(str(nonebot_event.user_id), coin, "聊天")
         logger.debug(f"用户{nonebot_event.user_id}获得{exp}经验值和{coin}金币")

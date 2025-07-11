@@ -40,9 +40,9 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
                 + f"\n货币：{economy_data.balance}点"
             )
         )
-    love = random.randint(1, 10)
-    coin = random.randint(1, 100)
-    exp = random.randint(1, 50)
+    love = float(random.randint(1, 10))
+    coin = float(random.randint(1, 100))
+    exp = float(random.randint(1, 50))
     fun_data.daily_count += 1
     fun_data.last_daily = datetime.now().timestamp()
     await add_balance(str(event.user_id), coin, "签到")

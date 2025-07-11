@@ -38,13 +38,13 @@ async def change_love_points(user_id: int | str, points: int) -> str:
             {
                 "now_love_points": before,
                 "change_points": 0,
-                "message": "不行！改变这么多的好感度！",
+                "message": "不行！不能改变这么多的好感度！",
             },
         )
     if points > 0:
-        await add_balance(str(user_id), points, "Chat", SUGGAR_VALUE_ID)
+        await add_balance(str(user_id), float(points), "Chat", SUGGAR_VALUE_ID)
     elif points < 0:
-        await del_balance(str(user_id), -abs(points), "Chat", SUGGAR_VALUE_ID)
+        await del_balance(str(user_id), float(abs(points)), "Chat", SUGGAR_VALUE_ID)
     else:
         return json.dumps(
             {
