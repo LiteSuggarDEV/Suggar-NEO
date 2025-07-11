@@ -5,8 +5,7 @@ from nonebot.rule import to_me
 from nonebot_plugin_value.api.api_balance import get_or_create_account
 
 from src.plugins.menu.models import MatcherData
-from suggar_utils.store import get_fun_data
-from suggar_utils.value import SUGGAR_VALUE_ID
+from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID
 
 
 @on_fullmatch(
@@ -22,14 +21,14 @@ from suggar_utils.value import SUGGAR_VALUE_ID
     ),
 ).handle()
 async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
-    fun_data = get_fun_data(str(event.user_id))
     economy_data = await get_or_create_account(str(event.user_id))
     love_data = await get_or_create_account(str(event.user_id), SUGGAR_VALUE_ID)
+    exp_data = await get_or_create_account(str(event.user_id), SUGGAR_EXP_ID)
     await matcher.finish(
         MessageSegment.at(event.user_id)
         + MessageSegment.text(
             "\n喵呜～你好呀人类！"
-            + f"\n你的经验值：{fun_data.exp}"
+            + f"\n你的经验值：{int(exp_data.balance)}"
             + f"\n好感值：{int(love_data.balance)}"
             + f"\n货币：{economy_data.balance}点"
         )

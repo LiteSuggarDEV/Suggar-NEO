@@ -1,34 +1,16 @@
+import math
 import random
 from datetime import datetime
 
-from nonebot import get_driver, on_fullmatch
+from nonebot import on_fullmatch
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment
 from nonebot.matcher import Matcher
-from nonebot_plugin_value import CurrencyData
 from nonebot_plugin_value.api.api_balance import add_balance, get_or_create_account
-from nonebot_plugin_value.api.api_currency import (
-    create_currency,
-    get_currency,
-)
 
 from src.plugins.menu.models import MatcherData
-from suggar_utils.store import DATA_DIR, get_fun_data, save_fun_data
+from suggar_utils.store import get_fun_data, save_fun_data
 from suggar_utils.utils import is_same_day
-from suggar_utils.value import SUGGAR_VALUE_ID
-
-
-@get_driver().on_startup
-async def startup():
-    DATA_DIR.mkdir(exist_ok=True)
-
-    love_meta = CurrencyData(
-        id=SUGGAR_VALUE_ID,
-        allow_negative=True,
-        display_name="points",
-        symbol="❤️",
-    )
-    if await get_currency(SUGGAR_VALUE_ID) is None:
-        await create_currency(love_meta)
+from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID
 
 
 @on_fullmatch(
@@ -46,13 +28,14 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
 
     economy_data = await get_or_create_account(str(event.user_id))
     love_data = await get_or_create_account(str(event.user_id), SUGGAR_VALUE_ID)
-
+    exp_data = await get_or_create_account(str(event.user_id), SUGGAR_EXP_ID)
     if is_same_day(int(fun_data.last_daily), int(datetime.now().timestamp())):
         await matcher.finish(
             MessageSegment.at(event.user_id)
             + MessageSegment.text(
                 "今天已经签到过了喵～\n"
-                + f"\n你的经验值：{fun_data.exp}"
+                + f"\n你的经验值：{int(exp_data.balance)}"
+                + f"\n等级：{int(math.sqrt(exp_data.balance))}"
                 + f"\n好感值：{int(love_data.balance)}"
                 + f"\n货币：{economy_data.balance}点"
             )
@@ -60,11 +43,11 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
     love = random.randint(1, 10)
     coin = random.randint(1, 100)
     exp = random.randint(1, 50)
-    fun_data.exp += exp
     fun_data.daily_count += 1
     fun_data.last_daily = datetime.now().timestamp()
     await add_balance(str(event.user_id), coin, "签到")
     await add_balance(str(event.user_id), love, "签到", SUGGAR_VALUE_ID)
+    await add_balance(str(event.user_id), exp, "签到", SUGGAR_EXP_ID)
     formatted_datetime = datetime.fromtimestamp(int(fun_data.last_daily)).strftime(
         "%Y-%m-%d %H:%M:%S"
     )

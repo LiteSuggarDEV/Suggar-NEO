@@ -26,7 +26,7 @@ async def get_love_points(uid: int) -> str:
 
 async def change_love_points(user_id: int | str, points: int) -> str:
     before = (await get_or_create_account(str(user_id), SUGGAR_VALUE_ID)).balance
-    logger.debug(f"调起了tool，尝试把{user_id}做{points}的变化！")
+    logger.debug(f"调起了tool，尝试把{user_id}的好感度做{points}的变化！")
     if abs(points) > 10:
         return json.dumps(
             {
@@ -37,9 +37,9 @@ async def change_love_points(user_id: int | str, points: int) -> str:
         )
 
     if points > 0:
-        await add_balance(str(user_id), points, SUGGAR_VALUE_ID)
+        await add_balance(str(user_id), points, "Chat", SUGGAR_VALUE_ID)
     else:
-        await del_balance(str(user_id), abs(points), SUGGAR_VALUE_ID)
+        await del_balance(str(user_id), points, "Chat", SUGGAR_VALUE_ID)
     return json.dumps(
         {
             "now_love_points": before + points,
@@ -54,7 +54,7 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "change_love_points",
-            "description": "描述：添加你对这一位用户的好感度",
+            "description": "描述：添加或减少你对这一位用户的好感度",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -71,7 +71,7 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "get_love_points",
-            "description": "获取你对这一位用户的好感度",
+            "description": "（必须获取，即使用户没有要求你）获取你对这一位用户的好感度",
             "parameters": {
                 "type": "object",
                 "properties": {},

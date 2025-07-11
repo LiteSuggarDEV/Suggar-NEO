@@ -11,7 +11,6 @@ CONFIG_DIR = get_config_dir("suggar_original")
 
 class UserData(BaseModel):
     daily_count: int = Field(default=0, description="签到次数")
-    exp: int = Field(default=0, description="经验")
     last_daily: float = Field(default_factory=float, description="上次签到时间")
     bag: list = Field(default_factory=list, description="背包")
 

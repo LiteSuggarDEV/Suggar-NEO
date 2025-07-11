@@ -1,12 +1,15 @@
 import json
+import random
 from copy import deepcopy
 
 from nonebot.adapters.onebot.v11 import MessageEvent
 from nonebot.log import logger
 from nonebot_plugin_suggarchat.event import BeforeChatEvent
 from nonebot_plugin_suggarchat.on_event import on_before_chat
+from nonebot_plugin_value.api.api_balance import add_balance
 
 from suggar_utils.config import ConfigManager
+from suggar_utils.value import SUGGAR_EXP_ID
 
 from .utils import TOOLS, change_love_points, get_love_points, tools_caller
 
@@ -52,3 +55,9 @@ async def love_handler(event: BeforeChatEvent) -> None:
     except Exception as e:
         logger.opt(exception=e).exception("ERROR!调用Tools失败！正在回滚消息......")
         msg_chat_list = chat_list_backup
+    finally:
+        exp = random.randint(1, 25)
+        coin = random.randint(1, 10)
+        await add_balance(str(nonebot_event.user_id), exp, "聊天", SUGGAR_EXP_ID)
+        await add_balance(str(nonebot_event.user_id), coin, "聊天")
+        logger.debug(f"用户{nonebot_event.user_id}获得{exp}经验值和{coin}金币")
