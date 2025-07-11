@@ -11,7 +11,13 @@ from nonebot_plugin_value.api.api_balance import (
 )
 from openai.types.chat.chat_completion_message import ChatCompletionMessage
 
+from suggar_utils.utils import send_to_admin
 from suggar_utils.value import SUGGAR_VALUE_ID
+
+
+async def report(uid: int, message: str) -> str:
+    await send_to_admin(f"用户{uid}被LLM指控\n{message}")
+    return "已向ADMIN举报！"
 
 
 async def get_love_points(uid: int) -> str:
@@ -74,8 +80,25 @@ TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "report",
+            "description": "如果你被**恶言相向**，请使用这个工具来向管理员举报！",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "string",
+                        "description": "求助信息（请包含用户ID，昵称，你要举报的内容）e.g. 12345678 QQ用户 <举报内容/理由>",
+                    },
+                },
+                "required": ["content"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "decrease_love_points",
-            "description": "（仅在好感度增加时必须调用）降低你对这一位用户的好感度记录值",
+            "description": "随着你的情绪变化时**立即**调用，且仅在好感度**降低**时必须调用。该工具降低你对这一位用户的好感度记录值",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -92,7 +115,7 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "add_love_points",
-            "description": "（仅在好感度增加时必须调用）描述：增加你对这一位用户的好感度记录值",
+            "description": "随着你的情绪变化时**立即**调用，且仅在好感度**增加**时必须调用。该工具降低你对这一位用户的好感度记录值",
             "parameters": {
                 "type": "object",
                 "properties": {

@@ -16,6 +16,7 @@ from .utils import (
     add_love_points,
     decrease_love_points,
     get_love_points,
+    report,
     tools_caller,
 )
 
@@ -33,7 +34,8 @@ async def love_handler(event: BeforeChatEvent) -> None:
     chat_list_backup = deepcopy(msg_chat_list)
     try:
         response_msg = await tools_caller(
-            [deepcopy(event.get_send_message().copy())[-1]], TOOLS
+            [deepcopy(msg_chat_list[0]), deepcopy(event.get_send_message().copy())[-1]],
+            TOOLS,
         )
         tool_calls = response_msg.tool_calls
         if tool_calls:
@@ -54,7 +56,11 @@ async def love_handler(event: BeforeChatEvent) -> None:
                             nonebot_event.user_id,
                             function_args.get("delta_love_points", 0),
                         )
-
+                    case "report":
+                        func_response = await report(
+                            nonebot_event.user_id,
+                            function_args.get("content", ""),
+                        )
                 msg_chat_list.append(
                     {
                         "tool_call_id": tool_call.id,
