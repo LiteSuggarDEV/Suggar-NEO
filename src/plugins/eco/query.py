@@ -1,4 +1,4 @@
-from nonebot import on_fullmatch, on_startswith
+from nonebot import on_fullmatch, on_command
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupMessageEvent,
@@ -17,7 +17,7 @@ from suggar_utils.config import ConfigManager
 from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID
 
 
-@on_startswith(
+@on_command(
     "查询",
     block=True,
     state=dict(
