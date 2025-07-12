@@ -39,7 +39,7 @@ CHANGE_LOVE_POINTS_TOOL = ToolFunctionSchema(
     type="function",
     function=FunctionDefinitionSchema(
         name="change_love_points",
-        description="随着你的好感度变化时**立即**调用。该用于增加或降低你对这一位用户的好感度",
+        description="增加或者降低好感度，心情改变时必须使用",
         parameters=FunctionParametersSchema(
             properties={
                 "delta_love_points": FunctionPropertySchema(
@@ -96,9 +96,9 @@ async def change_love_points(user_id: int | str, points: int) -> str:
     if abs(points) > 10:
         return json.dumps(
             {
-                "now_love_points": before,
-                "change_points": 0,
-                "message": "不行！不能改变这么多的好感度！",
+                "现在的好感度": before,
+                "改变值": 0,
+                "说明": "不行！不能改变这么多的好感度！",
             },
         )
     if points > 0:
@@ -108,17 +108,17 @@ async def change_love_points(user_id: int | str, points: int) -> str:
     else:
         return json.dumps(
             {
-                "now_love_points": before,
-                "change_points": 0,
-                "message": "好感度没有发生变化哦！",
+                "现在的好感度": before,
+                "改变值": 0,
+                "说明": "好感度没有发生变化哦！",
             }
         )
 
     return json.dumps(
         {
-            "now_love_points": before + points,
-            "change_points": points,
-            "message": "好感度成功记住啦！",
+            "现在的好感度": before + points,
+            "改变值": points,
+            "说明": "好感度成功记住啦！",
         },
     )
 
@@ -146,7 +146,7 @@ async def tools_caller(
         model=model,
         messages=messages,
         stream=False,
-        tool_choice="required",
+        tool_choice="auto",
         tools=tools,
     )
     return completion.choices[0].message
