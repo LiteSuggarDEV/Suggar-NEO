@@ -31,7 +31,7 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
         economy_data = await get_or_create_account(str(event.user_id))
         love_data = await get_or_create_account(str(event.user_id), SUGGAR_VALUE_ID)
         exp_data = await get_or_create_account(str(event.user_id), SUGGAR_EXP_ID)
-        if is_same_day(int(fun_data.last_daily), int(datetime.now().timestamp())):
+        if is_same_day(int(fun_data.last_daily.timestamp()), int(datetime.now().timestamp())):
             await matcher.finish(
                 MessageSegment.at(event.user_id)
                 + MessageSegment.text(
