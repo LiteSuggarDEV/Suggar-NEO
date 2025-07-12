@@ -29,7 +29,10 @@ async def get_or_create_user_model(user_id: str, session: AsyncSession) -> UserM
         if (data := result.scalar_one_or_none()) is not None:
             return data
         else:
-            user = UserModel(user_id=user_id, last_daily=0.0, daily_count=0)
+            user = UserModel(
+                user_id=user_id, last_daily=datetime.fromtimestamp(0.0), daily_count=0
+            )
+
             session.add(user)
             await session.commit()
             return user

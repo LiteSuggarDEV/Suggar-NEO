@@ -27,17 +27,10 @@ from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID
 async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
     async with get_session() as session:
         fun_data = await get_or_create_user_model(str(event.user_id), session)
+        session.add(fun_data)
         economy_data = await get_or_create_account(str(event.user_id))
         love_data = await get_or_create_account(str(event.user_id), SUGGAR_VALUE_ID)
         exp_data = await get_or_create_account(str(event.user_id), SUGGAR_EXP_ID)
-        session.add_all(
-            (
-                fun_data,
-                economy_data,
-                love_data,
-                exp_data,
-            )
-        )
         if is_same_day(
             int(fun_data.last_daily.timestamp()), int(datetime.now().timestamp())
         ):
