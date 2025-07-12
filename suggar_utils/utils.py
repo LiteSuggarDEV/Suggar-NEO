@@ -108,7 +108,9 @@ async def send_forward_msg(
             group_id=event.group_id, messages=messages
         )
     return await bot.send_private_forward_msg(user_id=event.user_id, messages=messages)
-def is_same_day(timestamp1:int, timestamp2:int) -> bool:
+
+
+def is_same_day(timestamp1: int, timestamp2: int) -> bool:
     # 将时间戳转换为datetime对象，并只保留日期部分
     date1 = datetime.fromtimestamp(timestamp1).date()
     date2 = datetime.fromtimestamp(timestamp2).date()

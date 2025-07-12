@@ -4,12 +4,11 @@ import asyncio
 from typing import cast
 
 from alembic import context
-from sqlalchemy import Connection
-from sqlalchemy.util import await_only
-from sqlalchemy.ext.asyncio import AsyncEngine
-
-from nonebot_plugin_orm.env import no_drop_table
 from nonebot_plugin_orm import AlembicConfig, plugin_config
+from nonebot_plugin_orm.env import no_drop_table
+from sqlalchemy import Connection
+from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.util import await_only
 
 # Alembic Config 对象, 它提供正在使用的 .ini 文件中的值.
 config = cast(AlembicConfig, context.config)

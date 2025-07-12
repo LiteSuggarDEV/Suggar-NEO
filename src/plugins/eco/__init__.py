@@ -6,6 +6,7 @@ from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID
 from . import query, signin
 
 require("nonebot_plugin_value")
+require("nonebot_plugin_orm")
 require("menu")
 
 from nonebot_plugin_value.api.api_currency import get_or_create_currency

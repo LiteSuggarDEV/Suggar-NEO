@@ -213,3 +213,6 @@ data.db
 data/
 logs/
 config/
+
+# UV
+uv.toml

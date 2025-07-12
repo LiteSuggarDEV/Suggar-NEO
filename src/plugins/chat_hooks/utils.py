@@ -2,6 +2,7 @@ import json
 
 import openai
 from nonebot import logger
+from nonebot.adapters.onebot.v11 import GroupMessageEvent, MessageEvent
 from nonebot_plugin_suggarchat.API import config_manager
 from nonebot_plugin_suggarchat.utils import ChatCompletion
 from nonebot_plugin_value.api.api_balance import (
@@ -14,9 +15,68 @@ from openai.types.chat.chat_completion_message import ChatCompletionMessage
 from suggar_utils.utils import send_to_admin
 from suggar_utils.value import SUGGAR_VALUE_ID
 
+from .models import (
+    FunctionDefinitionSchema,
+    FunctionParametersSchema,
+    FunctionPropertySchema,
+    ToolFunctionSchema,
+)
 
-async def report(uid: int, message: str) -> str:
-    await send_to_admin(f"用户{uid}被LLM指控\n{message}")
+LOVE_POINTS_TOOL = ToolFunctionSchema(
+    type="function",
+    function=FunctionDefinitionSchema(
+        name="get_love_points",
+        description="（必须获取，即使用户没有要求你）获取你对这一位用户的好感度",
+        parameters=FunctionParametersSchema(
+            properties={},
+            required=[],
+            type="object",
+        ),
+    ),
+)
+
+CHANGE_LOVE_POINTS_TOOL = ToolFunctionSchema(
+    type="function",
+    function=FunctionDefinitionSchema(
+        name="change_love_points",
+        description="随着你的好感度变化时**立即**调用。该用于增加或降低你对这一位用户的好感度",
+        parameters=FunctionParametersSchema(
+            properties={
+                "delta_love_points": FunctionPropertySchema(
+                    description="增加或减少你对这一位用户的好感度多少？（输入整数，取值范围：-10<=好感度<=10）增加示例：5;减少示例：-5",
+                    type="integer",
+                ),
+            },
+            required=["delta_love_points"],
+            type="object",
+        ),
+    ),
+)
+
+
+REPORT_TOOL = ToolFunctionSchema(
+    type="function",
+    function=FunctionDefinitionSchema(
+        description="如果你被**恶言相向**(必须是明确并且严重的色情/暴力/谩骂/政治等不良内容)，请使用这个工具来向管理员举报！",
+        name="report",
+        parameters=FunctionParametersSchema(
+            properties={
+                "content": FunctionPropertySchema(
+                    description="举报信息（你要举报的内容）e.g. 举报内容/理由",
+                    type="string",
+                ),
+            },
+            required=["content"],
+            type="object",
+        ),
+    ),
+)
+
+
+async def report(event: MessageEvent, message: str) -> str:
+    await send_to_admin(
+        f"{'群' + str(event.group_id) if isinstance(event, GroupMessageEvent) else ''}用户{event.get_user_id()}被举报\n因为：{message}"
+    )
     return "已向ADMIN举报！"
 
 
@@ -61,56 +121,6 @@ async def change_love_points(user_id: int | str, points: int) -> str:
             "message": "好感度成功记住啦！",
         },
     )
-
-
-TOOLS = [
-    {
-        "type": "function",
-        "function": {
-            "name": "report",
-            "description": "如果你被**恶言相向**(必须是明确并且严重的色情/暴力/谩骂/政治等不良内容)，请使用这个工具来向管理员举报！",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "content": {
-                        "type": "string",
-                        "description": "求助信息（请包含用户ID，昵称，你要举报的内容）e.g. 12345678 <昵称> <举报内容/理由>",
-                    },
-                },
-                "required": ["content"],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "change_love_points",
-            "description": "随着你的好感度变化时**立即**调用。该用于增加或降低你对这一位用户的好感度",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "delta_love_points": {
-                        "type": "integer",
-                        "description": "增加或减少你对这一位用户的好感度多少？（输入整数，取值范围：-10<=好感度<=10）示例1：5;示例2：-5",
-                    }
-                },
-                "required": ["delta_love_points"],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "get_love_points",
-            "description": "（必须获取，即使用户没有要求你）获取你对这一位用户的好感度",
-            "parameters": {
-                "type": "object",
-                "properties": {},
-                "required": [],
-            },
-        },
-    },
-]
 
 
 async def tools_caller(
@@ -162,10 +172,10 @@ def enforce_memory_limit(data: list):
             message["content"] = message_text
 
     # Enforce memory length limit
-    while len(data) >= 1:
+    while len(data) >= 2:
         if data[1]["role"] == "tool":
             del data[1]
         else:
             break
-    while (len(data) > memory_length_limit) and len(data) > 1:
+    while (len(data) > memory_length_limit) and len(data) > 2:
         del data[1]

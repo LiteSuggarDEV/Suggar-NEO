@@ -52,10 +52,10 @@ async def run(matcher: Matcher, event: MessageEvent):
     bucket = data[ins_id]
     if not bucket.consume():
         too_fast_reply = (
-           "请求太快啦！",
-           "停停停等下！",
-           "什么？我没听清欸！",
-           "太快了啦！qwq让我缓缓啦！",
+            "请求太快啦！",
+            "停停停等下！",
+            "什么？我没听清欸！",
+            "太快了啦！qwq让我缓缓啦！",
         )
 
         with contextlib.suppress(Exception):

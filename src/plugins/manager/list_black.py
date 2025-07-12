@@ -10,7 +10,7 @@ black_list = on_command(
     "黑名单",
     aliases={"blacklist"},
     state=MatcherData(
-        rm_name="列出黑名单", rm_desc="用于列出黑名单", rm_usage="blacklist"
+        rm_name="列出黑名单", rm_desc="用于列出黑名单", rm_usage="/blacklist"
     ).model_dump(),
     permission=is_global_admin,
 )

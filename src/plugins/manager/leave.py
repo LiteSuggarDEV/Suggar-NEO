@@ -14,7 +14,7 @@ from suggar_utils.utils import send_to_admin
     state=MatcherData(
         rm_name="退出指定聊群",
         rm_desc="用于退出聊群",
-        rm_usage="set_leave [<group-id>|--this]",
+        rm_usage="/set_leave [<group-id>|--this]",
     ).model_dump(),
 ).handle()
 async def leave(

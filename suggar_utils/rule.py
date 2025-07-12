@@ -8,4 +8,3 @@ async def is_global_admin(event: UserIDEvent) -> bool:
 
 async def check_global_admin(user_id: int) -> bool:
     return user_id in ConfigManager.instance().config.admins
-

@@ -11,13 +11,13 @@ pardon = CommandGroup("pardon", permission=is_global_admin)
 pardon_group = pardon.command(
     "group",
     state=MatcherData(
-        rm_name="解封群组", rm_desc="用于解封群", rm_usage="pardon-group <group-id>"
+        rm_name="解封群组", rm_desc="用于解封群", rm_usage="/pardon.group <group-id>"
     ).model_dump(),
 )
 pardon_user = pardon.command(
     "user",
     state=MatcherData(
-        rm_name="解封用户", rm_desc="用于解封用户", rm_usage="pardon-user <user-id>"
+        rm_name="解封用户", rm_desc="用于解封用户", rm_usage="/pardon.user <user-id>"
     ).model_dump(),
 )
 

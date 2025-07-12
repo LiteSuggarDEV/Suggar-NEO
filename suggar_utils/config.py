@@ -12,6 +12,11 @@ from watchfiles import awatch
 from .store import CONFIG_DIR
 
 
+class LLMTools(BaseModel):
+    enable_change_love_points: bool = True
+    enable_report: bool = True
+
+
 class Config(BaseModel):
     tools_calling: bool = True
     rate_limit: int = 3
@@ -21,6 +26,7 @@ class Config(BaseModel):
     admins: list[int] = [
         3196373166,
     ]
+    llm_tools: LLMTools = LLMTools()
 
 
 @dataclass

@@ -34,6 +34,7 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
         )
     )
 
+
 @on_fullmatch(
     "余额",
     state=dict(

@@ -12,7 +12,9 @@ from suggar_utils.config import ConfigManager
 from suggar_utils.value import SUGGAR_EXP_ID
 
 from .utils import (
-    TOOLS,
+    CHANGE_LOVE_POINTS_TOOL,
+    LOVE_POINTS_TOOL,
+    REPORT_TOOL,
     change_love_points,
     enforce_memory_limit,
     get_love_points,
@@ -25,7 +27,8 @@ chat = on_before_chat()
 
 @chat.handle()  # type: ignore
 async def love_handler(event: BeforeChatEvent) -> None:
-    if not ConfigManager.instance().get_config().tools_calling:
+    config = ConfigManager.instance().get_config()
+    if not config.tools_calling:
         return
     nonebot_event = event.get_nonebot_event()
     if not isinstance(nonebot_event, MessageEvent):
@@ -37,12 +40,17 @@ async def love_handler(event: BeforeChatEvent) -> None:
     )  # 预处理，替换掉SuggarChat的enforce_memory_limit
 
     try:
+        tools = [LOVE_POINTS_TOOL.model_dump()]
+        if config.llm_tools.enable_change_love_points:
+            tools.append(CHANGE_LOVE_POINTS_TOOL.model_dump())
+        if config.llm_tools.enable_report:
+            tools.append(REPORT_TOOL.model_dump())
         response_msg = await tools_caller(
             [
                 *deepcopy([i for i in msg_chat_list.copy() if i["role"] == "system"]),
                 deepcopy(event.get_send_message().copy())[-1],
             ],
-            TOOLS,
+            tools,
         )
         tool_calls = response_msg.tool_calls
         if tool_calls:
@@ -60,7 +68,7 @@ async def love_handler(event: BeforeChatEvent) -> None:
                         )
                     case "report":
                         func_response = await report(
-                            nonebot_event.user_id,
+                            nonebot_event,
                             function_args.get("content", ""),
                         )
                 msg_chat_list.append(
@@ -77,6 +85,6 @@ async def love_handler(event: BeforeChatEvent) -> None:
     finally:
         exp = float(random.randint(1, 25))
         coin = float(random.randint(1, 10))
-        await add_balance(str(nonebot_event.user_id), exp, "聊天", SUGGAR_EXP_ID)
-        await add_balance(str(nonebot_event.user_id), coin, "聊天")
+        await add_balance(nonebot_event.get_user_id(), exp, "聊天", SUGGAR_EXP_ID)
+        await add_balance(nonebot_event.get_user_id(), coin, "聊天")
         logger.debug(f"用户{nonebot_event.user_id}获得{exp}经验值和{coin}金币")

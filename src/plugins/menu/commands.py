@@ -29,7 +29,7 @@ command_start = get_driver().config.command_start
     state=MatcherData(
         rm_name="Menu",
         rm_desc="展示菜单",
-        rm_usage="menu",
+        rm_usage="/menu",
     ).model_dump(),
 ).handle()
 async def show_menu(matcher: Matcher, bot: Bot, event: MessageEvent):

@@ -1,9 +1,9 @@
 from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent
 
+from src.plugins.menu.models import MatcherData
 from suggar_utils.config import ConfigManager
 from suggar_utils.rule import is_global_admin
-from src.plugins.menu.models import MatcherData
 
 clean_groups = on_command(
     "clean_groups",
@@ -11,7 +11,7 @@ clean_groups = on_command(
     state=MatcherData(
         rm_name="无用群组清理",
         rm_desc="清理人数小于20的无效聊群",
-        rm_usage="clean_groups",
+        rm_usage="/clean_groups",
     ).model_dump(),
 )
 
@@ -33,7 +33,7 @@ async def _(bot: Bot, event: MessageEvent):
             continue
         admins = set(ConfigManager.instance().config.admins)
 
-        if group["member_count"] < 20:
+        if len(members) < 20:
             admin_members = members & admins
             if len(admin_members) > 0:
                 await clean_groups.send(

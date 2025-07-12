@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 @Author   : xy_cloud,JohnRichard4096
 @IDE      : Visual Studio Code
@@ -16,9 +15,9 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 
-def image_to_base64(image: Image) -> bytes: # type: ignore
+def image_to_base64(image: Image) -> bytes:  # type: ignore
     buffer = io.BytesIO()
-    image.save(buffer, format="PNG") # type: ignore
+    image.save(buffer, format="PNG")  # type: ignore
     img_str = base64.b64encode(buffer.getvalue()).decode("utf-8")
     img_bytes = base64.b64decode(img_str)
     return img_bytes
@@ -351,4 +350,4 @@ def get_image(nickname: str) -> bytes:
         fill="#7f7f7f",
         font=Detail_Font,
     )
-    return image_to_base64(img) # type: ignore
+    return image_to_base64(img)  # type: ignore
