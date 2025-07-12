@@ -1,4 +1,4 @@
-from nonebot import on_command, on_fullmatch
+from nonebot import on_fullmatch, on_startswith
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupMessageEvent,
@@ -17,7 +17,7 @@ from suggar_utils.config import ConfigManager
 from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID
 
 
-@on_command(
+@on_startswith(
     "查询",
     block=True,
     state=dict(
@@ -60,7 +60,7 @@ async def _(
     exp_data = await get_or_create_account(str(user_id), SUGGAR_EXP_ID)
     await matcher.finish(
         MessageSegment.text(
-            f"\n喵呜～你好呀人类！\n用户：{user_id!s}"
+            f"喵呜～你好呀人类！\n用户：{user_id!s}"
             + f"\n你的经验值：{int(exp_data.balance)}"
             + f"\n好感值：{int(love_data.balance)}"
             + f"\n货币：{economy_data.balance}点"
