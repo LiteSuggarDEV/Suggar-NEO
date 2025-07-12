@@ -1,4 +1,4 @@
-from nonebot import on_fullmatch, on_command
+from nonebot import get_driver, on_fullmatch, on_startswith
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupMessageEvent,
@@ -16,9 +16,11 @@ from src.plugins.menu.models import MatcherData
 from suggar_utils.config import ConfigManager
 from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID
 
+command_start = get_driver().config.command_start
 
-@on_command(
-    "查询",
+
+@on_startswith(
+    ("查询", *(f"{prefix}查询" for prefix in command_start)),
     block=True,
     state=dict(
         MatcherData(

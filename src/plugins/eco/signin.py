@@ -27,11 +27,20 @@ from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID
 async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
     async with get_session() as session:
         fun_data = await get_or_create_user_model(str(event.user_id), session)
-
         economy_data = await get_or_create_account(str(event.user_id))
         love_data = await get_or_create_account(str(event.user_id), SUGGAR_VALUE_ID)
         exp_data = await get_or_create_account(str(event.user_id), SUGGAR_EXP_ID)
-        if is_same_day(int(fun_data.last_daily.timestamp()), int(datetime.now().timestamp())):
+        session.add_all(
+            (
+                fun_data,
+                economy_data,
+                love_data,
+                exp_data,
+            )
+        )
+        if is_same_day(
+            int(fun_data.last_daily.timestamp()), int(datetime.now().timestamp())
+        ):
             await matcher.finish(
                 MessageSegment.at(event.user_id)
                 + MessageSegment.text(
@@ -46,13 +55,11 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
         coin = float(random.randint(1, 100))
         exp = float(random.randint(1, 50))
         fun_data.daily_count += 1
-        fun_data.last_daily = datetime.now().timestamp()
+        fun_data.last_daily = datetime.now()
         await add_balance(str(event.user_id), coin, "签到")
         await add_balance(str(event.user_id), love, "签到", SUGGAR_VALUE_ID)
         await add_balance(str(event.user_id), exp, "签到", SUGGAR_EXP_ID)
-        formatted_datetime = datetime.fromtimestamp(int(fun_data.last_daily)).strftime(
-            "%Y-%m-%d %H:%M:%S"
-        )
+        formatted_datetime = fun_data.last_daily.strftime("%Y-%m-%d %H:%M:%S")
         await session.commit()
         await matcher.send(
             MessageSegment.at(event.user_id)

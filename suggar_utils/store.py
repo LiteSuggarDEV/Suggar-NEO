@@ -1,6 +1,8 @@
+from datetime import datetime
+
 from nonebot import require
 from nonebot_plugin_orm import AsyncSession, Model
-from sqlalchemy import FLOAT, Integer, String, select
+from sqlalchemy import DateTime, Integer, String, select
 from sqlalchemy.orm import MappedColumn, mapped_column
 
 require("nonebot_plugin_localstore")
@@ -14,7 +16,9 @@ class UserModel(Model):
     __tablename__ = "suggar_user_data"
 
     user_id: MappedColumn[str] = mapped_column(String(50), primary_key=True)
-    last_daily: MappedColumn[float] = mapped_column(FLOAT, default=0.0, nullable=False)
+    last_daily: MappedColumn[datetime] = mapped_column(
+        DateTime, default=0.0, nullable=False
+    )
     daily_count: MappedColumn[int] = mapped_column(Integer, default=0, nullable=False)
 
 
