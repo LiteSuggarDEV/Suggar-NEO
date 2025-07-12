@@ -10,7 +10,7 @@ dependencies = [
     "nonebot-plugin-localstore>=0.7.4",
     "nonebot-plugin-orm>=0.8.1",
     "nonebot-plugin-suggarchat>=2.4.7",
-    "nonebot-plugin-value>=0.0.7",
+    "nonebot-plugin-value>=0.0.8",
     "nonebot2[fastapi]>=2.4.2",
     "openai>=1.95.0",
     "pillow>=11.3.0",
@@ -63,6 +63,10 @@ ignore = [
 
 [tool.pyright]
 typeCheckingMode = "basic"
+
+[[tool.uv.index]]
+url = "https://pypi.org/simple"
+default = true
 
 [dependency-groups]
 dev = []
