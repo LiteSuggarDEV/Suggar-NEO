@@ -62,13 +62,15 @@ async def love_handler(event: BeforeChatEvent) -> None:
             for tool_call in tool_calls:
                 function_name = tool_call.function.name
                 function_args: dict = json.loads(tool_call.function.arguments)
+                logger.debug(f"函数参数为{tool_call.function.arguments}")
+                logger.debug(f"正在调用函数{function_name}")
                 match function_name:
                     case "get_love_points":
                         func_response = await get_love_points(nonebot_event.user_id)
                     case "change_love_points":
                         func_response = await change_love_points(
                             nonebot_event.user_id,
-                            int(function_args.get("delta_love_points", 0)),
+                            int(function_args.get("delta", 0)),
                         )
                     case "report":
                         func_response = await report(
@@ -76,6 +78,10 @@ async def love_handler(event: BeforeChatEvent) -> None:
                             function_args.get("content", ""),
                             bot,
                         )
+                    case _:
+                        logger.warning(f"未定义的函数：{function_name}")
+                        continue
+                logger.debug(f"函数{function_name}返回：{func_response}")
                 event._send_message.append(
                     {
                         "tool_call_id": tool_call.id,
