@@ -10,6 +10,10 @@ from nonebot_plugin_value.api.api_balance import add_balance
 from src.plugins.nonebot_plugin_suggarchat.API import Chat
 from src.plugins.nonebot_plugin_suggarchat.event import BeforeChatEvent
 from src.plugins.nonebot_plugin_suggarchat.on_event import on_before_chat
+from src.plugins.nonebot_plugin_suggarchat.utils import (
+    get_memory_data,
+    write_memory_data,
+)
 from suggar_utils.config import ConfigManager
 from suggar_utils.value import SUGGAR_EXP_ID
 
@@ -103,5 +107,9 @@ async def love_handler(event: BeforeChatEvent) -> None:
         await add_balance(nonebot_event.get_user_id(), coin, "聊天")
         logger.debug(f"用户{nonebot_event.user_id}获得{exp}经验值和{coin}金币")
     response = await Chat().get_msg_on_list(msg_list)
+    msg_list.append({"role": "assistant", "content": response})
     await send_response(nonebot_event, bot, response)
+    data = await get_memory_data(nonebot_event)
+    data["memory"]["messages"] = msg_list
+    await write_memory_data(nonebot_event, data)
     chat.cancel()

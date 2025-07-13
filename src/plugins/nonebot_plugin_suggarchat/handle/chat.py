@@ -142,7 +142,7 @@ async def chat(event: MessageEvent, matcher: Matcher, bot: Bot):
                 "content": str(response),
             }
         )
-        await send_response(event, response)  # type: ignore
+        await send_response(event, response)
 
         # 写入记忆数据
         await write_memory_data(event, group_data)
@@ -223,7 +223,7 @@ async def chat(event: MessageEvent, matcher: Matcher, bot: Bot):
                 "content": str(response),
             }
         )
-        await send_response(event, response)  # type: ignore
+        await send_response(event, response)
 
         # 写入记忆数据
         await write_memory_data(event, private_data)
@@ -531,7 +531,7 @@ async def chat(event: MessageEvent, matcher: Matcher, bot: Bot):
             group_data = await get_memory_data(event)
             await handle_group_message(
                 event, matcher, bot, group_data, memory_length_limit, Date
-            )  # type: ignore
+            )
         elif isinstance(event, PrivateMessageEvent):
             private_data = await get_memory_data(event)
             await handle_private_message(

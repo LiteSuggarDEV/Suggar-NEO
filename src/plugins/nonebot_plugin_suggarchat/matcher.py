@@ -4,7 +4,12 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 
 from nonebot import logger
-from nonebot.exception import FinishedException, ProcessException, StopPropagation
+from nonebot.exception import (
+    FinishedException,
+    NoneBotException,
+    ProcessException,
+    StopPropagation,
+)
 
 from .event import SuggarEvent
 from .exception import BlockException, CancelException, PassException
@@ -179,7 +184,7 @@ class SuggarMatcher:
                         except CancelException:
                             logger.info("事件处理已取消。")
                             return
-                        except BlockException as e:
+                        except NoneBotException as e:
                             raise e
                         except Exception:
                             logger.error(
