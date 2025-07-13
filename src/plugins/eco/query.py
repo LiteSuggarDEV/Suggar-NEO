@@ -13,7 +13,7 @@ from nonebot.rule import to_me
 from nonebot_plugin_value.api.api_balance import get_or_create_account
 
 from src.plugins.menu.models import MatcherData
-from suggar_utils.config import ConfigManager
+from suggar_utils.config import config_manager
 from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID
 
 command_start = get_driver().config.command_start
@@ -33,7 +33,7 @@ command_start = get_driver().config.command_start
 async def _(
     bot: Bot, event: MessageEvent, matcher: Matcher, args: Message = CommandArg()
 ):
-    admins = ConfigManager().get_config().admins
+    admins = config_manager.config.admins
     if isinstance(event, PrivateMessageEvent):
         if event.user_id not in admins:
             return

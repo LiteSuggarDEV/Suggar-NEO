@@ -31,36 +31,31 @@ class Config(BaseModel):
 
 class ConfigManager:
     config_path: Path = CONFIG_DIR / "config.yaml"
-    _lock: asyncio.Lock = asyncio.Lock()
-    _instance = None
-    _config: Config
+    _config: Config = Config()
     _task: asyncio.Task
 
-    def __new__(cls) -> "ConfigManager":
-        if cls._instance is not None:
-            return cls._instance
-        else:
-            cls._instance = super().__new__(cls)
+    def __init__(self) -> None:
+        self._config = Config()
+        self._lock = asyncio.Lock()
+        self._load_config_sync()
 
-            cls._instance._load_config_sync()
-            cls._task = asyncio.create_task(cls._instance._watch_config())
-            return cls._instance
-
+    def init_watch(self):
+        self._task = asyncio.create_task(self._watch_config())
     def _load_config_sync(self) -> None:
         logger.info(f"正在加载配置文件: {self.config_path}")
-        if exist := self.config_path.exists():
+        if self.config_path.exists():
             with self.config_path.open("r", encoding="utf-8") as f:
                 self._config = Config.model_validate(yaml.safe_load(f) or {})
         else:
-            self._config = Config()
-        self._save_config_sync(exist)
+            self._save_config_sync()
 
-    def _save_config_sync(self, default: bool = False) -> None:
+    def _save_config_sync(self) -> None:
         with self.config_path.open("w", encoding="utf-8") as f:
-            yaml.safe_dump(
-                (Config() if default else self._config).model_dump(),
-                f,
-                allow_unicode=True,
+            f.write(
+                yaml.safe_dump(
+                    self._config.model_dump(),
+                    allow_unicode=True,
+                )
             )
 
     async def _watch_config(self) -> None:
@@ -114,8 +109,4 @@ class ConfigManager:
             config_dict["admins"] = ["***"]
         return yaml.safe_dump(config_dict, allow_unicode=True)
 
-    @classmethod
-    def instance(cls) -> "ConfigManager":
-        if cls._instance is None:
-            cls._instance = cls()
-        return cls._instance
+config_manager = ConfigManager()

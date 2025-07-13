@@ -16,14 +16,14 @@ from nonebot.rule import (
     StartswithRule,
 )
 
-from suggar_utils.config import ConfigManager
+from suggar_utils.config import config_manager
 from suggar_utils.token_bucket import TokenBucket
 
 watch_group = defaultdict(
-    lambda: TokenBucket(rate=1 / ConfigManager.instance().config.rate_limit, capacity=1)
+    lambda: TokenBucket(rate=1 / config_manager.config.rate_limit, capacity=1)
 )
 watch_user = defaultdict(
-    lambda: TokenBucket(rate=1 / ConfigManager.instance().config.rate_limit, capacity=1)
+    lambda: TokenBucket(rate=1 / config_manager.config.rate_limit, capacity=1)
 )
 
 

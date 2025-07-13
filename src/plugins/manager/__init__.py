@@ -1,7 +1,7 @@
 from nonebot import get_driver
 from nonebot.plugin import PluginMetadata
 
-from suggar_utils.config import ConfigManager
+from suggar_utils.config import config_manager
 
 from . import add, auto_clean, ban, black, leave, list_black, pardon, rate
 
@@ -25,4 +25,4 @@ __all__ = [
 
 @get_driver().on_startup
 async def init():
-    ConfigManager()
+    config_manager.init_watch()
