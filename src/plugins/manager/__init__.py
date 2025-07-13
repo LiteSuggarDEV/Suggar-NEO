@@ -26,4 +26,4 @@ __all__ = [
 
 @get_driver().on_startup
 async def init_config():
-    await ConfigManager().instance().load_config()
+    await ConfigManager().instance().reload_config()
