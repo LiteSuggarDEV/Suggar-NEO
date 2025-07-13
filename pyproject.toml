@@ -5,17 +5,22 @@ description = "猫猫欸！很可爱不是嘛？"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "chardet>=5.2.0",
+    "dotenv>=0.9.9",
+    "jieba>=0.42.1",
     "nonebot-adapter-onebot>=2.4.6",
     "nonebot-plugin-htmlrender>=0.6.6",
     "nonebot-plugin-localstore>=0.7.4",
     "nonebot-plugin-orm>=0.8.1",
-    "nonebot-plugin-suggarchat>=2.4.7",
     "nonebot-plugin-value>=0.0.8",
     "nonebot2[fastapi]>=2.4.2",
     "openai>=1.95.0",
     "pillow>=11.3.0",
     "pip>=25.1.1",
     "psutil>=7.0.0",
+    "pytz>=2025.2",
+    "stubs>=1.0.0",
+    "tomli-w>=1.2.0",
 ]
 
 [tool.nonebot]
@@ -26,7 +31,6 @@ plugins = [
     "nonebot_plugin_orm",
     "nonebot_plugin_localstore",
     "nonebot_plugin_value",
-    "nonebot_plugin_suggarchat",
     "nonebot_plugin_htmlrender",
 ]
 plugin_dirs = ["src/plugins"]

@@ -5,10 +5,10 @@ from copy import deepcopy
 from nonebot import get_bot
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent
 from nonebot.log import logger
-from nonebot_plugin_suggarchat.event import BeforeChatEvent
-from nonebot_plugin_suggarchat.on_event import on_before_chat
 from nonebot_plugin_value.api.api_balance import add_balance
 
+from src.plugins.nonebot_plugin_suggarchat.event import BeforeChatEvent
+from src.plugins.nonebot_plugin_suggarchat.on_event import on_before_chat
 from suggar_utils.config import ConfigManager
 from suggar_utils.value import SUGGAR_EXP_ID
 

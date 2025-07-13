@@ -1,4 +1,4 @@
-from nonebot import get_driver
+from nonebot import get_driver, logger
 from nonebot.plugin import PluginMetadata
 
 from suggar_utils.config import ConfigManager
@@ -23,8 +23,7 @@ __all__ = [
     "rate",
 ]
 
-
 @get_driver().on_startup
-async def init_config():
-    await ConfigManager().instance().reload_config()
-    await ConfigManager().instance().save_config()
+async def init():
+    logger.info("Initializing ConfigManager......")
+    ConfigManager()

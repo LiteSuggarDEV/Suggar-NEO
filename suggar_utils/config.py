@@ -47,8 +47,7 @@ class ConfigManager:
         if self.config_path.exists():
             with self.config_path.open("r", encoding="utf-8") as f:
                 self._config = Config.model_validate(yaml.safe_load(f) or {})
-        else:
-            self._save_config_sync()
+        self._save_config_sync()
 
     def _save_config_sync(self) -> None:
         with self.config_path.open("w", encoding="utf-8") as f:

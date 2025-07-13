@@ -8,8 +8,6 @@ from nonebot.adapters.onebot.v11 import (
     MessageEvent,
     MessageSegment,
 )
-from nonebot_plugin_suggarchat.API import config_manager
-from nonebot_plugin_suggarchat.utils import ChatCompletion
 from nonebot_plugin_value.api.api_balance import (
     add_balance,
     del_balance,
@@ -20,6 +18,8 @@ from openai.types.chat.chat_completion_tool_choice_option_param import (
     ChatCompletionToolChoiceOptionParam,
 )
 
+from src.plugins.nonebot_plugin_suggarchat.API import config_manager
+from src.plugins.nonebot_plugin_suggarchat.utils import ChatCompletion
 from suggar_utils.utils import send_forward_msg_to_admin
 from suggar_utils.value import SUGGAR_VALUE_ID
 
