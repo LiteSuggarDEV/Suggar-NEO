@@ -7,6 +7,7 @@ from nonebot.adapters.onebot.v11 import Bot, MessageEvent
 from nonebot.log import logger
 from nonebot_plugin_value.api.api_balance import add_balance
 
+from src.plugins.nonebot_plugin_suggarchat.API import Chat
 from src.plugins.nonebot_plugin_suggarchat.event import BeforeChatEvent
 from src.plugins.nonebot_plugin_suggarchat.on_event import on_before_chat
 from suggar_utils.config import ConfigManager
@@ -20,6 +21,7 @@ from .utils import (
     enforce_memory_limit,
     get_love_points,
     report,
+    send_response,
     tools_caller,
 )
 
@@ -37,11 +39,10 @@ async def love_handler(event: BeforeChatEvent) -> None:
 
     bot = get_bot(str(nonebot_event.self_id))
     assert isinstance(bot, Bot), "bot is not ~.onebot.v11.Bot!"
-    logger.debug(str(event._send_message))
+    msg_list = event._send_message
+    logger.debug(str(msg_list))
     chat_list_backup = deepcopy(event.message.copy())
-    enforce_memory_limit(
-        event._send_message
-    )  # 预处理，替换掉SuggarChat的enforce_memory_limit
+    enforce_memory_limit(msg_list)  # 预处理，替换掉SuggarChat的enforce_memory_limit
 
     try:
         tools = [LOVE_POINTS_TOOL.model_dump()]
@@ -57,7 +58,7 @@ async def love_handler(event: BeforeChatEvent) -> None:
         )
         tool_calls = response_msg.tool_calls
         if tool_calls:
-            event._send_message.append(dict(response_msg))
+            msg_list.append(dict(response_msg))
             for tool_call in tool_calls:
                 function_name = tool_call.function.name
                 function_args: dict = json.loads(tool_call.function.arguments)
@@ -88,15 +89,19 @@ async def love_handler(event: BeforeChatEvent) -> None:
                     "content": func_response,
                 }
                 logger.debug(msg)
-                event._send_message.append(msg)
+                logger.debug(msg_list)
+                msg_list.append(msg)
     except Exception as e:
         logger.opt(colors=True, exception=e).exception(
             f"ERROR\n{e!s}\n!调用Tools失败！正在回滚消息......"
         )
-        event._send_message = chat_list_backup
+        msg_list = chat_list_backup
     finally:
         exp = float(random.randint(1, 25))
         coin = float(random.randint(1, 10))
         await add_balance(nonebot_event.get_user_id(), exp, "聊天", SUGGAR_EXP_ID)
         await add_balance(nonebot_event.get_user_id(), coin, "聊天")
         logger.debug(f"用户{nonebot_event.user_id}获得{exp}经验值和{coin}金币")
+    response = await Chat().get_msg_on_list(msg_list)
+    await send_response(nonebot_event, bot, response)
+    chat.cancel()

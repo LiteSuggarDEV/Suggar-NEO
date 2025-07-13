@@ -1,4 +1,6 @@
+import asyncio
 import json
+import random
 
 import openai
 from nonebot import logger
@@ -19,7 +21,10 @@ from openai.types.chat.chat_completion_tool_choice_option_param import (
 )
 
 from src.plugins.nonebot_plugin_suggarchat.API import config_manager
-from src.plugins.nonebot_plugin_suggarchat.utils import ChatCompletion
+from src.plugins.nonebot_plugin_suggarchat.utils import (
+    ChatCompletion,
+    split_message_into_chats,
+)
 from suggar_utils.utils import send_forward_msg_to_admin
 from suggar_utils.value import SUGGAR_VALUE_ID
 
@@ -184,3 +189,20 @@ def enforce_memory_limit(data: list):
             break
     while (len(data) > memory_length_limit) and len(data) > 2:
         del data[1]
+
+
+async def send_response(event: MessageEvent, bot: Bot, response: str):
+    """
+    发送聊天模型的回复，根据配置选择不同的发送方式。
+    """
+    if not config_manager.config.nature_chat_style:
+        await bot.send(
+            event,
+            MessageSegment.reply(event.message_id) + MessageSegment.text(response),
+        )
+    elif response_list := split_message_into_chats(response):
+        for message in response_list:
+            await bot.send(event, MessageSegment.text(message))
+            await asyncio.sleep(
+                random.randint(1, 3) + (len(message) // random.randint(80, 100))
+            )
