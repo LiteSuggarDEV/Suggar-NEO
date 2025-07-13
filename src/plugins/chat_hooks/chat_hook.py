@@ -15,6 +15,7 @@ from src.plugins.nonebot_plugin_suggarchat.utils import (
     write_memory_data,
 )
 from suggar_utils.config import ConfigManager
+from suggar_utils.utils import send_to_admin
 from suggar_utils.value import SUGGAR_EXP_ID
 
 from .utils import (
@@ -104,6 +105,26 @@ async def love_handler(event: BeforeChatEvent) -> None:
         await add_balance(nonebot_event.get_user_id(), coin, "聊天")
         logger.debug(f"用户{nonebot_event.user_id}获得{exp}经验值和{coin}金币")
     response = await Chat().get_msg_on_list(msg_list)
+    if config.llm_tools.cookie_check:
+        if cookie := config.llm_tools.cookie:
+            if cookie in response:
+                await send_to_admin(
+                    f"WARNING!!!\n[{nonebot_event.get_user_id()}]{'[群' + getattr(nonebot_event, 'group_id', '') + ']' if hasattr(nonebot_event, 'group_id') else ''}提示词可能已经被泄露！！！"
+                    + f"\nCookie:{cookie}"
+                    + f"\n<input>\n{nonebot_event.get_plaintext()}\n</input>"
+                    + f"\n<output>\n{response}\n</output>"
+                )
+                await bot.send(
+                    nonebot_event,
+                    random.choice(
+                        [
+                            "抱歉，我无法满足这个请求哦～",
+                            "嗨，这个问题我不太理解呢，要不换个方式问问？",
+                            "抱歉，这个问题我还在学习中呢",
+                        ]
+                    ),
+                )
+                chat.cancel_nonebot_process()
     msg_list.append({"role": "assistant", "content": response})
     await send_response(nonebot_event, bot, response)
     data = await get_memory_data(nonebot_event)
