@@ -34,28 +34,26 @@ class Config(BaseModel):
 @dataclass
 class ConfigManager:
     config_path: Path = CONFIG_DIR / "config.yaml"
-    _config: Config | None = field(default=None)
+    _config: Config = field(default_factory=Config)
     _lock: asyncio.Lock = field(default_factory=asyncio.Lock, init=False)
     _instance: Optional["ConfigManager"] = field(default=None, init=False, repr=False)
     _watch_task: asyncio.Task | None = field(default=None, init=False, repr=False)
 
     def __post_init__(self):
         self.config_path.parent.mkdir(parents=True, exist_ok=True)
-        if self._config is None:
-            self._load_config_sync()
+        self._load_config_sync()
         self._watch_task = asyncio.create_task(self._watch_config())
 
     def _load_config_sync(self) -> None:
         logger.info(f"正在加载配置文件: {self.config_path}")
         if self.config_path.exists():
             with self.config_path.open("r", encoding="utf-8") as f:
-                self._config = Config.model_validate(yaml.safe_load(f) or {})
-        self._save_config_sync()
+                self._config = config = Config.model_validate(yaml.safe_load(f) or {})
+        self._save_config_sync(config)
 
-    def _save_config_sync(self) -> None:
-        assert self._config is not None
+    def _save_config_sync(self, config: Config) -> None:
         with self.config_path.open("w", encoding="utf-8") as f:
-            yaml.safe_dump(self._config.model_dump(), f, allow_unicode=True)
+            yaml.safe_dump(config.model_dump(), f, allow_unicode=True)
 
     async def _watch_config(self) -> None:
         async for changes in awatch(self.config_path):
@@ -76,20 +74,17 @@ class ConfigManager:
                 self._config = Config.model_validate(yaml.safe_load(content) or {})
 
     async def reload_config(self) -> Config:
-        assert self._config is not None
         await self.load_config()
         logger.info("配置文件已重新加载")
         return self._config
 
     async def save_config(self) -> None:
-        assert self._config is not None
         async with self._lock:
             data = yaml.safe_dump(self._config.model_dump(), allow_unicode=True)
             async with aiofiles.open(self.config_path, "w", encoding="utf-8") as f:
                 await f.write(data)
 
     async def override_config(self, config: Config) -> None:
-        assert self._config is not None
         safe_old = self._safe_dump(self._config)
         safe_new = self._safe_dump(config)
         logger.warning(
@@ -101,12 +96,10 @@ class ConfigManager:
             await self.save_config()
 
     def get_config(self) -> Config:
-        assert self._config is not None
         return self._config
 
     @property
     def config(self) -> Config:
-        assert self._config is not None
         return self._config
 
     @staticmethod
