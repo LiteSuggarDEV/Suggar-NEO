@@ -354,17 +354,17 @@ async def chat(event: MessageEvent, matcher: Matcher, bot: Bot):
             config_manager.config.preset, fix=True
         )
         # Process multimodal messages when needed
-        for message in data["memory"]["messages"]:
-            if (
-                isinstance(message["content"], dict)
-                and not is_multimodal
-                and message["role"] == "user"
-            ):
-                message_text = ""
-                for content_part in message["content"]:
-                    if content_part["type"] == "text":
-                        message_text += content_part["text"]
-                message["content"] = message_text
+        if is_multimodal.multimodal:
+            for message in data["memory"]["messages"]:
+                if (
+                    isinstance(message["content"], dict)
+                    and message["role"] == "user"
+                ):
+                    message_text = ""
+                    for content_part in message["content"]:
+                        if content_part["type"] == "text":
+                            message_text += content_part["text"]
+                    message["content"] = message_text
 
         # Enforce memory length limit
         while (

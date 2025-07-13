@@ -51,7 +51,6 @@ async def love_handler(event: BeforeChatEvent) -> None:
             tools.append(REPORT_TOOL.model_dump())
         response_msg = await tools_caller(
             [
-                *deepcopy([i for i in event.message.copy() if i["role"] == "system"]),
                 deepcopy(event.get_send_message().copy())[-1],
             ],
             tools,
@@ -82,14 +81,14 @@ async def love_handler(event: BeforeChatEvent) -> None:
                         logger.warning(f"未定义的函数：{function_name}")
                         continue
                 logger.debug(f"函数{function_name}返回：{func_response}")
-                event._send_message.append(
-                    {
-                        "tool_call_id": tool_call.id,
-                        "role": "tool",
-                        "name": function_name,
-                        "content": func_response,
-                    }
-                )
+                msg = {
+                    "tool_call_id": tool_call.id,
+                    "role": "tool",
+                    "name": function_name,
+                    "content": func_response,
+                }
+                logger.debug(msg)
+                event._send_message.append(msg)
     except Exception as e:
         logger.opt(colors=True, exception=e).exception(
             f"ERROR\n{e!s}\n!调用Tools失败！正在回滚消息......"
