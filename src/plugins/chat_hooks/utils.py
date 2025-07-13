@@ -109,7 +109,7 @@ async def report(event: MessageEvent, message: str, bot: Bot) -> str:
 async def get_love_points(uid: int) -> str:
     user = await get_or_create_account(str(uid), SUGGAR_VALUE_ID)
     logger.debug(f"调用了tool，{uid}好感度为：{user.balance}")
-    return json.dumps({"success": True, "value": f"{user.balance}"})
+    return json.dumps({"success": True, "message": f"当前好感度：{user.balance}"})
 
 
 async def change_love_points(user_id: int | str, points: int) -> str:

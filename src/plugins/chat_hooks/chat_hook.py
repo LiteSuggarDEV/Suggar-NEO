@@ -44,7 +44,6 @@ async def love_handler(event: BeforeChatEvent) -> None:
     bot = get_bot(str(nonebot_event.self_id))
     assert isinstance(bot, Bot), "bot is not ~.onebot.v11.Bot!"
     msg_list = event._send_message
-    logger.debug(str(msg_list))
     chat_list_backup = deepcopy(event.message.copy())
     enforce_memory_limit(msg_list)  # 预处理，替换掉SuggarChat的enforce_memory_limit
 
@@ -92,8 +91,6 @@ async def love_handler(event: BeforeChatEvent) -> None:
                     "name": function_name,
                     "content": func_response,
                 }
-                logger.debug(msg)
-                logger.debug(msg_list)
                 msg_list.append(msg)
     except Exception as e:
         logger.opt(colors=True, exception=e).exception(
