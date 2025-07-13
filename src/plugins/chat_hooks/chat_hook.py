@@ -14,7 +14,7 @@ from src.plugins.nonebot_plugin_suggarchat.utils import (
     get_memory_data,
     write_memory_data,
 )
-from suggar_utils.config import ConfigManager
+from suggar_utils.config import config_manager
 from suggar_utils.utils import send_to_admin
 from suggar_utils.value import SUGGAR_EXP_ID
 
@@ -35,7 +35,7 @@ chat = on_before_chat()
 
 @chat.handle()  # type: ignore
 async def love_handler(event: BeforeChatEvent) -> None:
-    config = ConfigManager.instance().get_config()
+    config = config_manager.get_config()
     if not config.tools_calling:
         return
     nonebot_event = event.get_nonebot_event()

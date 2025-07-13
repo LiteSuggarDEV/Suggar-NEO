@@ -7,7 +7,7 @@ from nonebot.adapters.onebot.v11 import Bot
 from nonebot.adapters.onebot.v11.event import GroupMessageEvent, MessageEvent
 from nonebot.adapters.onebot.v11.message import MessageSegment
 
-from suggar_utils.config import ConfigManager
+from suggar_utils.config import config_manager
 
 
 async def send_to_admin(message):
@@ -19,7 +19,7 @@ async def send_to_admin(message):
     """
     bot = nonebot.get_bot()
     if isinstance(bot, Bot):
-        for group_id in ConfigManager.instance().config.notify_group:
+        for group_id in config_manager.config.notify_group:
             await bot.send_group_msg(group_id=group_id, message=message)
     logger.info(f"Sending to admin: {message}")
 
@@ -97,7 +97,7 @@ async def send_forward_msg_to_admin(
         return {"type": "node", "data": {"name": name, "uin": uin, "content": msg}}
 
     messages = [to_json(msg) for msg in msgs]
-    message_groups = ConfigManager().get_config().notify_group
+    message_groups = config_manager.get_config().notify_group
     for group in message_groups:
         await bot.send_group_forward_msg(group_id=group, messages=messages)
 
