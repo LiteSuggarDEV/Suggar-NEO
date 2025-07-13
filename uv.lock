@@ -689,31 +689,6 @@ wheels = [
 ]
 
 [[package]]
-name = "nonebot-plugin-suggarchat"
-version = "2.4.7"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "aiofiles" },
-    { name = "chardet" },
-    { name = "dotenv" },
-    { name = "jieba" },
-    { name = "nonebot-adapter-onebot" },
-    { name = "nonebot-plugin-localstore" },
-    { name = "nonebot2" },
-    { name = "openai" },
-    { name = "pydantic" },
-    { name = "pytz" },
-    { name = "stubs" },
-    { name = "tomli" },
-    { name = "tomli-w" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/7c/66/cb2b23e66f2758425d32f7ea7fbc61cb654ff999b79ec6bf8579194ad44d/nonebot_plugin_suggarchat-2.4.7.tar.gz", hash = "sha256:2e9bfe710a41193eb10fc44a9c5f6fa0258918e6c2e069803d2ac640ee53c7c1", size = 47224 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/19/83/5c303b17d60100a7f7f32478e5f50b4cb9f2bbb19227525f182ba1d0929b/nonebot_plugin_suggarchat-2.4.7-py3-none-any.whl", hash = "sha256:be62929c9dd68bb62f29b2305c5e4f6de2f0f3bd35649e879106d4740c6e5782", size = 57705 },
-]
-
-[[package]]
 name = "nonebot-plugin-value"
 version = "0.0.8"
 source = { registry = "https://pypi.org/simple" }
@@ -1315,32 +1290,42 @@ name = "suggar-neo"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "chardet" },
+    { name = "dotenv" },
+    { name = "jieba" },
     { name = "nonebot-adapter-onebot" },
     { name = "nonebot-plugin-htmlrender" },
     { name = "nonebot-plugin-localstore" },
     { name = "nonebot-plugin-orm" },
-    { name = "nonebot-plugin-suggarchat" },
     { name = "nonebot-plugin-value" },
     { name = "nonebot2", extra = ["fastapi"] },
     { name = "openai" },
     { name = "pillow" },
     { name = "pip" },
     { name = "psutil" },
+    { name = "pytz" },
+    { name = "stubs" },
+    { name = "tomli-w" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "chardet", specifier = ">=5.2.0" },
+    { name = "dotenv", specifier = ">=0.9.9" },
+    { name = "jieba", specifier = ">=0.42.1" },
     { name = "nonebot-adapter-onebot", specifier = ">=2.4.6" },
     { name = "nonebot-plugin-htmlrender", specifier = ">=0.6.6" },
     { name = "nonebot-plugin-localstore", specifier = ">=0.7.4" },
     { name = "nonebot-plugin-orm", specifier = ">=0.8.1" },
-    { name = "nonebot-plugin-suggarchat", specifier = ">=2.4.7" },
     { name = "nonebot-plugin-value", specifier = ">=0.0.8" },
     { name = "nonebot2", extras = ["fastapi"], specifier = ">=2.4.2" },
     { name = "openai", specifier = ">=1.95.0" },
     { name = "pillow", specifier = ">=11.3.0" },
     { name = "pip", specifier = ">=25.1.1" },
     { name = "psutil", specifier = ">=7.0.0" },
+    { name = "pytz", specifier = ">=2025.2" },
+    { name = "stubs", specifier = ">=1.0.0" },
+    { name = "tomli-w", specifier = ">=1.2.0" },
 ]
 
 [package.metadata.requires-dev]

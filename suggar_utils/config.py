@@ -1,7 +1,5 @@
 import asyncio
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 import aiofiles
 import yaml
@@ -15,6 +13,8 @@ from .store import CONFIG_DIR
 class LLMTools(BaseModel):
     enable_change_love_points: bool = True
     enable_report: bool = True
+    cookie_check: bool = False
+    cookie: str = ""
 
 
 class Config(BaseModel):
@@ -29,30 +29,39 @@ class Config(BaseModel):
     llm_tools: LLMTools = LLMTools()
 
 
-@dataclass
 class ConfigManager:
     config_path: Path = CONFIG_DIR / "config.yaml"
-    _config: Config = field(default_factory=Config)
-    _lock: asyncio.Lock = field(default_factory=asyncio.Lock, init=False)
-    _instance: Optional["ConfigManager"] = field(default=None, init=False, repr=False)
-    _watch_task: asyncio.Task | None = field(default=None, init=False, repr=False)
+    _lock: asyncio.Lock = asyncio.Lock()
+    _instance = None
+    _config: Config
+    _task: asyncio.Task
 
-    def __post_init__(self):
-        self.config_path.parent.mkdir(parents=True, exist_ok=True)
-        self._load_config_sync()
-        self._watch_task = asyncio.create_task(self._watch_config())
+    def __new__(cls) -> "ConfigManager":
+        if cls._instance is not None:
+            return cls._instance
+        else:
+            cls._instance = super().__new__(cls)
+
+            cls._instance._load_config_sync()
+            cls._task = asyncio.create_task(cls._instance._watch_config())
+            return cls._instance
 
     def _load_config_sync(self) -> None:
         logger.info(f"正在加载配置文件: {self.config_path}")
-        if self.config_path.exists():
+        if exist := self.config_path.exists():
             with self.config_path.open("r", encoding="utf-8") as f:
                 self._config = Config.model_validate(yaml.safe_load(f) or {})
         else:
-            self._save_config_sync()
+            self._config = Config()
+        self._save_config_sync(exist)
 
-    def _save_config_sync(self) -> None:
+    def _save_config_sync(self, default: bool = False) -> None:
         with self.config_path.open("w", encoding="utf-8") as f:
-            yaml.safe_dump(self._config.model_dump(), f, allow_unicode=True)
+            yaml.safe_dump(
+                (Config() if default else self._config).model_dump(),
+                f,
+                allow_unicode=True,
+            )
 
     async def _watch_config(self) -> None:
         async for changes in awatch(self.config_path):
@@ -63,7 +72,7 @@ class ConfigManager:
                 except Exception as e:
                     logger.opt(exception=e).warning("配置文件重载失败")
 
-    async def load_config(self) -> None:
+    async def reload_config(self) -> Config:
         async with self._lock:
             if not self.config_path.exists():
                 await self.save_config()
@@ -71,9 +80,6 @@ class ConfigManager:
                 async with aiofiles.open(self.config_path, encoding="utf-8") as f:
                     content = await f.read()
                 self._config = Config.model_validate(yaml.safe_load(content) or {})
-
-    async def reload_config(self) -> Config:
-        await self.load_config()
         logger.info("配置文件已重新加载")
         return self._config
 
@@ -110,6 +116,6 @@ class ConfigManager:
 
     @classmethod
     def instance(cls) -> "ConfigManager":
-        if not hasattr(cls, "_singleton_instance") or cls._singleton_instance is None:
-            cls._singleton_instance = cls()
-        return cls._singleton_instance
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance

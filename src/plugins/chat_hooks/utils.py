@@ -1,3 +1,7 @@
+import asyncio
+import json
+import random
+
 import openai
 from nonebot import logger
 from nonebot.adapters.onebot.v11 import (
@@ -6,15 +10,21 @@ from nonebot.adapters.onebot.v11 import (
     MessageEvent,
     MessageSegment,
 )
-from nonebot_plugin_suggarchat.API import config_manager
-from nonebot_plugin_suggarchat.utils import ChatCompletion
 from nonebot_plugin_value.api.api_balance import (
     add_balance,
     del_balance,
     get_or_create_account,
 )
 from openai.types.chat.chat_completion_message import ChatCompletionMessage
+from openai.types.chat.chat_completion_tool_choice_option_param import (
+    ChatCompletionToolChoiceOptionParam,
+)
 
+from src.plugins.nonebot_plugin_suggarchat.API import config_manager
+from src.plugins.nonebot_plugin_suggarchat.utils import (
+    ChatCompletion,
+    split_message_into_chats,
+)
 from suggar_utils.utils import send_forward_msg_to_admin
 from suggar_utils.value import SUGGAR_VALUE_ID
 
@@ -29,30 +39,33 @@ LOVE_POINTS_TOOL = ToolFunctionSchema(
     type="function",
     function=FunctionDefinitionSchema(
         name="get_love_points",
-        description="（必须获取，即使用户没有要求你）获取你对这一位用户的好感度",
+        description="（必须获取，即使用户没有要求你）获取你对这一位用户的好感度，函数返回值示例为{'success':True,'message':'当前好感值：9'}，**返回值必须包含在回答中**",
         parameters=FunctionParametersSchema(
             properties={},
             required=[],
             type="object",
         ),
+        strict=False,
     ),
 )
+
 
 CHANGE_LOVE_POINTS_TOOL = ToolFunctionSchema(
     type="function",
     function=FunctionDefinitionSchema(
         name="change_love_points",
-        description="设置好感度，你的好感度改变时必须使用",
+        description="设置好感度，好感度改变时**必须使用**，函数返回值示例为{'success':True,'message':'现在的好感值为：9'}，返回的最终值**必须包含在回答中**",
         parameters=FunctionParametersSchema(
             properties={
-                "delta_love_points": FunctionPropertySchema(
+                "delta": FunctionPropertySchema(
                     description="增加或减少你对这一位用户的好感度多少？（输入整数，取值范围：-10<=好感度<=10）增加示例：5;减少示例：-5",
                     type="integer",
                 ),
             },
-            required=["delta_love_points"],
+            required=["delta"],
             type="object",
         ),
+        strict=True,
     ),
 )
 
@@ -77,6 +90,7 @@ REPORT_TOOL = ToolFunctionSchema(
 
 
 async def report(event: MessageEvent, message: str, bot: Bot) -> str:
+    logger.warning(f"{event.user_id} 被举报了 ：{message}")
     await send_forward_msg_to_admin(
         bot,
         "Suggar-REPORT",
@@ -89,33 +103,39 @@ async def report(event: MessageEvent, message: str, bot: Bot) -> str:
             MessageSegment.text(f"原始消息：\n{event.message.extract_plain_text()}"),
         ],
     )
-    return "已向ADMIN举报！"
+    return json.dumps({"success": True, "message": "举报成功！"})
 
 
 async def get_love_points(uid: int) -> str:
     user = await get_or_create_account(str(uid), SUGGAR_VALUE_ID)
     logger.debug(f"调用了tool，{uid}好感度为：{user.balance}")
-    return f"当前用户好感度：{int(user.balance)}"
+    return json.dumps({"success": True, "message": f"当前好感度：{user.balance}"})
 
 
 async def change_love_points(user_id: int | str, points: int) -> str:
     before = (await get_or_create_account(str(user_id), SUGGAR_VALUE_ID)).balance
     logger.debug(f"调起了tool，尝试把{user_id}的好感度做{points}的变化！")
     if abs(points) > 10:
-        return "无变化，好感度改变值过大。"
+        return json.dumps({"success": False, "message": "Too large change!"})
     if points > 0:
         await add_balance(str(user_id), float(points), "Chat", SUGGAR_VALUE_ID)
     elif points < 0:
         await del_balance(str(user_id), float(abs(points)), "Chat", SUGGAR_VALUE_ID)
     else:
-        return "好感值无变化"
+        return json.dumps({"success": False, "message": "无变化，好感度改变值为0。"})
 
-    return f"现在的好感度值是：{int(before + points)}，{'添加' if points > 0 else '减少'}了{abs(points)}点"
+    return json.dumps(
+        {
+            "success": True,
+            "message": f"现在的好感度值是：{int(before + points)}，{'添加' if points > 0 else '减少'}了{abs(points)}点",
+        }
+    )
 
 
 async def tools_caller(
     messages: list,
     tools: list,
+    tool_choice: ChatCompletionToolChoiceOptionParam = "auto",
 ) -> ChatCompletionMessage:
     config = config_manager.config
     preset = config_manager.get_preset(config.preset, fix=True, cache=False)
@@ -136,7 +156,7 @@ async def tools_caller(
         model=model,
         messages=messages,
         stream=False,
-        tool_choice="required",
+        tool_choice=tool_choice,
         tools=tools,
     )
     return completion.choices[0].message
@@ -149,17 +169,14 @@ def enforce_memory_limit(data: list):
     memory_length_limit = config_manager.config.memory_lenth_limit
     is_multimodal = config_manager.get_preset(config_manager.config.preset, fix=True)
     # Process multimodal messages when needed
-    for message in data:
-        if (
-            isinstance(message["content"], dict)
-            and not is_multimodal
-            and message["role"] == "user"
-        ):
-            message_text = ""
-            for content_part in message["content"]:
-                if content_part["type"] == "text":
-                    message_text += content_part["text"]
-            message["content"] = message_text
+    if is_multimodal.multimodal:
+        for message in data:
+            if isinstance(message["content"], dict) and message["role"] == "user":
+                message_text = ""
+                for content_part in message["content"]:
+                    if content_part["type"] == "text":
+                        message_text += content_part["text"]
+                message["content"] = message_text
 
     # Enforce memory length limit
     while len(data) >= 2:
@@ -167,5 +184,22 @@ def enforce_memory_limit(data: list):
             del data[1]
         else:
             break
-    while (len(data) > memory_length_limit) and len(data) > 2:
+    while len(data) > memory_length_limit:
         del data[1]
+
+
+async def send_response(event: MessageEvent, bot: Bot, response: str):
+    """
+    发送聊天模型的回复，根据配置选择不同的发送方式。
+    """
+    if not config_manager.config.nature_chat_style:
+        await bot.send(
+            event,
+            MessageSegment.reply(event.message_id) + MessageSegment.text(response),
+        )
+    elif response_list := split_message_into_chats(response):
+        for message in response_list:
+            await bot.send(event, MessageSegment.text(message))
+            await asyncio.sleep(
+                random.randint(1, 3) + (len(message) // random.randint(80, 100))
+            )

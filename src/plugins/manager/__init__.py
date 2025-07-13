@@ -23,7 +23,6 @@ __all__ = [
     "rate",
 ]
 
-
 @get_driver().on_startup
-async def init_config():
-    await ConfigManager().instance().reload_config()
+async def init():
+    ConfigManager()

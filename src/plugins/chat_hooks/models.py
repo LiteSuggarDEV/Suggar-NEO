@@ -26,6 +26,7 @@ class FunctionDefinitionSchema(BaseModel):
     name: str = Field(..., description="函数名称")
     description: str = Field(..., description="函数描述")
     parameters: FunctionParametersSchema = Field(..., description="函数参数定义")
+    strict: bool = Field(default=False, description="是否严格模式")
 
 
 class ToolFunctionSchema(BaseModel):
