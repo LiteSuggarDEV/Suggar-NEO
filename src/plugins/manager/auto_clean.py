@@ -2,7 +2,7 @@ from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent
 
 from src.plugins.menu.models import MatcherData
-from suggar_utils.config import ConfigManager
+from suggar_utils.config import config_manager
 from suggar_utils.rule import is_global_admin
 
 clean_groups = on_command(
@@ -31,7 +31,7 @@ async def _(bot: Bot, event: MessageEvent):
         except Exception as e:
             logger.error(f"⚠️ 获取群成员信息失败: {e!s}")
             continue
-        admins = set(ConfigManager.instance().config.admins)
+        admins = set(config_manager.config.admins)
 
         if len(members) < 20:
             admin_members = members & admins
@@ -46,7 +46,7 @@ async def _(bot: Bot, event: MessageEvent):
             try:
                 await bot.send_group_msg(
                     group_id=group["group_id"],
-                    message=f"⚠️ 该群人数小于二十人！Bot将退出该群组。如有疑问请加群{ConfigManager.instance().config.notify_group[0]}。",
+                    message=f"⚠️ 该群人数小于二十人！Bot将退出该群组。如有疑问请加群{config_manager.config.notify_group[0]}。",
                 )
             except Exception as e:
                 logger.error(f"⚠️ 发送退群通知失败: {e!s}")
