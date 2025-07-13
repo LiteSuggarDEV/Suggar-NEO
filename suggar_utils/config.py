@@ -15,7 +15,7 @@ from .store import CONFIG_DIR
 class LLMTools(BaseModel):
     enable_change_love_points: bool = True
     enable_report: bool = True
-    cookie_check = False
+    cookie_check: bool = False
     cookie: str = ""
 
 
