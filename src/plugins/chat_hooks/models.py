@@ -6,8 +6,9 @@ from pydantic import BaseModel, Field
 class FunctionPropertySchema(BaseModel):
     """校验函数参数的属性"""
 
-    type: str = Field(..., description="参数类型")
+    type: str | list[str] = Field(..., description="参数类型")
     description: str = Field(..., description="参数描述")
+    enum: list[str | int | float] | None = Field(default=None, description="枚举的参数")
 
 
 class FunctionParametersSchema(BaseModel):

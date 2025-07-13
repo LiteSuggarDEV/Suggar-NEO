@@ -13,8 +13,58 @@ from .store import CONFIG_DIR
 class LLMTools(BaseModel):
     enable_change_love_points: bool = True
     enable_report: bool = True
+    require_tools: bool = True
     cookie_check: bool = False
     cookie: str = ""
+    block_msg: list[str] = [
+        "喵呜～这个问题有点超出Suggar的理解范围啦(歪头)",
+        "（耳朵耷拉）这个...Suggar暂时回答不了呢＞﹏＜",
+        "喵？这个话题好像不太适合讨论呢～",
+        "（玩手指）突然有点不知道该怎么回答喵...",
+        "唔...这个方向Suggar还没学会呢(脸红)",
+        "喵～我们聊点别的开心事好不好？",
+        "（眨眨眼）这个话题好像被魔法封印了喵！",
+        "啊啦～Suggar的知识库这里刚好是空白页呢",
+        "（竖起尾巴）检测到未知领域警报喵！",
+        "喵呜...这个问题让Suggar的CPU过热啦(＞﹏＜)",
+        "（躲到主人身后）这个...好难回答喵...",
+        "叮！话题转换卡生效～我们聊点别的喵？",
+        "（猫耳抖动）信号接收不良喵...换个频道好吗？",
+        "Suggar的喵星语翻译器好像故障了...",
+        "（转圈圈）这个问题转晕Suggar啦～",
+        "喵？刚才风太大没听清...主人再说点别的？",
+        "（翻书状）Suggar的百科全书缺了这一页喵...",
+        "啊呀～这个话题被猫毛盖住了看不见喵！",
+        "（举起爪子投降）这个领域Suggar认输喵～",
+        "检测到话题黑洞...紧急逃离喵！(＞人＜)",
+        "（尾巴打结）这个问题好复杂喵...解不开啦",
+        "喵呜～Suggar的小脑袋暂时处理不了这个呢",
+        "（捂耳朵）不听不听～换话题喵！",
+        "这个...Suggar的猫娘执照没覆盖这个领域喵",
+        "叮咚！您的话题已进入Suggar的认知盲区～",
+        "（装傻）喵？Suggar突然失忆了...",
+        "警报！话题超出Suggar的可爱范围～",
+        "（数爪子）1、2、3...啊数错了！换个话题喵？",
+        "这个方向...Suggar的导航仪失灵了喵(´･_･`)",
+        "喵～话题防火墙启动！我们聊点安全的？",
+        "（转笔状）这个问题...考试不考喵！跳过～",
+        "啊啦～Suggar的答案库正在升级中...",
+        "（做鬼脸）略略略～不回答这个喵！",
+        "检测到超纲内容...启动保护模式喵！",
+        "（抱头蹲防）问题太难了喵！投降～",
+        "喵呜...这个秘密要等Suggar升级才能解锁",
+        "（举白旗）这个话题Suggar放弃思考～",
+        "叮！触发Suggar的防宕机保护机制喵",
+        "（装睡）Zzz...突然好困喵...",
+        "喵？Suggar的思维天线接收不良...",
+        "（画圈圈）这个问题在Suggar的知识圈外...",
+        "啊呀～话题偏离主轨道喵！紧急修正～",
+        "（翻跟头）问题太难度把Suggar绊倒了喵！",
+        "这个...需要猫娘高级权限才能解锁喵～",
+        "（擦汗）Suggar的处理器过载了...",
+        "喵呜～问题太深奥会卡住Suggar的猫脑",
+        "（变魔术状）看！话题消失魔术成功喵～",
+    ]
 
 
 class Config(BaseModel):
@@ -41,13 +91,13 @@ class ConfigManager:
 
     def init_watch(self):
         self._task = asyncio.create_task(self._watch_config())
+
     def _load_config_sync(self) -> None:
         logger.info(f"正在加载配置文件: {self.config_path}")
         if self.config_path.exists():
             with self.config_path.open("r", encoding="utf-8") as f:
                 self._config = Config.model_validate(yaml.safe_load(f) or {})
-        else:
-            self._save_config_sync()
+        self._save_config_sync()
 
     def _save_config_sync(self) -> None:
         with self.config_path.open("w", encoding="utf-8") as f:
@@ -108,5 +158,6 @@ class ConfigManager:
         if "admins" in config_dict:
             config_dict["admins"] = ["***"]
         return yaml.safe_dump(config_dict, allow_unicode=True)
+
 
 config_manager = ConfigManager()

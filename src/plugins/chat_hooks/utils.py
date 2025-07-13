@@ -25,6 +25,7 @@ from src.plugins.nonebot_plugin_suggarchat.utils import (
     ChatCompletion,
     split_message_into_chats,
 )
+from suggar_utils.config import config_manager as sug_config
 from suggar_utils.utils import send_forward_msg_to_admin
 from suggar_utils.value import SUGGAR_VALUE_ID
 
@@ -60,6 +61,7 @@ CHANGE_LOVE_POINTS_TOOL = ToolFunctionSchema(
                 "delta": FunctionPropertySchema(
                     description="增加或减少你对这一位用户的好感度多少？（输入整数，取值范围：-10<=好感度<=10）增加示例：5;减少示例：-5",
                     type="integer",
+                    enum=[*range(-10, 10)],
                 ),
             },
             required=["delta"],
@@ -109,34 +111,48 @@ async def report(event: MessageEvent, message: str, bot: Bot) -> str:
 async def get_love_points(uid: int) -> str:
     user = await get_or_create_account(str(uid), SUGGAR_VALUE_ID)
     logger.debug(f"调用了tool，{uid}好感度为：{user.balance}")
-    return json.dumps({"success": True, "message": f"当前好感度：{user.balance}"})
+    return json.dumps(
+        {"success": True, "message": f"当前好感度：{user.balance}"},
+        ensure_ascii=False,
+    )
 
 
 async def change_love_points(user_id: int | str, points: int) -> str:
     before = (await get_or_create_account(str(user_id), SUGGAR_VALUE_ID)).balance
     logger.debug(f"调起了tool，尝试把{user_id}的好感度做{points}的变化！")
     if abs(points) > 10:
-        return json.dumps({"success": False, "message": "Too large change!"})
+        return json.dumps(
+            {"success": False, "message": "Too large change!"},
+            ensure_ascii=False,
+        )
     if points > 0:
         await add_balance(str(user_id), float(points), "Chat", SUGGAR_VALUE_ID)
     elif points < 0:
         await del_balance(str(user_id), float(abs(points)), "Chat", SUGGAR_VALUE_ID)
     else:
-        return json.dumps({"success": False, "message": "无变化，好感度改变值为0。"})
+        return json.dumps(
+            {"success": False, "message": "无变化，好感度改变值为0。"},
+            ensure_ascii=False,
+        )
 
     return json.dumps(
         {
             "success": True,
             "message": f"现在的好感度值是：{int(before + points)}，{'添加' if points > 0 else '减少'}了{abs(points)}点",
-        }
+        },
+        ensure_ascii=False,
     )
 
 
 async def tools_caller(
     messages: list,
     tools: list,
-    tool_choice: ChatCompletionToolChoiceOptionParam = "auto",
+    tool_choice: ChatCompletionToolChoiceOptionParam | None = None,
 ) -> ChatCompletionMessage:
+    if not tool_choice:
+        tool_choice = (
+            "required" if sug_config.config.llm_tools.require_tools else "auto"
+        )
     config = config_manager.config
     preset = config_manager.get_preset(config.preset, fix=True, cache=False)
 

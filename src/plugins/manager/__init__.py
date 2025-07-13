@@ -23,6 +23,7 @@ __all__ = [
     "rate",
 ]
 
+
 @get_driver().on_startup
 async def init():
     config_manager.init_watch()

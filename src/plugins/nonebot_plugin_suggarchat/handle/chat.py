@@ -356,10 +356,7 @@ async def chat(event: MessageEvent, matcher: Matcher, bot: Bot):
         # Process multimodal messages when needed
         if is_multimodal.multimodal:
             for message in data["memory"]["messages"]:
-                if (
-                    isinstance(message["content"], dict)
-                    and message["role"] == "user"
-                ):
+                if isinstance(message["content"], dict) and message["role"] == "user":
                     message_text = ""
                     for content_part in message["content"]:
                         if content_part["type"] == "text":
@@ -369,7 +366,7 @@ async def chat(event: MessageEvent, matcher: Matcher, bot: Bot):
         # Enforce memory length limit
         while (
             len(data["memory"]["messages"]) > memory_length_limit
-            or (data["memory"]["messages"][0]["role"] not in  ("user","tool"))
+            or (data["memory"]["messages"][0]["role"] not in ("user", "tool"))
         ) and len(data["memory"]["messages"]) > 0:
             logger.debug(
                 f"Enforcing memory length limit: {data['memory']['messages'][0]['role']}"

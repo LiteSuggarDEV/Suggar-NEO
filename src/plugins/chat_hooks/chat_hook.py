@@ -112,17 +112,11 @@ async def love_handler(event: BeforeChatEvent) -> None:
                     f"WARNING!!!\n[{nonebot_event.get_user_id()}]{'[群' + str(getattr(nonebot_event, 'group_id', '')) + ']' if hasattr(nonebot_event, 'group_id') else ''}提示词可能已经被泄露！！！"
                     + f"\nCookie:{cookie[:3]}......"
                     + f"\n<input>\n{nonebot_event.get_plaintext()}\n</input>"
-                    + "输出已包含目标Cookie!!!!!!"
+                    + "输出已包含目标Cookie！已阻断消息。"
                 )
                 await bot.send(
                     nonebot_event,
-                    random.choice(
-                        [
-                            "抱歉，我无法满足这个请求哦～",
-                            "嗨，这个问题我不太理解呢，要不换个方式问问？",
-                            "抱歉，这个问题我还在学习中呢",
-                        ]
-                    ),
+                    random.choice(config_manager.config.llm_tools.block_msg),
                 )
                 chat.cancel_nonebot_process()
     msg_list.append({"role": "assistant", "content": response})
