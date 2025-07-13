@@ -91,7 +91,9 @@ async def love_handler(event: BeforeChatEvent) -> None:
                     }
                 )
     except Exception as e:
-        logger.error(f"ERROR{e!s}!调用Tools失败！正在回滚消息......")
+        logger.opt(colors=True, exception=e).exception(
+            f"ERROR\n{e!s}\n!调用Tools失败！正在回滚消息......"
+        )
         event._send_message = chat_list_backup
     finally:
         exp = float(random.randint(1, 25))

@@ -1,4 +1,5 @@
 import json
+
 import openai
 from nonebot import logger
 from nonebot.adapters.onebot.v11 import (
@@ -39,8 +40,10 @@ LOVE_POINTS_TOOL = ToolFunctionSchema(
             required=[],
             type="object",
         ),
+        strict=False,
     ),
 )
+
 
 CHANGE_LOVE_POINTS_TOOL = ToolFunctionSchema(
     type="function",
