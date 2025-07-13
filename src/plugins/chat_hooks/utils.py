@@ -169,17 +169,14 @@ def enforce_memory_limit(data: list):
     memory_length_limit = config_manager.config.memory_lenth_limit
     is_multimodal = config_manager.get_preset(config_manager.config.preset, fix=True)
     # Process multimodal messages when needed
-    for message in data:
-        if (
-            isinstance(message["content"], dict)
-            and not is_multimodal
-            and message["role"] == "user"
-        ):
-            message_text = ""
-            for content_part in message["content"]:
-                if content_part["type"] == "text":
-                    message_text += content_part["text"]
-            message["content"] = message_text
+    if is_multimodal.multimodal:
+        for message in data:
+            if isinstance(message["content"], dict) and message["role"] == "user":
+                message_text = ""
+                for content_part in message["content"]:
+                    if content_part["type"] == "text":
+                        message_text += content_part["text"]
+                message["content"] = message_text
 
     # Enforce memory length limit
     while len(data) >= 2:
@@ -187,7 +184,7 @@ def enforce_memory_limit(data: list):
             del data[1]
         else:
             break
-    while (len(data) > memory_length_limit) and len(data) > 2:
+    while len(data) > memory_length_limit:
         del data[1]
 
 

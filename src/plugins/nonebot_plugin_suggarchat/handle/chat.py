@@ -371,6 +371,9 @@ async def chat(event: MessageEvent, matcher: Matcher, bot: Bot):
             len(data["memory"]["messages"]) > memory_length_limit
             or (data["memory"]["messages"][0]["role"] not in  ("user","tool"))
         ) and len(data["memory"]["messages"]) > 0:
+            logger.debug(
+                f"Enforcing memory length limit: {data['memory']['messages'][0]['role']}"
+            )
             del data["memory"]["messages"][0]
 
     async def enforce_token_limit(data: dict, train: dict) -> int:
@@ -381,9 +384,7 @@ async def chat(event: MessageEvent, matcher: Matcher, bot: Bot):
         memory_l = [train, *copy.deepcopy(data["memory"]["messages"].copy())]  # type: list[dict]
         full_string = ""
         for st in memory_l:
-            if not st.get("content"):
-                await send_to_admin_as_error("API返回内容错误,请检查api!(疑似被夹了)")
-            elif isinstance(st["content"], str):
+            if isinstance(st["content"], str):
                 full_string += st["content"]
             else:
                 temp_string = ""
