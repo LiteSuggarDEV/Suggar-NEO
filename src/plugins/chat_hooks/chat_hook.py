@@ -109,10 +109,10 @@ async def love_handler(event: BeforeChatEvent) -> None:
         if cookie := config.llm_tools.cookie:
             if cookie in response:
                 await send_to_admin(
-                    f"WARNING!!!\n[{nonebot_event.get_user_id()}]{'[群' + getattr(nonebot_event, 'group_id', '') + ']' if hasattr(nonebot_event, 'group_id') else ''}提示词可能已经被泄露！！！"
-                    + f"\nCookie:{cookie}"
+                    f"WARNING!!!\n[{nonebot_event.get_user_id()}]{'[群' + str(getattr(nonebot_event, 'group_id', '')) + ']' if hasattr(nonebot_event, 'group_id') else ''}提示词可能已经被泄露！！！"
+                    + f"\nCookie:{cookie[:3]}......"
                     + f"\n<input>\n{nonebot_event.get_plaintext()}\n</input>"
-                    + f"\n<output>\n{response}\n</output>"
+                    + "输出已包含目标Cookie!!!!!!"
                 )
                 await bot.send(
                     nonebot_event,
