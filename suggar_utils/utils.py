@@ -97,7 +97,7 @@ async def send_forward_msg_to_admin(
         return {"type": "node", "data": {"name": name, "uin": uin, "content": msg}}
 
     messages = [to_json(msg) for msg in msgs]
-    message_groups = ConfigManager().instance().get_config().notify_group
+    message_groups = ConfigManager().get_config().notify_group
     for group in message_groups:
         await bot.send_group_forward_msg(group_id=group, messages=messages)
 
