@@ -39,7 +39,7 @@ LOVE_POINTS_TOOL = ToolFunctionSchema(
     type="function",
     function=FunctionDefinitionSchema(
         name="get_love_points",
-        description="（必须获取，即使用户没有要求你）获取你对这一位用户的好感度",
+        description="（必须获取，即使用户没有要求你）获取你对这一位用户的好感度，函数返回值示例为{'success':True,'message':'当前好感值：9'}，**返回值必须包含在回答中**",
         parameters=FunctionParametersSchema(
             properties={},
             required=[],
@@ -54,7 +54,7 @@ CHANGE_LOVE_POINTS_TOOL = ToolFunctionSchema(
     type="function",
     function=FunctionDefinitionSchema(
         name="change_love_points",
-        description="设置好感度，好感度改变时**必须使用**",
+        description="设置好感度，好感度改变时**必须使用**，函数返回值示例为{'success':True,'message':'现在的好感值为：9'}，返回的最终值**必须包含在回答中**",
         parameters=FunctionParametersSchema(
             properties={
                 "delta": FunctionPropertySchema(
@@ -135,7 +135,7 @@ async def change_love_points(user_id: int | str, points: int) -> str:
 async def tools_caller(
     messages: list,
     tools: list,
-    tool_choice: ChatCompletionToolChoiceOptionParam = "required",
+    tool_choice: ChatCompletionToolChoiceOptionParam = "auto",
 ) -> ChatCompletionMessage:
     config = config_manager.config
     preset = config_manager.get_preset(config.preset, fix=True, cache=False)
