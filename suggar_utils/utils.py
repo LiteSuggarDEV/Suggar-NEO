@@ -78,6 +78,30 @@ def generate_info():
     )
 
 
+async def send_forward_msg_to_admin(
+    bot: Bot, name: str, uin: str, msgs: list[MessageSegment]
+):
+    """发送消息到管理
+
+    Args:
+        bot (Bot): Bot
+        name (str): 名称
+        uin (str): UID
+        msgs (list[MessageSegment]): 消息列表
+
+    Returns:
+        dict: 发送消息后的结果
+    """
+
+    def to_json(msg: MessageSegment) -> dict:
+        return {"type": "node", "data": {"name": name, "uin": uin, "content": msg}}
+
+    messages = [to_json(msg) for msg in msgs]
+    message_groups = ConfigManager().instance().get_config().notify_group
+    for group in message_groups:
+        await bot.send_group_forward_msg(group_id=group, messages=messages)
+
+
 async def send_forward_msg(
     bot: Bot,
     event: MessageEvent,

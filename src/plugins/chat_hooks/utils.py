@@ -1,8 +1,11 @@
-import json
-
 import openai
 from nonebot import logger
-from nonebot.adapters.onebot.v11 import GroupMessageEvent, MessageEvent
+from nonebot.adapters.onebot.v11 import (
+    Bot,
+    GroupMessageEvent,
+    MessageEvent,
+    MessageSegment,
+)
 from nonebot_plugin_suggarchat.API import config_manager
 from nonebot_plugin_suggarchat.utils import ChatCompletion
 from nonebot_plugin_value.api.api_balance import (
@@ -12,7 +15,7 @@ from nonebot_plugin_value.api.api_balance import (
 )
 from openai.types.chat.chat_completion_message import ChatCompletionMessage
 
-from suggar_utils.utils import send_to_admin
+from suggar_utils.utils import send_forward_msg_to_admin
 from suggar_utils.value import SUGGAR_VALUE_ID
 
 from .models import (
@@ -39,7 +42,7 @@ CHANGE_LOVE_POINTS_TOOL = ToolFunctionSchema(
     type="function",
     function=FunctionDefinitionSchema(
         name="change_love_points",
-        description="增加或者降低好感度，心情改变时必须使用",
+        description="设置好感度，你的好感度改变时必须使用",
         parameters=FunctionParametersSchema(
             properties={
                 "delta_love_points": FunctionPropertySchema(
@@ -73,9 +76,18 @@ REPORT_TOOL = ToolFunctionSchema(
 )
 
 
-async def report(event: MessageEvent, message: str) -> str:
-    await send_to_admin(
-        f"{'群' + str(event.group_id) if isinstance(event, GroupMessageEvent) else ''}用户{event.get_user_id()}被举报\n因为：{message}"
+async def report(event: MessageEvent, message: str, bot: Bot) -> str:
+    await send_forward_msg_to_admin(
+        bot,
+        "Suggar-REPORT",
+        str(event.self_id),
+        [
+            MessageSegment.text(
+                f"{'群' + str(event.group_id) if isinstance(event, GroupMessageEvent) else ''}用户{event.get_user_id()}被举报"
+            ),
+            MessageSegment.text("LLM原因总结：\n" + message),
+            MessageSegment.text(f"原始消息：\n{event.message.extract_plain_text()}"),
+        ],
     )
     return "已向ADMIN举报！"
 
@@ -83,44 +95,22 @@ async def report(event: MessageEvent, message: str) -> str:
 async def get_love_points(uid: int) -> str:
     user = await get_or_create_account(str(uid), SUGGAR_VALUE_ID)
     logger.debug(f"调用了tool，{uid}好感度为：{user.balance}")
-    return json.dumps(
-        {
-            "now_love_points": user.balance,
-        },
-    )
+    return f"当前用户好感度：{int(user.balance)}"
 
 
 async def change_love_points(user_id: int | str, points: int) -> str:
     before = (await get_or_create_account(str(user_id), SUGGAR_VALUE_ID)).balance
     logger.debug(f"调起了tool，尝试把{user_id}的好感度做{points}的变化！")
     if abs(points) > 10:
-        return json.dumps(
-            {
-                "现在的好感度": before,
-                "改变值": 0,
-                "说明": "不行！不能改变这么多的好感度！",
-            },
-        )
+        return "无变化，好感度改变值过大。"
     if points > 0:
         await add_balance(str(user_id), float(points), "Chat", SUGGAR_VALUE_ID)
     elif points < 0:
         await del_balance(str(user_id), float(abs(points)), "Chat", SUGGAR_VALUE_ID)
     else:
-        return json.dumps(
-            {
-                "现在的好感度": before,
-                "改变值": 0,
-                "说明": "好感度没有发生变化哦！",
-            }
-        )
+        return "好感值无变化"
 
-    return json.dumps(
-        {
-            "现在的好感度": before + points,
-            "改变值": points,
-            "说明": "好感度成功记住啦！",
-        },
-    )
+    return f"现在的好感度值是：{int(before + points)}，{'添加' if points > 0 else '减少'}了{abs(points)}点"
 
 
 async def tools_caller(
@@ -146,7 +136,7 @@ async def tools_caller(
         model=model,
         messages=messages,
         stream=False,
-        tool_choice="auto",
+        tool_choice="required",
         tools=tools,
     )
     return completion.choices[0].message

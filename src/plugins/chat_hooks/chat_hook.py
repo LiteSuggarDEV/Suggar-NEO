@@ -2,7 +2,8 @@ import json
 import random
 from copy import deepcopy
 
-from nonebot.adapters.onebot.v11 import MessageEvent
+from nonebot import get_bot
+from nonebot.adapters.onebot.v11 import Bot, MessageEvent
 from nonebot.log import logger
 from nonebot_plugin_suggarchat.event import BeforeChatEvent
 from nonebot_plugin_suggarchat.on_event import on_before_chat
@@ -33,10 +34,13 @@ async def love_handler(event: BeforeChatEvent) -> None:
     nonebot_event = event.get_nonebot_event()
     if not isinstance(nonebot_event, MessageEvent):
         return
-    msg_chat_list: list[dict] = event.message
-    chat_list_backup = deepcopy(msg_chat_list.copy())
+
+    bot = get_bot(str(nonebot_event.self_id))
+    assert isinstance(bot, Bot), "bot is not ~.onebot.v11.Bot!"
+
+    chat_list_backup = deepcopy(event.message.copy())
     enforce_memory_limit(
-        msg_chat_list
+        event._send_message
     )  # 预处理，替换掉SuggarChat的enforce_memory_limit
 
     try:
@@ -47,14 +51,14 @@ async def love_handler(event: BeforeChatEvent) -> None:
             tools.append(REPORT_TOOL.model_dump())
         response_msg = await tools_caller(
             [
-                *deepcopy([i for i in msg_chat_list.copy() if i["role"] == "system"]),
+                *deepcopy([i for i in event.message.copy() if i["role"] == "system"]),
                 deepcopy(event.get_send_message().copy())[-1],
             ],
             tools,
         )
         tool_calls = response_msg.tool_calls
         if tool_calls:
-            msg_chat_list.append(dict(response_msg))
+            event._send_message.append(dict(response_msg))
             for tool_call in tool_calls:
                 function_name = tool_call.function.name
                 function_args: dict = json.loads(tool_call.function.arguments)
@@ -70,8 +74,9 @@ async def love_handler(event: BeforeChatEvent) -> None:
                         func_response = await report(
                             nonebot_event,
                             function_args.get("content", ""),
+                            bot,
                         )
-                msg_chat_list.append(
+                event._send_message.append(
                     {
                         "tool_call_id": tool_call.id,
                         "role": "tool",
@@ -81,7 +86,7 @@ async def love_handler(event: BeforeChatEvent) -> None:
                 )
     except Exception as e:
         logger.error(f"ERROR{e!s}!调用Tools失败！正在回滚消息......")
-        msg_chat_list = chat_list_backup
+        event._send_message = chat_list_backup
     finally:
         exp = float(random.randint(1, 25))
         coin = float(random.randint(1, 10))
