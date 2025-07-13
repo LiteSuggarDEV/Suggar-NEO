@@ -37,7 +37,7 @@ async def love_handler(event: BeforeChatEvent) -> None:
 
     bot = get_bot(str(nonebot_event.self_id))
     assert isinstance(bot, Bot), "bot is not ~.onebot.v11.Bot!"
-
+    logger.debug(str(event._send_message))
     chat_list_backup = deepcopy(event.message.copy())
     enforce_memory_limit(
         event._send_message
