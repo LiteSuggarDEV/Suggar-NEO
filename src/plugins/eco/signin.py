@@ -46,8 +46,6 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
         love = float(random.randint(1, 10))
         coin = float(random.randint(1, 100))
         exp = float(random.randint(1, 50))
-        fun_data = await get_or_create_user_model(str(event.user_id), session)
-        session.add(fun_data)
         daily_count = fun_data.daily_count
         daily_count += 1
         fun_data.daily_count = daily_count
