@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import json
 import os
@@ -13,6 +14,7 @@ import tomli_w
 from dotenv import load_dotenv
 from nonebot import logger
 from pydantic import BaseModel
+from watchfiles import awatch
 
 __KERNEL_VERSION__ = "unknow"
 
@@ -228,6 +230,7 @@ class ConfigManager:
     ins_config: Config = field(default_factory=Config)
     models: list[tuple[ModelPreset, str]] = field(default_factory=list)
     prompts: Prompts = field(default_factory=Prompts)
+    suggar_task: asyncio.Task | None = field(default=None)
 
     @property
     def config(self) -> Config:
@@ -339,7 +342,17 @@ class ConfigManager:
         self.get_models(cache=False)
         self.get_prompts(cache=False)
         self.load_prompt()
+        if self.suggar_task is None:
+            self.suggar_task = asyncio.create_task(self._watch_config())
 
+    async def _watch_config(self):
+        async for changes in awatch(self.config_dir):
+            if any(str(self.config_dir) in path for _, path in changes):
+                logger.info("检测到配置文件变更，正在自动重载...")
+                try:
+                    self.reload_config()
+                except Exception as e:
+                    logger.opt(exception=e).warning("配置文件重载失败")
     def get_models(self, cache: bool = False) -> list[ModelPreset]:
         """获取模型列表"""
         if cache and self.models:

@@ -18,6 +18,7 @@ SUGGAR_VALUE_ID = to_uuid("love")
 SUGGAR_EXP_ID = to_uuid("exp")
 VALUE_LOCK = asyncio.Lock()
 
+
 async def add_balance(
     user_id: str,
     amount: float,

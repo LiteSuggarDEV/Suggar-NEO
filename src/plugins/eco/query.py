@@ -14,7 +14,7 @@ from nonebot_plugin_value.api.api_balance import get_or_create_account
 
 from src.plugins.menu.models import MatcherData
 from suggar_utils.config import config_manager
-from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID
+from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID, to_uuid
 
 command_start = get_driver().config.command_start
 
@@ -57,9 +57,11 @@ async def _(
         ]
         if user_id not in group_members and event.user_id not in admins:
             await matcher.finish("该用户不在本群内！")
-    economy_data = await get_or_create_account(str(user_id))
-    love_data = await get_or_create_account(str(user_id), SUGGAR_VALUE_ID)
-    exp_data = await get_or_create_account(str(user_id), SUGGAR_EXP_ID)
+    economy_data = await get_or_create_account(to_uuid(str(event.user_id)))
+    love_data = await get_or_create_account(
+        to_uuid(str(event.user_id)), SUGGAR_VALUE_ID
+    )
+    exp_data = await get_or_create_account(to_uuid(str(event.user_id)), SUGGAR_EXP_ID)
     await matcher.finish(
         MessageSegment.text(
             f"喵呜～你好呀人类！\n用户：{user_id!s}"
@@ -83,9 +85,11 @@ async def _(
     ),
 ).handle()
 async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
-    economy_data = await get_or_create_account(str(event.user_id))
-    love_data = await get_or_create_account(str(event.user_id), SUGGAR_VALUE_ID)
-    exp_data = await get_or_create_account(str(event.user_id), SUGGAR_EXP_ID)
+    economy_data = await get_or_create_account(to_uuid(str(event.user_id)))
+    love_data = await get_or_create_account(
+        to_uuid(str(event.user_id)), SUGGAR_VALUE_ID
+    )
+    exp_data = await get_or_create_account(to_uuid(str(event.user_id)), SUGGAR_EXP_ID)
     await matcher.finish(
         MessageSegment.at(event.user_id)
         + MessageSegment.text(
@@ -108,7 +112,7 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
     ),
 ).handle()
 async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
-    economy_data = await get_or_create_account(str(event.user_id))
+    economy_data = await get_or_create_account(to_uuid(str(event.user_id)))
     await matcher.finish(
         MessageSegment.at(event.user_id)
         + MessageSegment.text(f"\n货币余额：{economy_data.balance}点")

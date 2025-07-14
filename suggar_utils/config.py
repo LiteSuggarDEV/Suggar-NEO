@@ -1,3 +1,9 @@
+from collections.abc import Awaitable, Callable
+from typing import Any
+
+from nonebot import require
+
+require("src.plugins.nonebot_plugin_suggarchat")
 import asyncio
 from pathlib import Path
 
@@ -83,6 +89,7 @@ class ConfigManager:
     config_path: Path = CONFIG_DIR / "config.yaml"
     _config: Config = Config()
     _task: asyncio.Task
+    _sug_task: asyncio.Task
 
     def __init__(self) -> None:
         self._config = Config()
@@ -99,8 +106,10 @@ class ConfigManager:
                 self._config = Config.model_validate(yaml.safe_load(f) or {})
         self._save_config_sync()
 
-    def _save_config_sync(self) -> None:
-        with self.config_path.open("w", encoding="utf-8") as f:
+    def _save_config_sync(self, path: Path | None = None) -> None:
+        if not path:
+            path = self.config_path
+        with path.open("w", encoding="utf-8") as f:
             f.write(
                 yaml.safe_dump(
                     self._config.model_dump(),
@@ -108,14 +117,19 @@ class ConfigManager:
                 )
             )
 
-    async def _watch_config(self) -> None:
-        async for changes in awatch(self.config_path):
-            if any(path == str(self.config_path) for _, path in changes):
+    async def _watch_files(
+        self, paths: Path, refresh_func: Callable[..., Awaitable[Any]]
+    ):
+        async for changes in awatch(paths):
+            if any(path == str(paths) for _, path in changes):
                 logger.info("检测到配置文件变更，正在自动重载...")
                 try:
-                    await self.reload_config()
+                    await refresh_func()
                 except Exception as e:
                     logger.opt(exception=e).warning("配置文件重载失败")
+
+    async def _watch_config(self) -> None:
+        await self._watch_files(self.config_path, self.reload_config)
 
     async def reload_config(self) -> Config:
         async with self._lock:

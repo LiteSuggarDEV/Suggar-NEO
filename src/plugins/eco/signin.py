@@ -11,7 +11,7 @@ from nonebot_plugin_value.api.api_balance import get_or_create_account
 from src.plugins.menu.models import MatcherData
 from suggar_utils.store import get_or_create_user_model
 from suggar_utils.utils import is_same_day
-from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID, add_balance
+from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID, add_balance, to_uuid
 
 
 @on_fullmatch(
@@ -25,9 +25,11 @@ from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID, add_balance
     ),
 ).handle()
 async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
-    economy_data = await get_or_create_account(str(event.user_id))
-    love_data = await get_or_create_account(str(event.user_id), SUGGAR_VALUE_ID)
-    exp_data = await get_or_create_account(str(event.user_id), SUGGAR_EXP_ID)
+    economy_data = await get_or_create_account(to_uuid(str(event.user_id)))
+    love_data = await get_or_create_account(
+        to_uuid(str(event.user_id)), SUGGAR_VALUE_ID
+    )
+    exp_data = await get_or_create_account(to_uuid(str(event.user_id)), SUGGAR_EXP_ID)
     async with get_session() as session:
         fun_data = await get_or_create_user_model(str(event.user_id), session)
         session.add(fun_data)
