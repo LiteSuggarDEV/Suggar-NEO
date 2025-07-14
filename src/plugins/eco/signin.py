@@ -25,13 +25,13 @@ from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID
     ),
 ).handle()
 async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
+    economy_data = await get_or_create_account(str(event.user_id))
+    love_data = await get_or_create_account(str(event.user_id), SUGGAR_VALUE_ID)
+    exp_data = await get_or_create_account(str(event.user_id), SUGGAR_EXP_ID)
     async with get_session() as session:
         fun_data = await get_or_create_user_model(str(event.user_id), session)
         session.add(fun_data)
         last_daily = fun_data.last_daily
-        economy_data = await get_or_create_account(str(event.user_id))
-        love_data = await get_or_create_account(str(event.user_id), SUGGAR_VALUE_ID)
-        exp_data = await get_or_create_account(str(event.user_id), SUGGAR_EXP_ID)
         if is_same_day(int(last_daily.timestamp()), int(datetime.now().timestamp())):
             await matcher.finish(
                 MessageSegment.at(event.user_id)
@@ -54,13 +54,13 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
         fun_data.last_daily = datetime.now()
 
         await session.commit()
-        await add_balance(str(event.user_id), coin, "签到")
-        await add_balance(str(event.user_id), love, "签到", SUGGAR_VALUE_ID)
-        await add_balance(str(event.user_id), exp, "签到", SUGGAR_EXP_ID)
-        formatted_datetime = last_daily.strftime("%Y-%m-%d %H:%M:%S")
-        await matcher.send(
-            MessageSegment.at(event.user_id)
-            + MessageSegment.text(
-                f"\n {formatted_datetime} 签到成功，累计签到{daily_count}天~\n硬币+{coin}，经验+{exp}，好感度+{love}"
-            )
+    await add_balance(str(event.user_id), coin, "签到")
+    await add_balance(str(event.user_id), love, "签到", SUGGAR_VALUE_ID)
+    await add_balance(str(event.user_id), exp, "签到", SUGGAR_EXP_ID)
+    formatted_datetime = last_daily.strftime("%Y-%m-%d %H:%M:%S")
+    await matcher.send(
+        MessageSegment.at(event.user_id)
+        + MessageSegment.text(
+            f"\n {formatted_datetime} 签到成功，累计签到{daily_count}天~\n硬币+{coin}，经验+{exp}，好感度+{love}"
         )
+    )
