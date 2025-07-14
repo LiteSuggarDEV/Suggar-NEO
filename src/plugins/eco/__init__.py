@@ -1,7 +1,7 @@
 from nonebot import get_driver, logger
 from nonebot.plugin import PluginMetadata, require
 
-from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID
+from suggar_utils.value import SUGGAR_EXP_ID
 
 from . import query, signin
 
@@ -27,14 +27,6 @@ __all__ = [
 @get_driver().on_startup
 async def init_currency():
     logger.info("初始化货币...")
-    await get_or_create_currency(
-        CurrencyData(
-            id=SUGGAR_VALUE_ID,
-            allow_negative=True,
-            display_name="points",
-            symbol="❤️",
-        )
-    )
     await get_or_create_currency(
         CurrencyData(
             id=SUGGAR_EXP_ID,

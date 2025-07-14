@@ -21,6 +21,9 @@ if not Path(".env.prod").exists():
 if not Path(".env.dev").exists():
     with open(".env.dev", "a") as f:
         f.write("LOG_LEVEL=DEBUG")
+
+(Path("src") / "custom_plugins").mkdir(exist_ok=True)
+
 load_dotenv()
 
 nonebot.init()

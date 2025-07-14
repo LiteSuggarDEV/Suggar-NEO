@@ -1,4 +1,3 @@
-import asyncio
 import copy
 import json
 import os
@@ -212,24 +211,22 @@ class Prompts:
 class ConfigManager:
     config_dir: Path = CONFIG_DIR
     data_dir: Path = DATA_DIR
-    bot_config_dir: Path | None = None
-    bot_data_dir: Path | None = None
     group_memory: Path = data_dir / "group"
     private_memory: Path = data_dir / "private"
     json_config: Path = config_dir / "config.json"  # 兼容旧版本
     toml_config: Path = config_dir / "config.toml"
     group_prompt: Path = config_dir / "prompt_group.txt"  # 兼容旧版本
     private_prompt: Path = config_dir / "prompt_private.txt"  # 兼容旧版本
-    private_prompts: Path = config_dir / "private_prompts"
-    group_prompts: Path = config_dir / "group_prompts"
+    private_prompt_dir: Path = config_dir / "private_prompt"
+    group_prompt_dir: Path = config_dir / "group_prompt_dir"
+    group_prompt: Path = config_dir / "prompt_group.txt"
+    private_prompt: Path = config_dir / "prompt_private.txt"
     custom_models_dir: Path = config_dir / "models"
     _private_train: dict = field(default_factory=dict)
     _group_train: dict = field(default_factory=dict)
-    # config: Config = field(default_factory=Config)
     ins_config: Config = field(default_factory=Config)
     models: list[tuple[ModelPreset, str]] = field(default_factory=list)
     prompts: Prompts = field(default_factory=Prompts)
-    suggar_task: asyncio.Task | None = field(default=None)
 
     @property
     def config(self) -> Config:
@@ -239,32 +236,17 @@ class ConfigManager:
             raise TypeError("Expected replace_env_vars to return a dict")
         return Config(**result)
 
-    def load(self, bot_id: str):
-        """_初始化配置目录_
+    def load(self, *_, **__):
+        """_初始化配置目录_"""
 
-        Args:
-            bot_id (str): _Bot的qq号_
-        """
-        self.bot_config_dir = self.config_dir / bot_id
-        self.bot_data_dir = self.data_dir / bot_id
-        os.makedirs(self.bot_config_dir, exist_ok=True)
-        os.makedirs(self.bot_data_dir, exist_ok=True)
+        self.config_dir.mkdir(exist_ok=True)
+        self.data_dir.mkdir(exist_ok=True)
 
-        self.group_memory = self.bot_data_dir / "group"
-        self.private_memory = self.bot_data_dir / "private"
-        os.makedirs(self.group_memory, exist_ok=True)
-        os.makedirs(self.private_memory, exist_ok=True)
-
-        self.json_config = self.bot_config_dir / "config.json"
-        self.toml_config = self.bot_config_dir / "config.toml"
-        self.group_prompt = self.bot_config_dir / "prompt_group.txt"
-        self.private_prompt = self.bot_config_dir / "prompt_private.txt"
-        self.private_prompts = self.bot_config_dir / "private_prompts"
-        self.group_prompts = self.bot_config_dir / "group_prompts"
-        os.makedirs(self.private_prompts, exist_ok=True)
-        os.makedirs(self.group_prompts, exist_ok=True)
-        self.custom_models_dir = self.bot_config_dir / "models"
-        os.makedirs(self.custom_models_dir, exist_ok=True)
+        self.private_memory.mkdir(exist_ok=True)
+        self.group_memory.mkdir(exist_ok=True)
+        self.private_prompt_dir.mkdir(exist_ok=True)
+        self.group_prompt_dir.mkdir(exist_ok=True)
+        self.custom_models_dir.mkdir(exist_ok=True)
 
         prompt_private_temp: str = ""
         prompt_group_temp: str = ""
@@ -277,16 +259,16 @@ class ConfigManager:
             # 判断是否有抛弃的字段需要转移
             if "private_train" in data:
                 prompt_old = data["private_train"]["content"]
-                if not (self.private_prompts / "default.txt").is_file():
-                    with (self.private_prompts / "default.txt").open(
+                if not (self.private_prompt_dir / "default.txt").is_file():
+                    with (self.private_prompt_dir / "default.txt").open(
                         "w", encoding="utf-8"
                     ) as f:
                         f.write(prompt_old)
                 del data["private_train"]
             if "group_train" in data:
                 prompt_old = data["group_train"]["content"]
-                if not (self.group_prompts / "default.txt").is_file():
-                    with (self.group_prompts / "default.txt").open(
+                if not (self.group_prompt_dir / "default.txt").is_file():
+                    with (self.group_prompt_dir / "default.txt").open(
                         "w", encoding="utf-8"
                     ) as f:
                         f.write(prompt_old)
@@ -323,8 +305,8 @@ class ConfigManager:
             with self.private_prompt.open("r", encoding="utf-8") as f:
                 prompt_private_temp = f.read()
             os.rename(self.private_prompt, self.private_prompt.with_suffix(".old"))
-        if not (self.private_prompts / "default.txt").is_file():
-            with (self.private_prompts / "default.txt").open(
+        if not (self.private_prompt_dir / "default.txt").is_file():
+            with (self.private_prompt_dir / "default.txt").open(
                 "w", encoding="utf-8"
             ) as f:
                 f.write(prompt_private_temp)
@@ -334,13 +316,21 @@ class ConfigManager:
             with self.group_prompt.open("r", encoding="utf-8") as f:
                 prompt_group_temp = f.read()
             os.rename(self.group_prompt, self.group_prompt.with_suffix(".old"))
-        if not (self.group_prompts / "default.txt").is_file():
-            with (self.group_prompts / "default.txt").open("w", encoding="utf-8") as f:
+        if not (self.group_prompt_dir / "default.txt").is_file():
+            with (self.group_prompt_dir / "default.txt").open(
+                "w", encoding="utf-8"
+            ) as f:
                 f.write(prompt_group_temp)
 
         self.get_models(cache=False)
         self.get_prompts(cache=False)
         self.load_prompt()
+
+    def load_config(self) -> None:
+        if not self.toml_config.exists():
+            self.save_config()
+        else:
+            self.ins_config = Config.load_from_toml(self.toml_config)
 
     def get_models(self, cache: bool = False) -> list[ModelPreset]:
         """获取模型列表"""
@@ -392,11 +382,11 @@ class ConfigManager:
         if cache and self.prompts:
             return self.prompts
         self.prompts = Prompts()
-        for file in self.private_prompts.glob("*.txt"):
+        for file in self.private_prompt_dir.glob("*.txt"):
             with file.open("r", encoding="utf-8") as f:
                 prompt = f.read()
             self.prompts.private.append(Prompt(prompt, file.stem))
-        for file in self.group_prompts.glob("*.txt"):
+        for file in self.group_prompt_dir.glob("*.txt"):
             with file.open("r", encoding="utf-8") as f:
                 prompt = f.read()
             self.prompts.group.append(Prompt(prompt, file.stem))
@@ -405,8 +395,8 @@ class ConfigManager:
         if not self.prompts.group:
             self.prompts.group.append(Prompt("", "default"))
 
-        self.prompts.save_private(self.private_prompts)
-        self.prompts.save_group(self.group_prompts)
+        self.prompts.save_private(self.private_prompt_dir)
+        self.prompts.save_group(self.group_prompt_dir)
 
         return self.prompts
 
@@ -439,12 +429,10 @@ class ConfigManager:
                 f"没有找到名称为 {self.ins_config.private_prompt_character} 的私聊提示词"
             )
 
-    def reload_config(self):
-        """重加载配置"""
-        if self.bot_config_dir:
-            self.load(self.bot_config_dir.name)
-        else:
-            raise RuntimeWarning("未初始化 Bot 配置")
+    async def _load_all(self):
+        logger.info("正在加载配置文件")
+        self.load()
+        logger.info("加载完成。")
 
     def save_config(self):
         """保存配置"""

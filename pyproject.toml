@@ -34,7 +34,7 @@ plugins = [
     "nonebot_plugin_value",
     "nonebot_plugin_htmlrender",
 ]
-plugin_dirs = ["src/plugins"]
+plugin_dirs = ["src/plugins","src/custom_plugins"]
 builtin_plugins = []
 
 [tool.ruff]

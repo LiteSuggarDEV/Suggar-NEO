@@ -1,11 +1,7 @@
-from collections.abc import Awaitable, Callable
-from typing import Any
-
-from nonebot import require
-
-require("src.plugins.nonebot_plugin_suggarchat")
 import asyncio
+from collections.abc import Awaitable, Callable
 from pathlib import Path
+from typing import Any
 
 import aiofiles
 import yaml
@@ -17,9 +13,11 @@ from .store import CONFIG_DIR
 
 
 class LLMTools(BaseModel):
-    enable_change_love_points: bool = True
     enable_report: bool = True
-    require_tools: bool = True
+    require_tools: bool = False
+
+
+class Cookie(BaseModel):
     cookie_check: bool = False
     cookie: str = ""
     block_msg: list[str] = [
@@ -83,6 +81,7 @@ class Config(BaseModel):
         3196373166,
     ]
     llm_tools: LLMTools = LLMTools()
+    cookies: Cookie = Cookie()
 
 
 class ConfigManager:

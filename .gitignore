@@ -213,6 +213,7 @@ data.db
 data/
 logs/
 config/
+custom_plugins/
 
 # UV
 uv.toml

@@ -1,4 +1,5 @@
-from typing import Literal
+from collections.abc import Awaitable, Callable
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -35,3 +36,12 @@ class ToolFunctionSchema(BaseModel):
 
     type: Literal["function"] = Field(..., description="工具类型必须是function")
     function: FunctionDefinitionSchema = Field(..., description="函数定义")
+
+
+class ToolData(BaseModel):
+    """用于注册Tool的数据模型"""
+
+    data: ToolFunctionSchema = Field(..., description="工具元数据")
+    func: Callable[[dict[str, Any]], Awaitable[str]] = Field(
+        ..., description="工具函数"
+    )
