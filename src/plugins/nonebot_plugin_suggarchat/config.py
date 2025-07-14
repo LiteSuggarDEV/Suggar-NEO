@@ -217,8 +217,8 @@ class ConfigManager:
     toml_config: Path = config_dir / "config.toml"
     group_prompt: Path = config_dir / "prompt_group.txt"  # 兼容旧版本
     private_prompt: Path = config_dir / "prompt_private.txt"  # 兼容旧版本
-    private_prompt_dir: Path = config_dir / "private_prompt"
-    group_prompt_dir: Path = config_dir / "group_prompt_dir"
+    private_prompt_dir: Path = config_dir / "private_prompts"
+    group_prompt_dir: Path = config_dir / "group_prompts"
     group_prompt: Path = config_dir / "prompt_group.txt"
     private_prompt: Path = config_dir / "prompt_private.txt"
     custom_models_dir: Path = config_dir / "models"
