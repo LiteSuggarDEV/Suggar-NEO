@@ -3,7 +3,7 @@ from nonebot.plugin import PluginMetadata
 
 from suggar_utils.config import config_manager
 
-from . import add, auto_clean, ban, black, leave, list_black, pardon, rate
+from . import add, auto_clean, ban, black, leave, list_black, pardon, rate, send
 
 __plugin_meta__ = PluginMetadata(
     name="机器人管理插件",
@@ -21,6 +21,7 @@ __all__ = [
     "list_black",
     "pardon",
     "rate",
+    "send",
 ]
 
 
