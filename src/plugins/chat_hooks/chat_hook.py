@@ -5,7 +5,6 @@ from copy import deepcopy
 from nonebot import get_bot
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent
 from nonebot.log import logger
-from nonebot_plugin_value.api.api_balance import add_balance
 
 from src.plugins.nonebot_plugin_suggarchat.API import Chat
 from src.plugins.nonebot_plugin_suggarchat.event import BeforeChatEvent
@@ -16,7 +15,7 @@ from src.plugins.nonebot_plugin_suggarchat.utils import (
 )
 from suggar_utils.config import config_manager
 from suggar_utils.utils import send_to_admin
-from suggar_utils.value import SUGGAR_EXP_ID
+from suggar_utils.value import SUGGAR_EXP_ID, add_balance
 
 from .utils import (
     CHANGE_LOVE_POINTS_TOOL,
