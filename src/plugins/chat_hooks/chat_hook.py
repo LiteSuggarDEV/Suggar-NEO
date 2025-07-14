@@ -42,6 +42,7 @@ ChatException: TypeAlias = (
     BlockException | CancelException | PassException | NoneBotException
 )
 
+
 @chat.handle()  # type: ignore
 async def love_handler(event: BeforeChatEvent) -> None:
     try:

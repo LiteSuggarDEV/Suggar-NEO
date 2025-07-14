@@ -13,7 +13,7 @@ dependencies = [
     "nonebot-plugin-htmlrender>=0.6.6",
     "nonebot-plugin-localstore>=0.7.4",
     "nonebot-plugin-orm>=0.8.1",
-    "nonebot-plugin-value>=0.0.9.post1",
+    "nonebot-plugin-value==0.0.9.post2",
     "nonebot2[fastapi]>=2.4.2",
     "openai>=1.95.0",
     "pillow>=11.3.0",

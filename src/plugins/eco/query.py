@@ -11,7 +11,6 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 from nonebot.rule import to_me
 from nonebot_plugin_value.api.api_balance import get_or_create_account
-from nonebot_plugin_value.uuid_lib import to_uuid
 
 from src.plugins.menu.models import MatcherData
 from suggar_utils.config import config_manager
@@ -84,11 +83,9 @@ async def _(
     ),
 ).handle()
 async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
-    economy_data = await get_or_create_account(to_uuid(str(event.user_id)))
-    love_data = await get_or_create_account(
-        to_uuid(str(event.user_id)), SUGGAR_VALUE_ID
-    )
-    exp_data = await get_or_create_account(to_uuid(str(event.user_id)), SUGGAR_EXP_ID)
+    economy_data = await get_or_create_account(str(event.user_id))
+    love_data = await get_or_create_account(str(event.user_id), SUGGAR_VALUE_ID)
+    exp_data = await get_or_create_account(str(event.user_id), SUGGAR_EXP_ID)
     await matcher.finish(
         MessageSegment.at(event.user_id)
         + MessageSegment.text(
@@ -111,7 +108,7 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
     ),
 ).handle()
 async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
-    economy_data = await get_or_create_account(to_uuid(str(event.user_id)))
+    economy_data = await get_or_create_account(str(event.user_id))
     await matcher.finish(
         MessageSegment.at(event.user_id)
         + MessageSegment.text(f"\n货币余额：{economy_data.balance}点")

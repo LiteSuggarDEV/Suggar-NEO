@@ -23,8 +23,10 @@ async def add_balance(
     source: str = "_transfer",
     currency_id: str | None = None,
 ) -> UserAccountData:
+    user_id = to_uuid(user_id)
     await get_or_create_account(user_id, currency_id)
     return await add_b(user_id, amount, source, currency_id)
+
 
 async def del_balance(
     user_id: str,
@@ -32,5 +34,6 @@ async def del_balance(
     source: str = "_transfer",
     currency_id: str | None = None,
 ) -> UserAccountData:
+    user_id = to_uuid(user_id)
     await get_or_create_account(user_id, currency_id)
     return await del_b(user_id, amount, source, currency_id)

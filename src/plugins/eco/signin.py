@@ -7,7 +7,6 @@ from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment
 from nonebot.matcher import Matcher
 from nonebot_plugin_orm import get_session
 from nonebot_plugin_value.api.api_balance import get_or_create_account
-from nonebot_plugin_value.uuid_lib import to_uuid
 
 from src.plugins.menu.models import MatcherData
 from suggar_utils.store import get_or_create_user_model
@@ -26,13 +25,11 @@ from suggar_utils.value import SUGGAR_EXP_ID, SUGGAR_VALUE_ID, add_balance
     ),
 ).handle()
 async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
-    economy_data = await get_or_create_account(to_uuid(str(event.user_id)))
-    love_data = await get_or_create_account(
-        to_uuid(str(event.user_id)), SUGGAR_VALUE_ID
-    )
-    exp_data = await get_or_create_account(to_uuid(str(event.user_id)), SUGGAR_EXP_ID)
+    economy_data = await get_or_create_account(str(event.user_id))
+    love_data = await get_or_create_account(str(event.user_id), SUGGAR_VALUE_ID)
+    exp_data = await get_or_create_account(str(event.user_id), SUGGAR_EXP_ID)
     async with get_session() as session:
-        fun_data = await get_or_create_user_model(to_uuid(str(event.user_id)), session)
+        fun_data = await get_or_create_user_model(str(event.user_id), session)
         session.add(fun_data)
         last_daily = fun_data.last_daily
         if is_same_day(int(last_daily.timestamp()), int(datetime.now().timestamp())):
@@ -49,7 +46,7 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
         love = float(random.randint(1, 10))
         coin = float(random.randint(1, 100))
         exp = float(random.randint(1, 50))
-        fun_data = await get_or_create_user_model(to_uuid(str(event.user_id)), session)
+        fun_data = await get_or_create_user_model(str(event.user_id), session)
         session.add(fun_data)
         daily_count = fun_data.daily_count
         daily_count += 1
@@ -57,9 +54,9 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
         fun_data.last_daily = datetime.now()
 
         await session.commit()
-    await add_balance(to_uuid(str(event.user_id)), coin, "签到")
-    await add_balance(to_uuid(str(event.user_id)), love, "签到", SUGGAR_VALUE_ID)
-    await add_balance(to_uuid(str(event.user_id)), exp, "签到", SUGGAR_EXP_ID)
+    await add_balance(str(event.user_id), coin, "签到")
+    await add_balance(str(event.user_id), love, "签到", SUGGAR_VALUE_ID)
+    await add_balance(str(event.user_id), exp, "签到", SUGGAR_EXP_ID)
     formatted_datetime = last_daily.strftime("%Y-%m-%d %H:%M:%S")
     await matcher.send(
         MessageSegment.at(event.user_id)

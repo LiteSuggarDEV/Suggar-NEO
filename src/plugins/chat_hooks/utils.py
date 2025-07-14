@@ -13,7 +13,6 @@ from nonebot.adapters.onebot.v11 import (
 from nonebot_plugin_value.api.api_balance import (
     get_or_create_account,
 )
-from nonebot_plugin_value.uuid_lib import to_uuid
 from openai.types.chat.chat_completion_message import ChatCompletionMessage
 from openai.types.chat.chat_completion_tool_choice_option_param import (
     ChatCompletionToolChoiceOptionParam,
@@ -108,7 +107,7 @@ async def report(event: MessageEvent, message: str, bot: Bot) -> str:
 
 
 async def get_love_points(uid: int) -> str:
-    user = await get_or_create_account(to_uuid(str(uid)), SUGGAR_VALUE_ID)
+    user = await get_or_create_account(str(uid), SUGGAR_VALUE_ID)
     logger.debug(f"调用了tool，{uid}好感度为：{user.balance}")
     return json.dumps(
         {"success": True, "message": f"当前好感度：{user.balance}"},
@@ -117,9 +116,7 @@ async def get_love_points(uid: int) -> str:
 
 
 async def change_love_points(user_id: int | str, points: int) -> str:
-    before = (
-        await get_or_create_account(to_uuid(str(user_id)), SUGGAR_VALUE_ID)
-    ).balance
+    before = (await get_or_create_account(str(user_id), SUGGAR_VALUE_ID)).balance
     logger.debug(f"调起了tool，尝试把{user_id}的好感度做{points}的变化！")
     if abs(points) > 10:
         return json.dumps(
@@ -127,11 +124,9 @@ async def change_love_points(user_id: int | str, points: int) -> str:
             ensure_ascii=False,
         )
     if points > 0:
-        await add_balance(to_uuid(str(user_id)), float(points), "Chat", SUGGAR_VALUE_ID)
+        await add_balance(str(user_id), float(points), "Chat", SUGGAR_VALUE_ID)
     elif points < 0:
-        await del_balance(
-            to_uuid(str(user_id)), float(abs(points)), "Chat", SUGGAR_VALUE_ID
-        )
+        await del_balance(str(user_id), float(abs(points)), "Chat", SUGGAR_VALUE_ID)
     else:
         return json.dumps(
             {"success": False, "message": "无变化，好感度改变值为0。"},
