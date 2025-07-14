@@ -252,10 +252,12 @@ async def openai_get_chat(
             )
             break
         except Exception as e:
+            if "Error code: 429" in str(e):
+                return "服务器繁忙，请稍后再试"
             logger.error(f"发生错误: {e}")
             logger.info(f"第 {i + 1} 次重试")
             if index == 2:
-                await send_to_admin_as_error(
+                await send_to_admin(
                     f"请检查API Key和API base_url！获取对话时发生错误: {e}", bot
                 )
                 raise e
