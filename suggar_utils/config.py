@@ -82,6 +82,7 @@ class Config(BaseModel):
     notify_group: list[int] = [
         1002495699,
     ]
+    public_group: int = 1002495699
     admins: list[int] = [
         3196373166,
     ]
