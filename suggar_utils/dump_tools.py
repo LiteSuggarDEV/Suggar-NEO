@@ -7,13 +7,32 @@ from nonebot import logger
 from nonebot_plugin_orm import get_session
 from nonebot_plugin_value.api.api_balance import (
     del_account,
+    get_or_create_account,
+    list_accounts,
 )
 from pydantic import BaseModel, Field
+from typing_extensions import Self
 
-from .store import UPDATE_FILE, UserModel, get_or_create_user_model
+from .store import DUMP_PATH, UPDATE_FILE, UserModel, get_or_create_user_model
 from .value import SUGGAR_EXP_ID, add_balance, to_uuid
 
 db_lock = Lock()
+
+
+class MigrationManager:
+    _instance = None
+    __running = False
+
+    def __new__(cls) -> Self:
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def set_running(self, value: bool):
+        self.__running = value
+
+    def is_running(self) -> bool:
+        return self.__running
 
 
 class UserFunDataSchema(BaseModel):
@@ -60,14 +79,51 @@ async def reset_all_by_data(data: list[UserFunDataSchema]) -> None:
 
 
 async def reset_from_update_file():
-    if not UPDATE_FILE.exists():
-        logger.warning(f"JSON文件({UPDATE_FILE!s})不存在")
-        return
-    async with open(UPDATE_FILE, encoding="utf-8") as f:
-        f_str = await f.read()
-    data_list: list[dict] = json.loads(f_str)
-    final_list: list[UserFunDataSchema] = [UserFunDataSchema(**d) for d in data_list]
-    for d in final_list:
-        if type(d.id) is int:
-            d.id = to_uuid(str(d.id))
-    await reset_all_by_data(final_list)
+    async with db_lock:
+        try:
+            MigrationManager().set_running(True)
+            if not UPDATE_FILE.exists():
+                logger.warning(f"JSON文件({UPDATE_FILE!s})不存在")
+                return
+            async with open(UPDATE_FILE, encoding="utf-8") as f:
+                f_str = await f.read()
+            data_list: list[dict] = json.loads(f_str)
+            final_list: list[UserFunDataSchema] = [
+                UserFunDataSchema(**d) for d in data_list
+            ]
+            for d in final_list:
+                if type(d.id) is int:
+                    d.id = to_uuid(str(d.id))
+            await reset_all_by_data(final_list)
+        finally:
+            MigrationManager().set_running(False)
+
+
+async def dump_to_json():
+    async with db_lock:
+        try:
+            MigrationManager().set_running(True)
+            eco_accounts = await list_accounts()
+            final_list = []
+            for acc in eco_accounts:
+                uid = acc.id
+                eco_value = acc.balance
+                exp_data = await get_or_create_account(uid, SUGGAR_EXP_ID)
+                exp_value = exp_data.balance
+                async with get_session() as session:
+                    fun_data = await get_or_create_user_model(uid, session)
+                    final_list.append(
+                        dict(
+                            UserFunDataSchema(
+                                id=uid,
+                                coin=eco_value,
+                                exp=exp_value,
+                                sign_day=fun_data.daily_count,
+                                timestamp=fun_data.last_daily.timestamp(),
+                            )
+                        )
+                    )
+            async with open(DUMP_PATH, "w", encoding="utf-8") as f:
+                await f.write(json.dumps(final_list, ensure_ascii=False, indent=4))
+        finally:
+            MigrationManager().set_running(False)

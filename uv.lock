@@ -146,6 +146,12 @@ wheels = [
 ]
 
 [[package]]
+name = "extensions"
+version = "0.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/62/99/562284766394d99c8559385940e703bc4e984ccbc00dc909cffb3c0bba00/extensions-0.4.tar.gz", hash = "sha256:02a6c12973f527fd09adad71792a8d70dfc94cb49fca67ceb201a4dfa5b18099", size = 16116 }
+
+[[package]]
 name = "fastapi"
 version = "0.116.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1371,6 +1377,7 @@ dependencies = [
     { name = "aiomysql" },
     { name = "chardet" },
     { name = "dotenv" },
+    { name = "extensions" },
     { name = "jieba" },
     { name = "nonebot-adapter-onebot" },
     { name = "nonebot-plugin-htmlrender" },
@@ -1385,6 +1392,7 @@ dependencies = [
     { name = "pytz" },
     { name = "stubs" },
     { name = "tomli-w" },
+    { name = "typing" },
 ]
 
 [package.metadata]
@@ -1392,6 +1400,7 @@ requires-dist = [
     { name = "aiomysql", specifier = ">=0.2.0" },
     { name = "chardet", specifier = ">=5.2.0" },
     { name = "dotenv", specifier = ">=0.9.9" },
+    { name = "extensions", specifier = ">=0.4" },
     { name = "jieba", specifier = ">=0.42.1" },
     { name = "nonebot-adapter-onebot", specifier = ">=2.4.6" },
     { name = "nonebot-plugin-htmlrender", specifier = ">=0.6.6" },
@@ -1406,6 +1415,7 @@ requires-dist = [
     { name = "pytz", specifier = ">=2025.2" },
     { name = "stubs", specifier = ">=1.0.0" },
     { name = "tomli-w", specifier = ">=1.2.0" },
+    { name = "typing", specifier = ">=3.10.0.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -1469,6 +1479,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/a8/4b/29b4ef32e036bb34e4ab51796dd745cdba7ed47ad142a9f4a1eb8e0c744d/tqdm-4.67.1.tar.gz", hash = "sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2", size = 169737 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d0/30/dc54f88dd4a2b5dc8a0279bdd7270e735851848b762aeb1c1184ed1f6b14/tqdm-4.67.1-py3-none-any.whl", hash = "sha256:26445eca388f82e72884e0d580d5464cd801a3ea01e63e5601bdff9ba6a48de2", size = 78540 },
+]
+
+[[package]]
+name = "typing"
+version = "3.10.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/1b/835d4431805939d2996f8772aca1d2313a57e8860fec0e48e8e7dfe3a477/typing-3.10.0.0.tar.gz", hash = "sha256:13b4ad211f54ddbf93e5901a9967b1e07720c1d1b78d596ac6a439641aa1b130", size = 78962 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f2/5d/865e17349564eb1772688d8afc5e3081a5964c640d64d1d2880ebaed002d/typing-3.10.0.0-py3-none-any.whl", hash = "sha256:12fbdfbe7d6cca1a42e485229afcb0b0c8259258cfb919b8a5e2a5c953742f89", size = 26320 },
 ]
 
 [[package]]

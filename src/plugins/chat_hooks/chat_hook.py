@@ -63,7 +63,7 @@ async def love_handler(event: BeforeChatEvent) -> None:
             tools.extend(ToolsManager().tools_meta_dict().values())
             response_msg = await tools_caller(
                 [
-                    *deepcopy(i for i in msg_list if i["role"] == "system"),
+                    *deepcopy([i for i in msg_list if i["role"] == "system"]),
                     deepcopy(msg_list)[-1],
                 ],
                 tools,

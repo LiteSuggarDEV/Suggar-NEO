@@ -15,6 +15,7 @@ DATA_DIR = get_data_dir("suggar_original")
 CONFIG_DIR = get_config_dir("suggar_original")
 DATA_LOCK = asyncio.Lock()
 UPDATE_FILE = CONFIG_DIR / "update.json"
+DUMP_PATH = DATA_DIR / "data_save.json"
 
 
 class UserModel(Model):
@@ -36,7 +37,7 @@ async def get_user_or_none(user_id: str, session: AsyncSession) -> UserModel | N
 
 
 async def get_or_create_user_model(user_id: str, session: AsyncSession) -> UserModel:
-    user_id = to_uuid(user_id)
+    user_id = to_uuid(user_id) if user_id.isdigit() else user_id
     async with DATA_LOCK:
         async with session:
             if (data := await get_user_or_none(user_id, session)) is not None:
