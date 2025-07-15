@@ -53,19 +53,19 @@ async def reset_by_data(data: UserFunDataSchema) -> None:
     Args:
         data (UserFunDataSchema): 数据模型
     """
-    async with db_lock:
-        assert isinstance(data.id, str)
-        logger.warning(f"正在重写用户数据{data.id}")
-        await del_account(data.id)
-        await del_account(data.id, SUGGAR_EXP_ID)
-        await add_balance(data.id, data.coin if data.coin > 0 else 10)
-        await add_balance(data.id, data.exp if data.exp > 0 else 1, SUGGAR_EXP_ID)
-        async with get_session() as session:
-            user_model: UserModel = await get_or_create_user_model(data.id, session)
-            session.add(user_model)
-            user_model.daily_count = data.sign_day
-            user_model.last_daily = datetime.fromtimestamp(data.timestamp)
-            await session.commit()
+
+    assert isinstance(data.id, str)
+    logger.warning(f"正在重写用户数据{data.id}")
+    await del_account(data.id)
+    await del_account(data.id, SUGGAR_EXP_ID)
+    await add_balance(data.id, data.coin if data.coin > 0 else 10)
+    await add_balance(data.id, data.exp if data.exp > 0 else 1, SUGGAR_EXP_ID)
+    async with get_session() as session:
+        user_model: UserModel = await get_or_create_user_model(data.id, session)
+        session.add(user_model)
+        user_model.daily_count = data.sign_day
+        user_model.last_daily = datetime.fromtimestamp(data.timestamp)
+        await session.commit()
 
 
 async def reset_all_by_data(data: list[UserFunDataSchema]) -> None:

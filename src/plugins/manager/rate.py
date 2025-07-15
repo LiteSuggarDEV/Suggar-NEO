@@ -70,6 +70,6 @@ async def run(matcher: Matcher, event: MessageEvent):
         with contextlib.suppress(Exception):
             await matcher.send(random.choice(config_manager.config.rate_reply))
         raise IgnoredException("Too fast!")
-    if not MigrationManager().is_running():
+    if MigrationManager().is_running():
         await matcher.send("正在维护/数据迁移中，暂时不支持该操作！")
         raise IgnoredException("Under repair/migration")
