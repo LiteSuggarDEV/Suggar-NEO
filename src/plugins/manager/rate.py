@@ -35,13 +35,13 @@ too_fast_reply = (
 
 @run_preprocessor
 async def poke(matcher: Matcher, event: PokeNotifyEvent):
+    if event.target_id != event.self_id:
+        return
     ins_id = str(event.group_id if event.group_id else event.user_id)
     data = watch_group if event.group_id else watch_user
 
     bucket = data[ins_id]
     if not bucket.consume():
-        with contextlib.suppress(Exception):
-            await matcher.send(random.choice(too_fast_reply))
         raise IgnoredException("Too fast!")
 
 
