@@ -9,10 +9,12 @@ from suggar_utils.rule import is_global_admin
 @on_command(
     "reset_data",
     state=dict(
-        MatcherData(rm_name="重置数据", rm_desc="重置数据", rm_usage="/reset_data")
+        MatcherData(
+            rm_name="重写数据", rm_desc="从恢复文件重置数据", rm_usage="/reset_data"
+        )
     ),
     permission=is_global_admin,
 ).handle()
 async def _(matcher: Matcher) -> None:
     await reset_from_update_file()
-    await matcher.finish("数据已重置")
+    await matcher.finish("数据已重写")

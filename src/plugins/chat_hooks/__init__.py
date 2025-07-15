@@ -2,6 +2,7 @@ from nonebot.plugin import PluginMetadata, require
 
 require("src.plugins.nonebot_plugin_suggarchat")
 require("nonebot_plugin_value")
+require("nonebot_plugin_orm")
 
 from . import chat_hook
 

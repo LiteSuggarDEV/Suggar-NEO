@@ -25,16 +25,10 @@ watch_group = defaultdict(
 watch_user = defaultdict(
     lambda: TokenBucket(rate=1 / config_manager.config.rate_limit, capacity=1)
 )
-too_fast_reply = (
-    "请求太快啦！",
-    "停停停等下！",
-    "什么？我没听清欸！",
-    "太快了啦！qwq让我缓缓啦！",
-)
 
 
 @run_preprocessor
-async def poke(matcher: Matcher, event: PokeNotifyEvent):
+async def poke(event: PokeNotifyEvent):
     if event.target_id != event.self_id:
         return
     ins_id = str(event.group_id if event.group_id else event.user_id)
@@ -70,5 +64,5 @@ async def run(matcher: Matcher, event: MessageEvent):
     bucket = data[ins_id]
     if not bucket.consume():
         with contextlib.suppress(Exception):
-            await matcher.send(random.choice(too_fast_reply))
+            await matcher.send(random.choice(config_manager.config.rate_reply))
         raise IgnoredException("Too fast!")

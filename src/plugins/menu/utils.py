@@ -15,6 +15,7 @@ PAGE_DIR = CONFIG_DIR / "pages"
 PAGE_DIR.mkdir(parents=True, exist_ok=True)
 _md_cache: dict[str, str] = {}
 
+
 def get_css_path(name: Literal["dark", "light", ""] = "") -> str:
     if datetime.now().hour < 7 or datetime.now().hour > 20 or name == "dark":
         return str(dir_path / "dark.css")

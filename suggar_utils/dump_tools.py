@@ -21,7 +21,7 @@ class UserFunDataSchema(BaseModel):
     用户功能数据模型
     """
 
-    id: int = Field(default_factory=int)  # 用户ID
+    id: int | str = Field(default_factory=int)  # 用户ID
     sign_day: int = Field(default_factory=int)  # 签到天数
     timestamp: float = Field(default_factory=float)  # 最后一次签到时间戳
     coin: float = Field(default_factory=float)  # 金币
@@ -35,22 +35,18 @@ async def reset_by_data(data: UserFunDataSchema) -> None:
         data (UserFunDataSchema): 数据模型
     """
     async with db_lock:
-        logger.warning(f"正在重置用户数据{data.id}(UID:{to_uuid(str(data.id))})")
-        await del_account(to_uuid(str(data.id)))
-        await del_account(to_uuid(str(data.id)), SUGGAR_EXP_ID)
-        logger.info(f"正在写入{data.id}的Value数据")
-        await add_balance(str(data.id), data.coin if data.coin > 0 else 10)
-        await add_balance(str(data.id), data.exp if data.exp > 0 else 1, SUGGAR_EXP_ID)
+        assert isinstance(data.id, str)
+        logger.warning(f"正在重写用户数据{data.id}")
+        await del_account(data.id)
+        await del_account(data.id, SUGGAR_EXP_ID)
+        await add_balance(data.id, data.coin if data.coin > 0 else 10)
+        await add_balance(data.id, data.exp if data.exp > 0 else 1, SUGGAR_EXP_ID)
         async with get_session() as session:
-            logger.info(f"正在更新{data.id}的签到数据")
-            user_model: UserModel = await get_or_create_user_model(
-                str(data.id), session
-            )
+            user_model: UserModel = await get_or_create_user_model(data.id, session)
             session.add(user_model)
             user_model.daily_count = data.sign_day
             user_model.last_daily = datetime.fromtimestamp(data.timestamp)
             await session.commit()
-        logger.info(f"{data.id}更新完成")
 
 
 async def reset_all_by_data(data: list[UserFunDataSchema]) -> None:
@@ -64,8 +60,14 @@ async def reset_all_by_data(data: list[UserFunDataSchema]) -> None:
 
 
 async def reset_from_update_file():
+    if not UPDATE_FILE.exists():
+        logger.warning(f"JSON文件({UPDATE_FILE!s})不存在")
+        return
     async with open(UPDATE_FILE, encoding="utf-8") as f:
         f_str = await f.read()
     data_list: list[dict] = json.loads(f_str)
     final_list: list[UserFunDataSchema] = [UserFunDataSchema(**d) for d in data_list]
+    for d in final_list:
+        if type(d.id) is int:
+            d.id = to_uuid(str(d.id))
     await reset_all_by_data(final_list)

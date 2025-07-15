@@ -2,6 +2,7 @@ import pickle
 from datetime import datetime
 from pathlib import Path
 
+from aiofiles import open
 from nonebot import on_command
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -63,19 +64,22 @@ async def _(ev: MessageEvent, bot: Bot):
 
     if not user_conf.exists():
         image = get_image(nickname)
-        with open(str(user_conf), "wb") as f:
-            pickle.dump({"last_time": timestamp, "image": image}, f)
+        async with open(str(user_conf), "wb") as f:
+            await f.seek(0)
+            await f.write(pickle.dumps({"last_time": timestamp, "image": image}))
 
     else:
-        with open(str(user_conf), "rb") as f:
-            data = pickle.load(f)
+        async with open(str(user_conf), "rb") as f:
+            await f.seek(0)
+            data = pickle.loads(await f.read())
 
         if await is_same_day(int(timestamp), data["last_time"]):
             image = data["image"]
         else:
             image = get_image(nickname)
-            with open(str(user_conf), "wb") as f:
-                pickle.dump({"last_time": timestamp, "image": image}, f)
+            async with open(str(user_conf), "wb") as f:
+                await f.seek(0)
+                await f.write(pickle.dumps({"last_time": timestamp, "image": image}))
 
     if isinstance(event, PrivateMessageEvent):
         await luck.send(MessageSegment.image(image))

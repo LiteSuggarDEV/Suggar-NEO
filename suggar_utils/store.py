@@ -6,15 +6,16 @@ from nonebot_plugin_orm import AsyncSession, Model
 from sqlalchemy import DateTime, Integer, String, select
 from sqlalchemy.orm import MappedColumn, mapped_column
 
-from .value import to_uuid
-
+require("nonebot_plugin_value")
 require("nonebot_plugin_localstore")
 from nonebot_plugin_localstore import get_config_dir, get_data_dir
+from nonebot_plugin_value.uuid_lib import to_uuid
 
 DATA_DIR = get_data_dir("suggar_original")
 CONFIG_DIR = get_config_dir("suggar_original")
 DATA_LOCK = asyncio.Lock()
 UPDATE_FILE = CONFIG_DIR / "update.json"
+
 
 class UserModel(Model):
     __tablename__ = "suggar_user_data"

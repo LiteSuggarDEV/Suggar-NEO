@@ -63,7 +63,7 @@ async def love_handler(event: BeforeChatEvent) -> None:
             tools.extend(ToolsManager().tools_meta_dict().values())
             response_msg = await tools_caller(
                 [
-                    deepcopy(msg_list[0]),
+                    *deepcopy(i for i in msg_list if i["role"] == "system"),
                     deepcopy(msg_list)[-1],
                 ],
                 tools,
@@ -89,7 +89,9 @@ async def love_handler(event: BeforeChatEvent) -> None:
                             ) is not None:
                                 func_response = await func(function_args)
                             else:
-                                logger.warning(f"未定义的函数：{function_name}")
+                                logger.opt(exception=True, colors=True).error(
+                                    f"ChatHook中遇到了未定义的函数：{function_name}"
+                                )
                                 continue
                     logger.debug(f"函数{function_name}返回：{func_response}")
                     msg = {
@@ -101,7 +103,7 @@ async def love_handler(event: BeforeChatEvent) -> None:
                     msg_list.append(msg)
         except Exception as e:
             logger.opt(colors=True, exception=e).exception(
-                f"ERROR\n{e!s}\n!调用Tools失败！正在回滚消息......"
+                f"ERROR\n{e!s}\n!调用Tools失败！正在回滚消息，使用原始消息处理器......"
             )
             msg_list = chat_list_backup
         finally:

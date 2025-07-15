@@ -86,6 +86,14 @@ class Config(BaseModel):
     admins: list[int] = [
         3196373166,
     ]
+    rate_reply: list[str] = [
+        "请求太快啦！",
+        "停停停等下！",
+        "什么？我没听清欸！",
+        "太快了啦！qwq让我缓缓啦！",
+        "喵喵喵！请慢点哦！",
+        "欸干什么啦？！别急啦！",
+    ]
     llm_extension: LLM_Extension = LLM_Extension()
     llm_tools: LLMTools = LLMTools()
     cookies: Cookie = Cookie()
