@@ -4,6 +4,7 @@ import re
 import sys
 import time
 from collections.abc import Callable, Coroutine
+from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -26,6 +27,8 @@ from nonebot.adapters.onebot.v11 import (
 from openai.types.chat.chat_completion import ChatCompletion
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from pydantic import BaseModel, Field
+
+from suggar_utils.config import config_manager as bot_config
 
 from .chatmanager import chat_manager
 from .config import Config, config_manager
@@ -183,46 +186,64 @@ async def get_chat(
     tokens: int = 0,
 ) -> str:
     """获取聊天响应"""
-    # 获取最大token数量
-    max_tokens = config_manager.config.max_tokens
-    func = openai_get_chat
-    # 根据预设选择API密钥和基础URL
-    preset = config_manager.get_preset(
-        config_manager.config.preset, fix=True, cache=False
-    )
-    is_thought_chain_model = preset.thought_chain_model
-
-    # 检查协议适配器
-    if preset.protocol == "__main__":
+    preset_list = deepcopy(bot_config.config.llm_extension.avaliable_presets)
+    err: None | Exception = None
+    if not preset_list:
+        preset_list = ["default"]
+    for name in preset_list:
+        # 获取最大token数量
+        max_tokens = config_manager.config.max_tokens
         func = openai_get_chat
-    elif preset.protocol not in protocols_adapters:
-        raise ValueError(f"协议 {preset.protocol} 的适配器未找到!")
-    else:
-        func = protocols_adapters[preset.protocol]
-    # 记录日志
-    logger.debug(f"开始获取 {preset.model} 的对话")
-    logger.debug(f"预设：{config_manager.config.preset}")
-    logger.debug(f"密钥：{preset.api_key[:7]}...")
-    logger.debug(f"协议：{preset.protocol}")
-    logger.debug(f"API地址：{preset.base_url}")
-    logger.debug(f"当前对话Tokens:{tokens}")
+        # 根据预设选择API密钥和基础URL
+        preset = config_manager.get_preset(
+            name
+            if (
+                bot_config.config.llm_extension.enable_auto_switch
+                and config_manager.get_preset(name).name != "default"
+            )
+            else config_manager.config.preset,
+            fix=True,
+            cache=False,
+        )
+        is_thought_chain_model = preset.thought_chain_model
 
-    nb_bot: Bot = bot if bot else nonebot.get_bot()  # type: ignore
-    # 此处获取的Bot一定是onebot适配器的Bot.
+        # 检查协议适配器
+        if preset.protocol == "__main__":
+            func = openai_get_chat
+        else:
+            raise ValueError(f"{preset.protocol}协议适配器SuggarBot不支持。")
+        # 记录日志
+        logger.debug(f"开始获取 {preset.model} 的对话")
+        logger.debug(f"预设：{config_manager.config.preset}")
+        logger.debug(f"密钥：{preset.api_key[:7]}...")
+        logger.debug(f"协议：{preset.protocol}")
+        logger.debug(f"API地址：{preset.base_url}")
+        logger.debug(f"当前对话Tokens:{tokens}")
 
-    # 调用适配器获取聊天响应
-    response = await func(
-        preset.base_url,
-        preset.model,
-        preset.api_key,
-        messages,
-        max_tokens,
-        config_manager.config,
-        nb_bot,  # type: ignore
-    )
-    if chat_manager.debug:
-        logger.debug(response)
-    return remove_think_tag(response) if is_thought_chain_model else response
+        nb_bot: Bot = bot if bot else nonebot.get_bot()  # type: ignore
+        # 此处获取的Bot一定是onebot适配器的Bot.
+        try:
+            # 调用适配器获取聊天响应
+            response = await func(
+                preset.base_url,
+                preset.model,
+                preset.api_key,
+                messages,
+                max_tokens,
+                config_manager.config,
+                nb_bot,  # type: ignore
+            )
+        except Exception as e:
+            logger.warning(f"{name}获取对话失败：{e}")
+            await send_to_admin(f"{name}获取对话失败：{e}")
+            err = e
+            continue
+        if chat_manager.debug:
+            logger.debug(response)
+        return remove_think_tag(response) if is_thought_chain_model else response
+    if err is not None:
+        raise err
+    return "服务器繁忙，请稍后再试"
 
 
 async def openai_get_chat(

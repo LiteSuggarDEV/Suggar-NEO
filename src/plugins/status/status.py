@@ -3,7 +3,7 @@ from nonebot.adapters.onebot.v11 import MessageSegment
 from nonebot.matcher import Matcher
 
 from src.plugins.menu.models import MatcherData
-from src.plugins.menu.utils import CSS_PATH, cached_md_to_pic
+from src.plugins.menu.utils import cached_md_to_pic, get_css_path
 from suggar_utils.utils import generate_info
 
 
@@ -17,5 +17,5 @@ from suggar_utils.utils import generate_info
 ).handle()
 async def status(matcher: Matcher):
     md = generate_info()
-    pic = await cached_md_to_pic(md, str(CSS_PATH))
+    pic = await cached_md_to_pic(md, str(get_css_path()))
     await matcher.finish(MessageSegment.image(pic))

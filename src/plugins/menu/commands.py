@@ -12,9 +12,9 @@ from suggar_utils.utils import send_forward_msg
 from .manager import menu_mamager
 from .models import MatcherData
 from .utils import (
-    CSS_PATH,
     cached_md_to_pic,
     generate_markdown_menus,
+    get_css_path,
 )
 
 command_start = get_driver().config.command_start
@@ -44,7 +44,9 @@ async def show_menu(matcher: Matcher, bot: Bot, event: MessageEvent):
 
     markdown_menus_pics = [
         MessageSegment.image(
-            file=await cached_md_to_pic(md=markdown_menus_string, css_path=CSS_PATH)
+            file=await cached_md_to_pic(
+                md=markdown_menus_string, css_path=get_css_path()
+            )
         )
         for markdown_menus_string in markdown_menus
     ] + [

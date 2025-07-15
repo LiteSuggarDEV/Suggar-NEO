@@ -2,7 +2,7 @@ import contextlib
 import random
 from collections import defaultdict
 
-from nonebot.adapters.onebot.v11 import GroupMessageEvent, MessageEvent
+from nonebot.adapters.onebot.v11 import GroupMessageEvent, MessageEvent, PokeNotifyEvent
 from nonebot.exception import IgnoredException
 from nonebot.matcher import Matcher
 from nonebot.message import run_preprocessor
@@ -25,6 +25,24 @@ watch_group = defaultdict(
 watch_user = defaultdict(
     lambda: TokenBucket(rate=1 / config_manager.config.rate_limit, capacity=1)
 )
+too_fast_reply = (
+    "请求太快啦！",
+    "停停停等下！",
+    "什么？我没听清欸！",
+    "太快了啦！qwq让我缓缓啦！",
+)
+
+
+@run_preprocessor
+async def poke(matcher: Matcher, event: PokeNotifyEvent):
+    ins_id = str(event.group_id if event.group_id else event.user_id)
+    data = watch_group if event.group_id else watch_user
+
+    bucket = data[ins_id]
+    if not bucket.consume():
+        with contextlib.suppress(Exception):
+            await matcher.send(random.choice(too_fast_reply))
+        raise IgnoredException("Too fast!")
 
 
 @run_preprocessor
@@ -51,13 +69,6 @@ async def run(matcher: Matcher, event: MessageEvent):
 
     bucket = data[ins_id]
     if not bucket.consume():
-        too_fast_reply = (
-            "请求太快啦！",
-            "停停停等下！",
-            "什么？我没听清欸！",
-            "太快了啦！qwq让我缓缓啦！",
-        )
-
         with contextlib.suppress(Exception):
             await matcher.send(random.choice(too_fast_reply))
         raise IgnoredException("Too fast!")

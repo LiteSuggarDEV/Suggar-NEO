@@ -46,7 +46,7 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
         daily_count = fun_data.daily_count
         daily_count += 1
         fun_data.daily_count = daily_count
-        fun_data.last_daily = datetime.now()
+        last_daily = fun_data.last_daily = datetime.now()
 
         await session.commit()
     await add_balance(str(event.user_id), coin, "签到")

@@ -12,6 +12,11 @@ from watchfiles import awatch
 from .store import CONFIG_DIR
 
 
+class LLM_Extension(BaseModel):
+    enable_auto_switch: bool = True
+    avaliable_presets: list[str] = ["default"]  # 自动切换可用模型的列表
+
+
 class LLMTools(BaseModel):
     enable_report: bool = True
     require_tools: bool = False
@@ -80,6 +85,7 @@ class Config(BaseModel):
     admins: list[int] = [
         3196373166,
     ]
+    llm_extension: LLM_Extension = LLM_Extension()
     llm_tools: LLMTools = LLMTools()
     cookies: Cookie = Cookie()
 
