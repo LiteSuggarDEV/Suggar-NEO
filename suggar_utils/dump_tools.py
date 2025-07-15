@@ -8,7 +8,7 @@ from nonebot_plugin_orm import get_session
 from nonebot_plugin_value.api.api_balance import (
     del_account,
 )
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from .store import UPDATE_FILE, UserModel, get_or_create_user_model
 from .value import SUGGAR_EXP_ID, add_balance, to_uuid
@@ -21,11 +21,12 @@ class UserFunDataSchema(BaseModel):
     用户功能数据模型
     """
 
-    id: int  # 用户ID
-    sign_day: int  # 签到天数
-    timestamp: float  # 最后一次签到时间戳
-    coin: float  # 金币
-    exp: float  # 经验
+    id: int = Field(default_factory=int)  # 用户ID
+    sign_day: int = Field(default_factory=int)  # 签到天数
+    timestamp: float = Field(default_factory=float)  # 最后一次签到时间戳
+    coin: float = Field(default_factory=float)  # 金币
+    exp: float = Field(default_factory=float)  # 经验
+
 
 async def reset_by_data(data: UserFunDataSchema) -> None:
     """通过UserFunDataSchema重置用户数据
@@ -66,7 +67,5 @@ async def reset_from_update_file():
     async with open(UPDATE_FILE, encoding="utf-8") as f:
         f_str = await f.read()
     data_list: list[dict] = json.loads(f_str)
-    final_list: list[UserFunDataSchema] = [
-        UserFunDataSchema.model_validate(d) for d in data_list
-    ]
+    final_list: list[UserFunDataSchema] = [UserFunDataSchema(**d) for d in data_list]
     await reset_all_by_data(final_list)
