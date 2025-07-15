@@ -39,8 +39,8 @@ async def reset_by_data(data: UserFunDataSchema) -> None:
         await del_account(to_uuid(str(data.id)))
         await del_account(to_uuid(str(data.id)), SUGGAR_EXP_ID)
         logger.info(f"正在写入{data.id}的Value数据")
-        await add_balance(str(data.id), data.coin)
-        await add_balance(str(data.id), data.exp, SUGGAR_EXP_ID)
+        await add_balance(str(data.id), data.coin if data.coin > 0 else 10)
+        await add_balance(str(data.id), data.exp if data.exp > 0 else 1, SUGGAR_EXP_ID)
         async with get_session() as session:
             logger.info(f"正在更新{data.id}的签到数据")
             user_model: UserModel = await get_or_create_user_model(
