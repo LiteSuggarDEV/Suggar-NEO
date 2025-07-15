@@ -14,7 +14,7 @@ from nonebot_plugin_localstore import get_config_dir, get_data_dir
 DATA_DIR = get_data_dir("suggar_original")
 CONFIG_DIR = get_config_dir("suggar_original")
 DATA_LOCK = asyncio.Lock()
-
+UPDATE_FILE = CONFIG_DIR / "update.json"
 
 class UserModel(Model):
     __tablename__ = "suggar_user_data"

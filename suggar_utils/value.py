@@ -14,7 +14,6 @@ from nonebot_plugin_value.api.api_balance import (
 )
 from nonebot_plugin_value.uuid_lib import to_uuid
 
-# SUGGAR_VALUE_ID = to_uuid("love")
 SUGGAR_EXP_ID = to_uuid("exp")
 VALUE_LOCK = asyncio.Lock()
 
