@@ -29,7 +29,7 @@ class Adapter:
         Raises:
             ValueError: 这个协议的适配器已经注册了。
         """
-        if protocol in protocols_adapters and not config_manager.bot_config_dir:
+        if protocol in protocols_adapters and not config_manager.config_dir:
             raise ValueError("协议适配器已存在")
         else:
             protocols_adapters[protocol] = func
