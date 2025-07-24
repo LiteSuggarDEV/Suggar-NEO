@@ -45,7 +45,9 @@ class ToolsManager:
         return {k: v.data for k, v in self.__models.items()}
 
     def tools_meta_dict(self) -> dict[str, dict[str, Any]]:
-        return {k: v.data.model_dump() for k, v in self.__models.items()}
+        return {
+            k: v.data.model_dump(exclude_none=True) for k, v in self.__models.items()
+        }
 
     def register_tool(self, tool: ToolData) -> None:
         if tool.data.function.name not in self.__models:

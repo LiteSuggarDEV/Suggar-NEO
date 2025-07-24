@@ -57,8 +57,8 @@ async def _(
         ]
         if user_id not in group_members and event.user_id not in admins:
             await matcher.finish("该用户不在本群内！")
-    economy_data = await get_or_create_account(to_uuid(str(event.user_id)))
-    exp_data = await get_or_create_account(to_uuid(str(event.user_id)), SUGGAR_EXP_ID)
+    economy_data = await get_or_create_account(to_uuid(str(user_id)))
+    exp_data = await get_or_create_account(to_uuid(str(user_id)), SUGGAR_EXP_ID)
     await matcher.finish(
         MessageSegment.text(
             f"喵呜～你好呀人类！\n用户：{user_id!s}"

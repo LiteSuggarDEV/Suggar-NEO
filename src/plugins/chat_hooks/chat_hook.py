@@ -59,7 +59,7 @@ async def love_handler(event: BeforeChatEvent) -> None:
         try:
             tools: list[dict[str, Any]] = []
             if config.llm_tools.enable_report:
-                tools.append(REPORT_TOOL.model_dump())
+                tools.append(REPORT_TOOL.model_dump(exclude_none=True))
             tools.extend(ToolsManager().tools_meta_dict().values())
             response_msg = await tools_caller(
                 [
