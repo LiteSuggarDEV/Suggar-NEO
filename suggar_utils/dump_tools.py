@@ -6,6 +6,7 @@ from aiofiles import open
 from nonebot import logger
 from nonebot_plugin_orm import get_session
 from nonebot_plugin_value.api.api_balance import (
+    add_balance,
     del_account,
     get_or_create_account,
     list_accounts,
@@ -14,7 +15,7 @@ from pydantic import BaseModel, Field
 from typing_extensions import Self
 
 from .store import DUMP_PATH, UPDATE_FILE, UserModel, get_or_create_user_model
-from .value import SUGGAR_EXP_ID, add_balance, to_uuid
+from .value import SUGGAR_EXP_ID, to_uuid
 
 db_lock = Lock()
 
@@ -40,26 +41,28 @@ class UserFunDataSchema(BaseModel):
     用户功能数据模型
     """
 
-    id: int | str = Field(default_factory=int)  # 用户ID
+    id: str = Field(default_factory=str)  # 用户ID
     sign_day: int = Field(default_factory=int)  # 签到天数
     timestamp: float = Field(default_factory=float)  # 最后一次签到时间戳
     coin: float = Field(default_factory=float)  # 金币
     exp: float = Field(default_factory=float)  # 经验
 
 
-async def reset_by_data(data: UserFunDataSchema) -> None:
+async def reset_by_data(
+    data: UserFunDataSchema,
+) -> None:
     """通过UserFunDataSchema重置用户数据
 
     Args:
         data (UserFunDataSchema): 数据模型
     """
-
-    assert isinstance(data.id, str)
     logger.warning(f"正在重写用户数据{data.id}")
     await del_account(data.id)
     await del_account(data.id, SUGGAR_EXP_ID)
-    await add_balance(data.id, data.coin if data.coin > 0 else 10)
-    await add_balance(data.id, data.exp if data.exp > 0 else 1, SUGGAR_EXP_ID)
+    await add_balance(data.id, data.coin if data.coin > 0 else 10, "system")
+    await add_balance(
+        data.id, data.exp if data.exp > 0 else 1, "system", currency_id=SUGGAR_EXP_ID
+    )
     async with get_session() as session:
         user_model: UserModel = await get_or_create_user_model(data.id, session)
         session.add(user_model)
@@ -74,6 +77,7 @@ async def reset_all_by_data(data: list[UserFunDataSchema]) -> None:
     Args:
         data (list[UserFunDataSchema]): 数据
     """
+
     for d in data:
         await reset_by_data(d)
 
