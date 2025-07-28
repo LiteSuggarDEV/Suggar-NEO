@@ -13,7 +13,7 @@ from nonebot.adapters.onebot.v11 import (
 )
 from nonebot_plugin_localstore import get_plugin_data_dir
 
-from src.plugins.menu.models import MatcherData
+from src.plugins.menu.models import CategoryEnum, MatcherData
 
 from .image import get_image
 
@@ -26,7 +26,10 @@ luck = on_command(
     block=True,
     state=dict(
         MatcherData(
-            rm_name="今日运势", rm_usage="/luck", rm_desc="洛谷同款的今日运势！"
+            name="今日运势",
+            usage="/luck",
+            description="洛谷同款的今日运势！",
+            category=CategoryEnum.FUN,
         ),
     ),
 )

@@ -5,16 +5,13 @@ from nonebot.adapters.onebot.v11 import (
     MessageEvent,
     MessageSegment,
 )
-from nonebot.matcher import Matcher
 
 from suggar_utils.utils import send_forward_msg
 
-from .manager import menu_mamager
-from .models import MatcherData
+from .models import CategoryEnum, MatcherData
 from .utils import (
-    cached_md_to_pic,
-    generate_markdown_menus,
-    get_css_path,
+    cached_html_to_pic,
+    get_page_html,
 )
 
 command_start = get_driver().config.command_start
@@ -27,32 +24,21 @@ command_start = get_driver().config.command_start
         + [f"{prefix}help" for prefix in command_start]
     ),
     state=MatcherData(
-        rm_name="Menu",
-        rm_desc="展示菜单",
-        rm_usage="/menu",
+        name="Menu",
+        description="展示菜单",
+        usage="/menu",
+        category=CategoryEnum.UTILS,
     ).model_dump(),
 ).handle()
-async def show_menu(matcher: Matcher, bot: Bot, event: MessageEvent):
+async def show_menu(bot: Bot, event: MessageEvent):
     """显示菜单"""
-    if not menu_mamager.plugins:
-        await matcher.finish("菜单加载失败，请检查日志")
-
-    markdown_menus = generate_markdown_menus(menu_mamager.plugins)
-
-    if not markdown_menus:
-        await matcher.finish("没有可用的菜单")
+    menus = [await cached_html_to_pic(page) for page in get_page_html()]
 
     markdown_menus_pics = [
-        MessageSegment.image(
-            file=await cached_md_to_pic(
-                md=markdown_menus_string, css_path=get_css_path()
-            )
-        )
-        for markdown_menus_string in markdown_menus
-    ] + [
+        *(MessageSegment.image(file=menu) for menu in menus),
         MessageSegment.text(
             "Suggar开源地址：https://github.com/LiteSuggarDEV/Suggar-NEO/"
-        )
+        ),
     ]
 
     await send_forward_msg(

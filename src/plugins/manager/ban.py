@@ -2,7 +2,7 @@ from nonebot import CommandGroup
 from nonebot.adapters.onebot.v11 import Message
 from nonebot.params import CommandArg
 
-from src.plugins.menu.models import MatcherData
+from src.plugins.menu.models import CategoryEnum, MatcherData
 from suggar_utils.blacklist.black import bl_manager
 from suggar_utils.rule import is_global_admin
 
@@ -11,15 +11,19 @@ ban = CommandGroup("ban", permission=is_global_admin)
 ban_group = ban.command(
     "group",
     state=MatcherData(
-        rm_name="封禁群", rm_usage="/ban.group <group-id> [原因]", rm_desc="封禁聊群"
+        name="封禁群",
+        usage="/ban.group <group-id> [原因]",
+        description="封禁聊群",
+        category=CategoryEnum.MANAGE,
     ).model_dump(),
 )
 ban_user = ban.command(
     "user",
     state=MatcherData(
-        rm_name="封禁用户",
-        rm_desc="用于封禁用户",
-        rm_usage="/ban.user <user-id> [原因]",
+        name="封禁用户",
+        description="用于封禁用户",
+        usage="/ban.user <user-id> [原因]",
+        category=CategoryEnum.MANAGE,
     ).model_dump(),
 )
 

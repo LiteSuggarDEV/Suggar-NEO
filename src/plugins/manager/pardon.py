@@ -2,7 +2,7 @@ from nonebot import CommandGroup
 from nonebot.adapters.onebot.v11 import Message
 from nonebot.params import CommandArg
 
-from src.plugins.menu.models import MatcherData
+from src.plugins.menu.models import CategoryEnum, MatcherData
 from suggar_utils.blacklist.black import bl_manager
 from suggar_utils.rule import is_global_admin
 
@@ -11,13 +11,19 @@ pardon = CommandGroup("pardon", permission=is_global_admin)
 pardon_group = pardon.command(
     "group",
     state=MatcherData(
-        rm_name="解封群组", rm_desc="用于解封群", rm_usage="/pardon.group <group-id>"
+        name="解封群组",
+        description="用于解封群",
+        usage="/pardon.group <group-id>",
+        category=CategoryEnum.MANAGE,
     ).model_dump(),
 )
 pardon_user = pardon.command(
     "user",
     state=MatcherData(
-        rm_name="解封用户", rm_desc="用于解封用户", rm_usage="/pardon.user <user-id>"
+        name="解封用户",
+        description="用于解封用户",
+        usage="/pardon.user <user-id>",
+        category=CategoryEnum.MANAGE,
     ).model_dump(),
 )
 

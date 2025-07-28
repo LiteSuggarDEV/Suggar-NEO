@@ -12,7 +12,7 @@ from nonebot.params import CommandArg
 from nonebot.rule import to_me
 from nonebot_plugin_value.api.api_balance import get_or_create_account
 
-from src.plugins.menu.models import MatcherData
+from src.plugins.menu.models import CategoryEnum, MatcherData
 from suggar_utils.config import config_manager
 from suggar_utils.value import SUGGAR_EXP_ID, to_uuid
 
@@ -24,9 +24,10 @@ command_start = get_driver().config.command_start
     block=True,
     state=dict(
         MatcherData(
-            rm_name="用户信息查询",
-            rm_desc="查询一个人的等级信息～",
-            rm_usage="/查询 @用户",
+            name="用户信息查询",
+            description="查询一个人的等级信息～",
+            usage="/查询 @用户",
+            category=CategoryEnum.UTILS,
         )
     ),
 ).handle()
@@ -74,9 +75,10 @@ async def _(
     block=True,
     state=dict(
         MatcherData(
-            rm_name="信息查询",
-            rm_desc="查询你的等级～",
-            rm_usage="等级",
+            name="信息查询",
+            description="查询你的等级～",
+            usage="等级",
+            category=CategoryEnum.FUN,
         )
     ),
 ).handle()
@@ -97,9 +99,10 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
     "余额",
     state=dict(
         MatcherData(
-            rm_name="信息查询",
-            rm_desc="查询你的余额～",
-            rm_usage="余额",
+            name="信息查询",
+            description="查询你的余额～",
+            usage="余额",
+            category=CategoryEnum.FUN,
         )
     ),
 ).handle()

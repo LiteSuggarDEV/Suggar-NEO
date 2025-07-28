@@ -8,7 +8,7 @@ from nonebot.matcher import Matcher
 from nonebot_plugin_orm import get_session
 from nonebot_plugin_value.api.api_balance import get_or_create_account
 
-from src.plugins.menu.models import MatcherData
+from src.plugins.menu.models import CategoryEnum, MatcherData
 from suggar_utils.store import get_or_create_user_model
 from suggar_utils.utils import is_same_day
 from suggar_utils.value import SUGGAR_EXP_ID, add_balance, to_uuid
@@ -18,9 +18,10 @@ from suggar_utils.value import SUGGAR_EXP_ID, add_balance, to_uuid
     "签到",
     state=dict(
         MatcherData(
-            rm_name="每日签到",
-            rm_desc="签到",
-            rm_usage="签到",
+            name="每日签到",
+            description="签到",
+            usage="签到",
+            category=CategoryEnum.FUN,
         )
     ),
 ).handle()

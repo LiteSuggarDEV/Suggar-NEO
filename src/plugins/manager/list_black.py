@@ -1,7 +1,7 @@
 from nonebot import on_command
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment
 
-from src.plugins.menu.models import MatcherData
+from src.plugins.menu.models import CategoryEnum, MatcherData
 from suggar_utils.blacklist.black import bl_manager
 from suggar_utils.rule import is_global_admin
 from suggar_utils.utils import send_forward_msg
@@ -10,7 +10,10 @@ black_list = on_command(
     "黑名单",
     aliases={"blacklist"},
     state=MatcherData(
-        rm_name="列出黑名单", rm_desc="用于列出黑名单", rm_usage="/blacklist"
+        name="列出黑名单",
+        description="用于列出黑名单",
+        usage="/blacklist",
+        category=CategoryEnum.MANAGE,
     ).model_dump(),
     permission=is_global_admin,
 )
