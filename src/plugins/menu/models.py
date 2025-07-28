@@ -27,7 +27,7 @@ class MatcherData(pydantic.BaseModel):
     name: str
     description: str
     usage: str
-    icon: str = "fa fa-gamepad"
+    icon: str = ""
     color: str = "#ff9ed8"
     category: str = CategoryEnum.UNKNOW
     aliases: list[str] = []

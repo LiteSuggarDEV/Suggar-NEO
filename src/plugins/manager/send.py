@@ -2,7 +2,7 @@ from nonebot import CommandGroup
 from nonebot.adapters.onebot.v11 import Bot, Message
 from nonebot.params import CommandArg
 
-from src.plugins.menu.models import CategoryEnum, MatcherData
+from src.plugins.menu.models import CategoryEnum, CommandParam, MatcherData, ParamType
 from suggar_utils.rule import is_global_admin
 
 send = CommandGroup("send_to", permission=is_global_admin)
@@ -14,6 +14,14 @@ group = send.command(
         description="用于向一个群发送消息",
         usage="/send_to.group [群号] [消息]",
         category=CategoryEnum.MANAGE,
+        params=[
+            CommandParam(
+                name="群号", description="群号", param_type=ParamType.REQUIRED
+            ),
+            CommandParam(
+                name="消息", description="消息", param_type=ParamType.VARIADIC
+            ),
+        ],
     ).model_dump(),
 )
 user = send.command(
@@ -23,6 +31,14 @@ user = send.command(
         description="用于向一个用户发送消息",
         usage="/send_to.user [用户ID] [消息]",
         category=CategoryEnum.MANAGE,
+        params=[
+            CommandParam(
+                name="用户ID", description="用户ID", param_type=ParamType.REQUIRED
+            ),
+            CommandParam(
+                name="消息", description="消息", param_type=ParamType.VARIADIC
+            ),
+        ],
     ).model_dump(),
 )
 

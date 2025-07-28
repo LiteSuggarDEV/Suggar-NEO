@@ -142,6 +142,13 @@ def generate_category_html(category: CommandCategory) -> str:
     return category_html
 
 
+def generate_categories_volumn(categories: list[CommandCategory]) -> str:
+    full_str = ""
+    for category in categories:
+        full_str += f"""<div class="category-title"><i class="{category.icon}"></i><span>{category.name}</span></div>"""
+    return full_str
+
+
 def pages_generator(
     categories: list[CommandCategory],
 ) -> Generator[tuple[CommandCategory, str]]:
@@ -159,14 +166,17 @@ def format_template(template: str, **kwargs: str) -> str:
 def get_page_html() -> list[str]:
     global page_list
     base_js = open(str(template_dir / "other.js"), encoding="utf-8").read()
-
+    menu_data = CommandsManager().get_menu_data()
     page_list = [
         format_template(
             open(str(template_dir / "template.html"), encoding="utf-8").read(),
-            script=base_js,
+            script=base_js
+            + (
+                f"\ndocument.getElementById('command-categories').innerHTML = `{generate_categories_volumn(menu_data)}`;"
+            ),
         )
     ]
-    for category, page in pages_generator(CommandsManager().get_menu_data()):
+    for category, page in pages_generator(menu_data):
         content = format_template(
             open(str(template_dir / "command.html"), encoding="utf-8").read(),
             script=base_js

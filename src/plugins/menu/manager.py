@@ -28,13 +28,16 @@ class MenuManager:
                 matchers.append(matcher_info)
                 try:
                     self.commands_manager.add_command(matcher_info)
+                    self.menu_data.setdefault(matcher_info.category, []).append(
+                        matcher_info
+                    )
                 except Exception as e:
                     logger.warning(
                         f"菜单注册失败: {matcher_info.model_dump_json(indent=2)}\n"
                         + str(e)
                     )
                 logger.debug(f"注册菜单: {matcher_info.model_dump_json(indent=2)}")
-            self.menu_data.setdefault(matcher_info.category, []).extend(matchers)
+
         logger.info("菜单加载完成")
 
     def print_menus(self):

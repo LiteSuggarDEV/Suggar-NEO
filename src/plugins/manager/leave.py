@@ -3,7 +3,7 @@ from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, Message, Message
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 
-from src.plugins.menu.models import CategoryEnum, MatcherData
+from src.plugins.menu.models import CategoryEnum, CommandParam, MatcherData, ParamType
 from suggar_utils.rule import is_global_admin
 from suggar_utils.utils import send_to_admin
 
@@ -16,6 +16,13 @@ from suggar_utils.utils import send_to_admin
         description="用于退出聊群",
         usage="/set_leave [<group-id>|--this]",
         category=CategoryEnum.MANAGE,
+        params=[
+            CommandParam(
+                name="group-id",
+                description="群号或--this",
+                param_type=ParamType.REQUIRED,
+            )
+        ],
     ).model_dump(),
 ).handle()
 async def leave(
