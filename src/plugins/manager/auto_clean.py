@@ -1,7 +1,7 @@
 from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent
 
-from src.plugins.menu.models import MatcherData
+from src.plugins.menu.models import CategoryEnum, MatcherData
 from suggar_utils.config import config_manager
 from suggar_utils.rule import is_global_admin
 
@@ -9,9 +9,10 @@ clean_groups = on_command(
     "clean_groups",
     permission=is_global_admin,
     state=MatcherData(
-        rm_name="无用群组清理",
-        rm_desc="清理人数小于20的无效聊群",
-        rm_usage="/clean_groups",
+        name="无用群组清理",
+        description="清理人数小于20的无效聊群",
+        usage="/clean_groups",
+        category=CategoryEnum.MANAGE,
     ).model_dump(),
 )
 

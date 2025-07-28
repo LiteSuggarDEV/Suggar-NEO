@@ -2,7 +2,7 @@ from nonebot import on_command
 from nonebot.adapters.onebot.v11 import MessageSegment
 from nonebot.matcher import Matcher
 
-from src.plugins.menu.models import MatcherData
+from src.plugins.menu.models import CategoryEnum, MatcherData
 from src.plugins.menu.utils import cached_md_to_pic, get_css_path
 from suggar_utils.utils import generate_info
 
@@ -12,7 +12,10 @@ from suggar_utils.utils import generate_info
     aliases={"状态", "info"},
     block=True,
     state=MatcherData(
-        rm_name="Suggar状态查询", rm_usage="/info", rm_desc="查询Suggar的运行状态"
+        name="Suggar状态查询",
+        usage="/info",
+        description="查询Suggar的运行状态",
+        category=CategoryEnum.UTILS,
     ).model_dump(),
 ).handle()
 async def status(matcher: Matcher):
