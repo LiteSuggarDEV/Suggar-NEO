@@ -12,7 +12,7 @@ ban_group = ban.command(
     "group",
     state=MatcherData(
         name="封禁群",
-        usage="/ban.group <group-id> [原因]",
+        usage="/ban.group",
         description="封禁聊群",
         params=[
             CommandParam(
@@ -23,6 +23,10 @@ ban_group = ban.command(
                 description="封禁原因",
                 param_type=ParamType.OPTIONAL,
             ),
+        ],
+        examples=[
+            "/ban.group 114514 违反使用规则",
+            "/ban.group 114514",
         ],
         category=CategoryEnum.MANAGE,
     ).model_dump(),
@@ -46,6 +50,10 @@ ban_user = ban.command(
                 description="封禁原因",
                 param_type=ParamType.OPTIONAL,
             ),
+        ],
+        examples=[
+            "/ban 123456789 封禁此用户",
+            "/ban 123456789",
         ],
     ).model_dump(),
 )

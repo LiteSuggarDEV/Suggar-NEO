@@ -22,6 +22,9 @@ pardon_group = pardon.command(
                 param_type=ParamType.REQUIRED,
             )
         ],
+        examples=[
+            "/pardon.group 123456789",
+        ],
     ).model_dump(),
 )
 pardon_user = pardon.command(
@@ -37,6 +40,9 @@ pardon_user = pardon.command(
                 description="用户ID",
                 param_type=ParamType.REQUIRED,
             )
+        ],
+        examples=[
+            "/pardon.user 1234567890",
         ],
     ).model_dump(),
 )

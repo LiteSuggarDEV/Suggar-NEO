@@ -12,7 +12,7 @@ from nonebot.params import CommandArg
 from nonebot.rule import to_me
 from nonebot_plugin_value.api.api_balance import get_or_create_account
 
-from src.plugins.menu.models import CategoryEnum, MatcherData
+from src.plugins.menu.models import CategoryEnum, CommandParam, MatcherData, ParamType
 from suggar_utils.config import config_manager
 from suggar_utils.value import SUGGAR_EXP_ID, to_uuid
 
@@ -26,8 +26,19 @@ command_start = get_driver().config.command_start
         MatcherData(
             name="用户信息查询",
             description="查询一个人的等级信息～",
-            usage="/查询 @用户",
+            usage="/查询",
             category=CategoryEnum.UTILS,
+            params=[
+                CommandParam(
+                    name="用户",
+                    description="要查询的用户",
+                    param_type=ParamType.REQUIRED,
+                )
+            ],
+            examples=[
+                "/查询 123456",
+                "/查询 @JohnRichard",
+            ],
         )
     ),
 ).handle()

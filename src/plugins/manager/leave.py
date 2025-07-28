@@ -23,6 +23,10 @@ from suggar_utils.utils import send_to_admin
                 param_type=ParamType.REQUIRED,
             )
         ],
+        examples=[
+            "/set_leave 123456789",
+            "/set_leave --this",
+        ],
     ).model_dump(),
 ).handle()
 async def leave(
