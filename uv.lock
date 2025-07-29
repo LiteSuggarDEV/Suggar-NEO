@@ -299,6 +299,12 @@ wheels = [
 ]
 
 [[package]]
+name = "importlib"
+version = "1.0.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/31/77/3781f65cafe55480b56914def99022a5d2965a4bb269655c89ef2f1de3cd/importlib-1.0.4.zip", hash = "sha256:b6ee7066fea66e35f8d0acee24d98006de1a0a8a94a8ce6efe73a9a23c8d9826", size = 7074 }
+
+[[package]]
 name = "importlib-resources"
 version = "6.5.2"
 source = { registry = "https://pypi.org/simple" }
@@ -709,6 +715,32 @@ wheels = [
 [package.optional-dependencies]
 default = [
     { name = "sqlalchemy", extra = ["aiosqlite"] },
+]
+
+[[package]]
+name = "nonebot-plugin-suggarchat"
+version = "3.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aiofiles" },
+    { name = "chardet" },
+    { name = "dotenv" },
+    { name = "importlib" },
+    { name = "jieba" },
+    { name = "nonebot-adapter-onebot" },
+    { name = "nonebot-plugin-localstore" },
+    { name = "nonebot2", extra = ["fastapi"] },
+    { name = "openai" },
+    { name = "pydantic" },
+    { name = "pytz" },
+    { name = "stubs" },
+    { name = "tomli" },
+    { name = "tomli-w" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/25/d7/ec14051487d5ede536e27f02f00436a1e3efde6c458deb2fa84667cfa187/nonebot_plugin_suggarchat-3.1.0.tar.gz", hash = "sha256:2ace626434d476c058aa118b4f40b22762836493df5bca2972ae551de54bf300", size = 53429 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/09/3d/d8d6ccec84a8d8d52c8ef3a54d9c7db3176040fbeefd189a025928922895/nonebot_plugin_suggarchat-3.1.0-py3-none-any.whl", hash = "sha256:1c6440304401715f0adb2896cc5db2a1b12bb9875a4cad29d1aa16a760587703", size = 66392 },
 ]
 
 [[package]]
@@ -1339,6 +1371,7 @@ dependencies = [
     { name = "nonebot-plugin-htmlrender" },
     { name = "nonebot-plugin-localstore" },
     { name = "nonebot-plugin-orm", extra = ["default"] },
+    { name = "nonebot-plugin-suggarchat" },
     { name = "nonebot-plugin-value" },
     { name = "nonebot2", extra = ["fastapi"] },
     { name = "openai" },
@@ -1362,6 +1395,7 @@ requires-dist = [
     { name = "nonebot-plugin-htmlrender", specifier = ">=0.6.6" },
     { name = "nonebot-plugin-localstore", specifier = ">=0.7.4" },
     { name = "nonebot-plugin-orm", extras = ["default"], specifier = ">=0.8.1" },
+    { name = "nonebot-plugin-suggarchat", specifier = ">=3.1.0" },
     { name = "nonebot-plugin-value", specifier = "==0.1.0" },
     { name = "nonebot2", extras = ["fastapi"], specifier = ">=2.4.2" },
     { name = "openai", specifier = ">=1.95.0" },
