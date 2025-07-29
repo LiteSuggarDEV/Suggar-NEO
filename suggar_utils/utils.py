@@ -46,6 +46,7 @@ def generate_info():
     import platform
     import sys
 
+    import nonebot_plugin_suggarchat.config as suggarchat_config
     import psutil
 
     system_name = platform.system()
@@ -74,7 +75,8 @@ def generate_info():
         "---\n\n"
         f"* 磁盘存储占用：`{disk_usage:.2f}%`\n\n"
         f"* Python 版本: `{python_version}`\n\n"
-        "> Bot of NoneBot2💪"
+        f"* SuggarChat Version: `{suggarchat_config.__kernel_version__}`\n\n"
+        "> 🐮🍺Powered by Nonebot2💪\n"
     )
 
 

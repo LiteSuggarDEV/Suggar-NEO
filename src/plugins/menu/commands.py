@@ -6,6 +6,7 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
 )
 
+from suggar_utils.config import config_manager
 from suggar_utils.utils import send_forward_msg
 
 from .models import CategoryEnum, MatcherData
@@ -32,19 +33,21 @@ command_start = get_driver().config.command_start
 ).handle()
 async def show_menu(bot: Bot, event: MessageEvent):
     """显示菜单"""
+    if not config_manager.config.enable_menu:
+        return
     menus = [await cached_html_to_pic(page) for page in get_page_html()]
 
     markdown_menus_pics = [
         *(MessageSegment.image(file=menu) for menu in menus),
         MessageSegment.text(
-            "Suggar开源地址：https://github.com/LiteSuggarDEV/Suggar-NEO/"
+            "Bot开源地址：https://github.com/LiteSuggarDEV/Suggar-NEO/"
         ),
     ]
 
     await send_forward_msg(
         bot,
         event,
-        name="Suggar 菜单",
+        name="菜单",
         uin=str(bot.self_id),
         msgs=markdown_menus_pics,
     )

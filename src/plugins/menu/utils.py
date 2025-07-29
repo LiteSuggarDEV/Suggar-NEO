@@ -8,7 +8,7 @@ from typing import ClassVar, Literal
 from nonebot_plugin_htmlrender import html_to_pic, md_to_pic
 from typing_extensions import Self
 
-from suggar_utils.config import CONFIG_DIR
+from suggar_utils.config import CONFIG_DIR, config_manager
 
 from .models import CommandCategory, MatcherData, ParamType
 
@@ -174,6 +174,7 @@ def get_page_html() -> list[str]:
             + (
                 f"\ndocument.getElementById('command-categories').innerHTML = `{generate_categories_volumn(menu_data)}`;"
             ),
+            bot_name=config_manager.config.bot_name,
         )
     ]
     for category, page in pages_generator(menu_data):
@@ -184,6 +185,7 @@ def get_page_html() -> list[str]:
                 f"\ndocument.getElementById('command-categories').innerHTML = `{page}`;"
             ),
             category=category.name,
+            bot_name=config_manager.config.bot_name,
         )
         page_list.append(content)
     return page_list
