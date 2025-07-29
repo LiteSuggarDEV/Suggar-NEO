@@ -42,8 +42,8 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
                     + f"\n货币：{economy_data.balance}点"
                 )
             )
-        coin = float(random.randint(1, 100))
-        exp = float(random.randint(1, 50))
+        coin = float(random.randint(1, 50))
+        exp = float(random.randint(1, 20))
         daily_count = fun_data.daily_count
         daily_count += 1
         fun_data.daily_count = daily_count
