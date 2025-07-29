@@ -23,24 +23,26 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Comic Sans MS', 'Yuanti SC', 'YouYuan', sans-serif;
+            font-weight: 600; /* 全局字体加粗 */
         }
         
         body {
             background: linear-gradient(135deg, #fff0f9, #e6f7ff);
             color: #555;
-            padding: 20px;
             min-height: 100vh;
+            padding: 0; /* 移除两侧间距 */
         }
         
         .container {
-            max-width: 500px;
+            max-width: 100%;
             margin: 0 auto;
+            padding: 0 10px; /* 添加少量内边距 */
         }
         
         header {
             text-align: center;
-            padding: 30px 20px;
-            margin-bottom: 30px;
+            padding: 25px 15px;
+            margin: 15px 0 20px;
             background: white;
             border-radius: 20px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
@@ -60,39 +62,40 @@
         }
         
         .logo {
-            font-size: 3.5rem;
-            margin-bottom: 15px;
+            font-size: 3rem;
+            margin-bottom: 12px;
             color: var(--primary);
             text-shadow: 2px 2px 0px rgba(255, 158, 216, 0.3);
         }
         
         h1 {
             color: var(--primary);
-            font-size: 2.5rem;
-            margin-bottom: 15px;
+            font-size: 2rem;
+            margin-bottom: 12px;
+            font-weight: 700;
         }
         
         .subtitle {
-            font-size: 1.2rem;
+            font-size: 1rem;
             color: var(--dark);
             max-width: 300px;
-            margin: 0 auto 20px;
-            line-height: 1.6;
+            margin: 0 auto 15px;
+            line-height: 1.5;
         }
         
         .command-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-            max-width: 500px;
+            grid-template-columns: 1fr; /* 移动设备单列布局 */
+            gap: 15px;
+            margin-bottom: 25px;
+            max-width: 100%;
             margin: 0 auto;
         }
         
         .command-card {
             background: white;
             border-radius: 18px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.05);
             transition: all 0.3s ease;
             border: 2px solid rgba(255, 158, 216, 0.3);
@@ -119,50 +122,52 @@
         .command-header {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         .command-icon {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             background: var(--secondary);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 15px;
-            font-size: 1.5rem;
+            margin-right: 12px;
+            font-size: 1.3rem;
             color: white;
             flex-shrink: 0;
         }
         
         .command-name {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             color: var(--primary);
-            font-weight: bold;
+            font-weight: 700;
         }
         
         .command-desc {
             color: var(--dark);
             line-height: 1.6;
-            margin-bottom: 15px;
-            font-size: 0.95rem;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
         
         .usage-box {
             background: var(--light);
             border-radius: 12px;
-            padding: 12px 15px;
+            padding: 10px 12px;
             font-family: monospace;
-            margin: 10px 0;
+            margin: 8px 0;
             border-left: 3px solid var(--accent);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             word-break: break-all;
+            font-weight: 500;
         }
         
         .param {
             display: flex;
-            margin: 8px 0;
+            margin: 6px 0;
             align-items: flex-start;
         }
         
@@ -171,60 +176,65 @@
             color: white;
             padding: 3px 8px;
             border-radius: 6px;
-            font-size: 0.85rem;
-            margin-right: 10px;
+            font-size: 0.8rem;
+            margin-right: 8px;
             flex-shrink: 0;
+            font-weight: 600;
         }
         
         .param-desc {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             line-height: 1.5;
+            font-weight: 500;
         }
         
         .note-box {
             background: #fff9e6;
             border-radius: 12px;
-            padding: 15px;
-            margin-top: 20px;
+            padding: 12px;
+            margin-top: 15px;
             border-left: 3px solid var(--accent);
             position: relative;
+            font-weight: 500;
         }
         
         .note-box::before {
             content: "✨ 小贴士";
             display: block;
-            font-weight: bold;
+            font-weight: 700;
             color: var(--dark);
-            margin-bottom: 8px;
-            font-size: 1.1rem;
+            margin-bottom: 6px;
+            font-size: 1rem;
         }
         
         .footer {
             text-align: center;
-            padding: 30px;
+            padding: 20px;
             color: var(--dark);
-            font-size: 0.9rem;
-            margin-top: 20px;
+            font-size: 0.85rem;
+            margin-top: 15px;
             background: white;
             border-radius: 20px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            font-weight: 500;
         }
         
         .category-title {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             color: var(--primary);
-            margin: 40px 0 20px;
-            padding-bottom: 10px;
+            margin: 30px 0 15px;
+            padding-bottom: 8px;
             border-bottom: 3px dashed var(--secondary);
             display: flex;
             align-items: center;
+            font-weight: 700;
         }
         
         .category-title i {
-            margin-right: 10px;
+            margin-right: 8px;
             background: var(--accent);
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -232,13 +242,37 @@
             color: white;
         }
         
-        @media (max-width: 768px) {
+        /* 移动设备优化 */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 500px;
+                padding: 0;
+            }
+            
             .command-container {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+            
+            header {
+                padding: 30px 20px;
+                margin: 20px auto 30px;
+                max-width: 500px;
+            }
+            
+            .logo {
+                font-size: 3.5rem;
             }
             
             h1 {
-                font-size: 2rem;
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .command-card {
+                padding: 25px;
             }
         }
         
@@ -259,24 +293,52 @@
         
         .placeholder {
             text-align: center;
-            padding: 50px 20px;
+            padding: 40px 15px;
             background: rgba(255, 255, 255, 0.7);
             border-radius: 20px;
-            margin: 20px 0;
+            margin: 15px 0;
             border: 2px dashed var(--primary);
         }
         
         .placeholder-icon {
-            font-size: 4rem;
+            font-size: 3.5rem;
             color: var(--primary);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .placeholder-text {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--dark);
-            max-width: 500px;
+            max-width: 100%;
             margin: 0 auto;
+            font-weight: 500;
+        }
+        
+        /* 添加动态背景元素 */
+        .bubble:nth-child(1) {
+            width: 120px;
+            height: 120px;
+            top: 10%;
+            left: 5%;
+            background: rgba(164, 220, 255, 0.3);
+        }
+        
+        .bubble:nth-child(2) {
+            width: 80px;
+            height: 80px;
+            top: 30%;
+            right: 7%;
+            background: rgba(255, 215, 110, 0.3);
+            animation-delay: -2s;
+        }
+        
+        .bubble:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            left: 8%;
+            background: rgba(255, 158, 216, 0.3);
+            animation-delay: -4s;
         }
     </style>
 </head>
