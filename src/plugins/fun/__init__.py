@@ -15,9 +15,9 @@ from . import auto, query, signin
 
 __plugin_meta__ = PluginMetadata(
     type="application",
-    name="经济",
-    description="经济功能应用实现插件",
-    usage="经济功能",
+    name="娱乐插件",
+    description="娱乐功能应用实现插件",
+    usage="娱乐功能",
 )
 __all__ = [
     "auto",

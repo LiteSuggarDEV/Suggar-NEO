@@ -20,7 +20,7 @@ from .value import SUGGAR_EXP_ID, to_uuid
 db_lock = Lock()
 
 
-class MigrationManager:
+class StatusManager:
     _instance = None
     __running = False
 
@@ -32,7 +32,7 @@ class MigrationManager:
     def set_running(self, value: bool):
         self.__running = value
 
-    def is_running(self) -> bool:
+    def is_unready(self) -> bool:
         return self.__running
 
 
@@ -85,7 +85,7 @@ async def reset_all_by_data(data: list[UserFunDataSchema]) -> None:
 async def reset_from_update_file():
     async with db_lock:
         try:
-            MigrationManager().set_running(True)
+            StatusManager().set_running(True)
             if not UPDATE_FILE.exists():
                 logger.warning(f"JSON文件({UPDATE_FILE!s})不存在")
                 return
@@ -100,13 +100,13 @@ async def reset_from_update_file():
                     d.id = to_uuid(str(d.id))
             await reset_all_by_data(final_list)
         finally:
-            MigrationManager().set_running(False)
+            StatusManager().set_running(False)
 
 
 async def dump_to_json():
     async with db_lock:
         try:
-            MigrationManager().set_running(True)
+            StatusManager().set_running(True)
             eco_accounts = await list_accounts()
             final_list = []
             for acc in eco_accounts:
@@ -130,4 +130,4 @@ async def dump_to_json():
             async with open(DUMP_PATH, "w", encoding="utf-8") as f:
                 await f.write(json.dumps(final_list, ensure_ascii=False, indent=4))
         finally:
-            MigrationManager().set_running(False)
+            StatusManager().set_running(False)

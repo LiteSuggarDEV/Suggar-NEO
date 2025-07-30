@@ -9,7 +9,7 @@ from suggar_utils.value import SUGGAR_EXP_ID, add_balance
 
 
 @on_chat().handle()
-async def _(event:ChatEvent) -> None:
+async def _(event: ChatEvent) -> None:
     nonebot_event = event.get_nonebot_event()
     assert isinstance(nonebot_event, MessageEvent)
     exp = float(random.randint(1, 15))

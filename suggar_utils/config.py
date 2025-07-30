@@ -7,6 +7,7 @@ import aiofiles
 import yaml
 from nonebot import logger
 from pydantic import BaseModel
+from typing_extensions import Self
 from watchfiles import awatch
 
 from .store import CONFIG_DIR
@@ -15,6 +16,9 @@ from .store import CONFIG_DIR
 class Config(BaseModel):
     tools_calling: bool = True
     rate_limit: int = 3
+    fishing_rate_limit: int = 10
+    enable_menu: bool = True
+    bot_name: str = "Suggar"
     notify_group: list[int] = [
         1002495699,
     ]
@@ -35,13 +39,23 @@ class Config(BaseModel):
 class ConfigManager:
     config_path: Path = CONFIG_DIR / "config.yaml"
     _config: Config = Config()
+    _lock: asyncio.Lock
     _task: asyncio.Task
-    _sug_task: asyncio.Task
+    _instance = None
+    _initialized: bool = False
+
+    def __new__(cls) -> Self:
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
 
     def __init__(self) -> None:
-        self._config = Config()
-        self._lock = asyncio.Lock()
-        self._load_config_sync()
+        if not getattr(self, "_initialized", False):
+            self._config = Config()
+            self._lock = asyncio.Lock()
+            self._load_config_sync()
+            self._initialized = True
 
     def init_watch(self):
         self._task = asyncio.create_task(self._watch_config())
