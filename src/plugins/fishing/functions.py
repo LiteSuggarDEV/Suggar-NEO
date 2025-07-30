@@ -76,7 +76,6 @@ async def get_or_create_fish(data: F_Meta, session: AsyncSession):
                 raise ValueError(f"Invalid quality: {data.quality}")
             stmt = insert(FishMeta).values(
                 name=data.name,
-                price_per_length=quality.price_per_length,
                 quality=data.quality,
             )
             await session.execute(stmt)
