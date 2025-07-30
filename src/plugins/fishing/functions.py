@@ -66,7 +66,7 @@ async def get_quailty(name: str, session: AsyncSession) -> QualityMetaData:
 
 async def get_or_create_fish(data: F_Meta, session: AsyncSession):
     async with session:
-        if (fish := await get_fish_meta(data.name, session)) is not None:
+        if (fish := await get_fish_meta_or_none(data.name, session)) is not None:
             return fish
         else:
             stmt = select(QualityMetaData).where(QualityMetaData.name == data.quality)
@@ -89,6 +89,12 @@ async def get_fish_meta(name: str, session: AsyncSession) -> FishMeta:
     async with session:
         stmt = select(FishMeta).where(FishMeta.name == name)
         return (await session.execute(stmt)).scalars().one()
+
+
+async def get_fish_meta_or_none(name: str, session: AsyncSession) -> FishMeta | None:
+    async with session:
+        stmt = select(FishMeta).where(FishMeta.name == name)
+        return (await session.execute(stmt)).scalar_one_or_none()
 
 
 async def get_fish_meta_pyd(name: str) -> F_Meta:
