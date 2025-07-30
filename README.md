@@ -1,91 +1,23 @@
-
 # Suggar-NEO
 
 ![Suggar](./readme_res/b_e0baa0b6de88513d9714babeffb39f37.jpg)
 
----
+<center>
 
-> Suggar重构版
+## *✨Suggar 但是本体✨*
 
-### 如何开始？
+</center>
 
-1. 克隆仓库 `git clone https://github.com/LiteSuggarDEV/Suggar-NEO.git`
-2. 打开文件夹 `cd LiteBot-NEO`
-3. 使用 `uv sync` 安装所有依赖
-4. 运行Bot `uv run bot.py`
+> 猫猫欸！很可爱不是嘛
 
-### 配置
+### 文档请点击[**`这里`**](https://docs.suggar.top/project/Suggar/readme)
 
-### 配置文件
+## 兼容性
 
-我们有两个配置文件，一个是dotenv文件，一个是yaml文件。
+Bot使用了的外部插件：
 
-**1.dotenv文件**
-
-参考.env.example（bot启动时会自动创建基于.env.example的.env，请不要修改.env.example，这可能会为后期更新带来麻烦）
-
-```dotenv
-DRIVER=~fastapi
-HOST=0.0.0.0
-PORT=54321
-LOCALSTORE_CONFIG_DIR=./config
-LOCALSTORE_USE_CWD=true
-COMMAND_SEP=[".", " ",""]
-SQLALCHEMY_DATABASE_URL=sqlite+aiosqlite:///data.db
-```
-
-说明：
-
-1. `DRIVER`: 运行时使用的Nonebot驱动器，LiteBot仅支持fastapi
-2. `HOST`: 运行时监听的地址
-3. `PORT`: 运行时监听的端口（反向WebSocket）
-4. `LOCALSTORE_CONFIG_DIR`: 配置文件存储目录
-5. `LOCALSTORE_USE_CWD`: 是否使用当前目录作为配置文件存储目录
-6. `COMMAND_SEP`: 命令分隔符
-7. `SQLALCHEMY_DATABASE_URL`: 数据库连接字符串
-
-**2.yaml**
-
-```yaml
-admins:
-- 3196373166
-notify_group: []
-rate_limit: 3
-
-```
-
-说明：
-
-1. `admins`: 管理员QQ（给出了一个示例）
-2. `notify_group`: 日志推送群
-3. `rate_limit`: 命令频率限制(秒)W
-
-**3.suggarchat配置文件**
-
-**[请参考SuggarChat文档](https://github.com/LiteSuggarDEV/nonebot_plugin_suggarchat/wiki)**
-
-#### 数据库
-
-- 1. 全新配置
-
-  数据库会自动创建，但是您仍需要注意数据库创建的位置（参考.env.example）。
-
-  e.g.
-
-  ```dotenv
-  SQLALCHEMY_DATABASE_URL=sqlite+aiosqlite:///data.db
-  ```
-
-- 2. 旧数据库更新/迁移
-
-  **常规迁移更新：**
-
-  开启时ORM插件会询问是否更新数据库，勾选Y继续。或者使用nb-cli
-
-  ```shell
-  nb orm upgrade
-  ```
-
-## 注意事项
-
-本项目由于添加了**Tools**的逻辑，所以**不再兼容**其他的SuggarChat**非OpenAI**大模型协议适配器，只能使用内置的OpenAI客户端适配器实现。
+- [nonebot_plugin_value](https://github.com/LiteSuggarDEV/nonebot_plugin_value)
+- [nonebot_plugin_suggarchat](https://github.com/LiteSuggarDEV/nonebot_plugin_suggarchat)
+- nonebot_plugin_htmlrender
+- nonebot_plugin_localstore
+- nonebot_plugin_orm

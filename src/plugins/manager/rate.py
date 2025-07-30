@@ -17,7 +17,7 @@ from nonebot.rule import (
 )
 
 from suggar_utils.config import config_manager
-from suggar_utils.dump_tools import MigrationManager
+from suggar_utils.dump_tools import StatusManager
 from suggar_utils.token_bucket import TokenBucket
 
 watch_group = defaultdict(
@@ -38,7 +38,7 @@ async def poke(matcher: Matcher, event: PokeNotifyEvent):
     bucket = data[ins_id]
     if not bucket.consume():
         raise IgnoredException("Too fast!")
-    if MigrationManager().is_running():
+    if StatusManager().is_unready():
         await matcher.send("正在维护/数据迁移中，暂时不支持该操作！")
         raise IgnoredException("Under repair/migration")
 
@@ -70,6 +70,6 @@ async def run(matcher: Matcher, event: MessageEvent):
         with contextlib.suppress(Exception):
             await matcher.send(random.choice(config_manager.config.rate_reply))
         raise IgnoredException("Too fast!")
-    if MigrationManager().is_running():
+    if StatusManager().is_unready():
         await matcher.send("正在维护/数据迁移中，暂时不支持该操作！")
         raise IgnoredException("Under repair/migration")

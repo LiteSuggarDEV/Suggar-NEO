@@ -16,6 +16,7 @@ from .store import CONFIG_DIR
 class Config(BaseModel):
     tools_calling: bool = True
     rate_limit: int = 3
+    fishing_rate_limit: int = 10
     enable_menu: bool = True
     bot_name: str = "Suggar"
     notify_group: list[int] = [
