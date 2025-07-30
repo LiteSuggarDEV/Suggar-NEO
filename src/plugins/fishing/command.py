@@ -4,6 +4,7 @@ from datetime import datetime
 
 from nonebot import get_driver, on_command, on_fullmatch
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment
+from nonebot.exception import NoneBotException
 from nonebot_plugin_orm import get_session
 from nonebot_plugin_value.api.api_balance import add_balance
 from nonebot_plugin_value.uuid_lib import to_uuid
@@ -35,6 +36,7 @@ sell = on_command(
             name="/卖鱼",
             description="卖鱼",
             usage="/卖鱼 <鱼名>/<品质名>",
+            category=CategoryEnum.FUN,
         )
     ),
 )
@@ -77,6 +79,8 @@ async def _(bot: Bot, event: MessageEvent):
         else:
             await sell.finish("没有这个品质/名字的鱼")
         await add_balance(to_uuid(event.get_user_id()), price, "卖鱼")
+    except NoneBotException:
+        raise
     except Exception:
         await sell.send("发生错误，卖鱼失败了")
         raise
@@ -104,7 +108,7 @@ async def _(bot: Bot, event: MessageEvent):
         for fish_name, fish_data in quality_data.items():
             msg += (
                 f"{fish_name}：{fish_data['count']}条，总长度"
-                + f"""{str(fish_data["length"]) + "cm" if fish_data["length"] < 100 else (f"{(fish_data['length'] / 100)!s:.2f}m")}\n"""
+                + f"""{str(fish_data["length"]) + "cm" if fish_data["length"] < 100 else (f"{fish_data['length'] / 100:.2f}m")}\n"""
             )
         msg_list.append(MessageSegment.text(msg))
     await send_forward_msg(
