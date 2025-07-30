@@ -14,5 +14,6 @@ async def message_preprocessor(matcher: Matcher, bot: Bot, event: UserIDEvent):
     ):
         await send_to_admin(f"尝试退出黑名单群组{event.group_id}.......")
         await bot.set_group_leave(group_id=event.group_id)
+        matcher.stop_propagation()
     if await bl_manager.is_private_black(str(event.user_id)):
         matcher.stop_propagation()

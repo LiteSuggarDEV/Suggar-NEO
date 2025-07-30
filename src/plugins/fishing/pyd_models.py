@@ -32,7 +32,7 @@ class UserData(BaseModel):
 DEFAULT_QUALITY = [
     QualityMeta(
         name="腐烂",
-        probability=0.5,
+        probability=0.25,
         price_per_length=5.0,
         length_range_start=5,
         length_range_end=5,
@@ -53,7 +53,7 @@ DEFAULT_QUALITY = [
     ),
     QualityMeta(
         name="稀有",
-        probability=0.2,
+        probability=0.1,
         price_per_length=5.0,
         length_range_start=100,
         length_range_end=500,
@@ -67,14 +67,14 @@ DEFAULT_QUALITY = [
     ),
     QualityMeta(
         name="传说",
-        probability=0.025,
+        probability=0.1,
         price_per_length=20.0,
         length_range_start=1000,
         length_range_end=5000,
     ),
     QualityMeta(
         name="神话",
-        probability=0.02,
+        probability=0.025,
         price_per_length=30.0,
         length_range_start=2500,
         length_range_end=6500,

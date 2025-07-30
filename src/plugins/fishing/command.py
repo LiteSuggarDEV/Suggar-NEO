@@ -2,9 +2,11 @@ import random
 from collections import defaultdict
 from datetime import datetime
 
-from nonebot import get_driver, on_fullmatch
+from nonebot import get_driver, on_command, on_fullmatch
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment
 from nonebot_plugin_orm import get_session
+from nonebot_plugin_value.api.api_balance import add_balance
+from nonebot_plugin_value.uuid_lib import to_uuid
 from sqlalchemy import select
 
 from src.plugins.menu.models import CategoryEnum, MatcherData
@@ -12,7 +14,7 @@ from suggar_utils.config import config_manager
 from suggar_utils.token_bucket import TokenBucket
 from suggar_utils.utils import send_forward_msg
 
-from .functions import add_fish_record, get_user_data_pyd
+from .functions import add_fish_record, get_user_data_pyd, sell_fish
 from .models import (
     FishMeta,
     QualityMetaData,
@@ -24,10 +26,22 @@ watch_user = defaultdict(
     lambda: TokenBucket(rate=1 / config_manager.config.fishing_rate_limit, capacity=1)
 )
 
+sell = on_command(
+    "卖鱼",
+    priority=10,
+    block=True,
+    state=dict(
+        MatcherData(
+            name="/卖鱼",
+            description="卖鱼",
+            usage="/卖鱼 <鱼名>/<品质名>",
+        )
+    ),
+)
 
 fishing = on_fullmatch(
     ("钓鱼", *[f"{prefix}钓鱼" for prefix in get_driver().config.command_start]),
-    priority=5,
+    priority=10,
     state=dict(
         MatcherData(
             name="钓鱼",
@@ -39,7 +53,7 @@ fishing = on_fullmatch(
 )
 bag = on_fullmatch(
     ("背包", *[f"{prefix}背包" for prefix in get_driver().config.command_start]),
-    priority=5,
+    priority=10,
     state=dict(
         MatcherData(
             name="背包",
@@ -49,6 +63,19 @@ bag = on_fullmatch(
         )
     ),
 )
+
+
+@sell.handle()
+async def _(bot: Bot, event: MessageEvent):
+    msg = event.get_message().extract_plain_text().strip()
+    price = 0
+    if price := await sell_fish(event.user_id, fish_name=msg):
+        await sell.send(f"成功出售所有 {msg}，获得{price}金币")
+    elif price := await sell_fish(event.user_id, quality_name=msg):
+        await sell.send(f"成功出售所有{msg}品质的鱼，获得{price}金币")
+    else:
+        await sell.finish("没有这个品质/名字的鱼")
+    await add_balance(to_uuid(event.get_user_id()), price, "卖鱼")
 
 
 @bag.handle()

@@ -79,7 +79,7 @@ async def get_or_create_quilty(
             return quality
 
 
-async def get_quailty(name: str, session: AsyncSession) -> QualityMetaData:
+async def get_quality(name: str, session: AsyncSession) -> QualityMetaData:
     async with session:
         stmt = select(QualityMetaData).where(QualityMetaData.name == name)
         result = await session.execute(stmt)
@@ -137,7 +137,7 @@ async def get_fish_meta_pyd(name: str) -> F_Meta:
             name=meta.name,
             quality=meta.quality,
             quality_data=QualityMeta.model_validate(
-                await get_quailty(meta.quality, session), from_attributes=True
+                await get_quality(meta.quality, session), from_attributes=True
             ),
         )
 
@@ -152,19 +152,19 @@ async def get_all_fish_meta(session: AsyncSession) -> Sequence[FishMeta]:
 async def get_all_fish_meta_pyd() -> list[F_Meta]:
     async with get_session() as session:
         data = await get_all_fish_meta(session)
-        quailty_cache: dict[str, QualityMeta] = {}
+        quality_cache: dict[str, QualityMeta] = {}
         result = []
         for meta in data:
-            quailty = quailty_cache.get(meta.quality)
-            if quailty is None:
-                quailty = QualityMeta.model_validate(
-                    await get_quailty(meta.quality, session)
+            quality = quality_cache.get(meta.quality)
+            if quality is None:
+                quality = QualityMeta.model_validate(
+                    await get_quality(meta.quality, session)
                 )
             result.append(
                 F_Meta(
                     name=meta.name,
                     quality=meta.quality,
-                    quality_data=quailty,
+                    quality_data=quality,
                 )
             )
         return result
@@ -204,3 +204,42 @@ async def add_fish_record(user_id: int, fish: Fish):
         )
         session.add(record)
         await session.commit()
+
+
+async def sell_fish(
+    user_id: int,
+    fish_name: str | None = None,
+    quality_name: str | None = None,
+) -> float:
+    async with get_session() as session:
+        assert fish_name or quality_name
+        if fish_name:
+            fish_meta = await get_fish_meta_or_none(fish_name, session)
+            if not fish_meta:
+                return 0
+            quality = await get_quality(fish_meta.quality, session)
+            stmt = select(FishRecord).where(
+                FishRecord.fish_name == fish_meta.name,
+                FishRecord.user_id == to_uuid(str(user_id)),
+            )
+            result = await session.execute(stmt)
+            fishes = list(result.scalars().all())
+            session.add_all(fishes)
+        else:
+            stmt = select(FishMeta).where(FishMeta.quality == quality_name)
+            result = await session.execute(stmt)
+            metas = result.scalars().all()
+            fishes = []
+            for meta in metas:
+                stmt = select(FishRecord).where(
+                    FishRecord.fish_name == meta.name,
+                    FishRecord.user_id == to_uuid(str(user_id)),
+                )
+                data = (await session.execute(stmt)).scalars().all()
+                session.add_all(data)
+                fishes.extend(list(data))
+        if not fishes:
+            return 0
+        total_length = sum([fish.length for fish in fishes])
+        price = float(total_length) * quality.price_per_length
+    return price

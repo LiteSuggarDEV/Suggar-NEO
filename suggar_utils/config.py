@@ -49,6 +49,7 @@ class ConfigManager:
             cls._instance = super().__new__(cls)
             cls._instance._initialized = False
         return cls._instance
+
     def __init__(self) -> None:
         if not getattr(self, "_initialized", False):
             self._config = Config()
