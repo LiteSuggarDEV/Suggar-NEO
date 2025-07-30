@@ -69,14 +69,17 @@ bag = on_fullmatch(
 async def _(bot: Bot, event: MessageEvent):
     msg = event.get_message().extract_plain_text().strip()
     price = 0
-    if price := await sell_fish(event.user_id, fish_name=msg):
-        await sell.send(f"成功出售所有 {msg}，获得{price}金币")
-    elif price := await sell_fish(event.user_id, quality_name=msg):
-        await sell.send(f"成功出售所有{msg}品质的鱼，获得{price}金币")
-    else:
-        await sell.finish("没有这个品质/名字的鱼")
-    await add_balance(to_uuid(event.get_user_id()), price, "卖鱼")
-
+    try:
+        if price := await sell_fish(event.user_id, fish_name=msg):
+            await sell.send(f"成功出售所有 {msg}，获得{price}金币")
+        elif price := await sell_fish(event.user_id, quality_name=msg):
+            await sell.send(f"成功出售所有{msg}品质的鱼，获得{price}金币")
+        else:
+            await sell.finish("没有这个品质/名字的鱼")
+        await add_balance(to_uuid(event.get_user_id()), price, "卖鱼")
+    except Exception:
+        await sell.send("发生错误，卖鱼失败了")
+        raise
 
 @bag.handle()
 async def _(bot: Bot, event: MessageEvent):
