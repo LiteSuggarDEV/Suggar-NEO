@@ -94,23 +94,30 @@ async def _(bot: Bot, event: MessageEvent):
         await fishing.finish("鱼竿过热了，休息一下吧......")
     await fishing.send("正在钓鱼......")
     async with get_session() as session:
-        quilty_sequence = (
+        quality_sequence = (
             (await session.execute(select(QualityMetaData))).scalars().all()
         )
-        session.add_all(quilty_sequence)
+        session.add_all(quality_sequence)
         probability_choose = (random.randint(1, 100)) / 100
-        quilty_list = [
-            q for q in quilty_sequence if probability_choose <= q.probability
+        if probability_choose == float(1):
+            await fishing.finish("...鱼竿折断了的说")
+        quality_list = [
+            q for q in quality_sequence if probability_choose <= q.probability
         ]
-        quilty = random.choice(quilty_list)
-        stmt = select(FishMeta).where(FishMeta.quality == quilty.name)
+        if not quality_list:
+            quality = random.choice(
+                [q for q in quality_sequence if q.probability > 0.4]
+            )
+        else:
+            quality = random.choice(quality_list)
+        stmt = select(FishMeta).where(FishMeta.quality == quality.name)
         fish_to_choose = (await session.execute(stmt)).scalars().all()
         session.add_all(fish_to_choose)
         fish_meta = random.choice(fish_to_choose)
         fish_meta_pyd = F_Meta.model_validate(fish_meta, from_attributes=True)
         fish = Fish(
             user_id=event.get_user_id(),
-            length=random.randint(quilty.length_range_start, quilty.length_range_end),
+            length=random.randint(quality.length_range_start, quality.length_range_end),
             time=datetime.now(),
             metadata=fish_meta_pyd,
         )

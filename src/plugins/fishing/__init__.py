@@ -7,7 +7,7 @@ require("nonebot_plugin_value")
 from nonebot_plugin_orm import get_session
 
 from . import command, functions
-from .functions import get_or_create_fish, get_or_create_quilty
+from .functions import update_fish, update_quilty
 from .pyd_models import DEFAULT_FISH_LIST, DEFAULT_QUALITY
 
 driver = get_driver()
@@ -30,6 +30,6 @@ async def init_fish():
     async with get_session() as session:
         logger.info("正在初始化鱼")
         for quality in DEFAULT_QUALITY:
-            await get_or_create_quilty(quality, session)
+            await update_quilty(quality, session)
         for fish in DEFAULT_FISH_LIST:
-            await get_or_create_fish(fish, session)
+            await update_fish(fish, session)

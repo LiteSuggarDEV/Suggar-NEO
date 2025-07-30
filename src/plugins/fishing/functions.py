@@ -36,6 +36,28 @@ async def get_user_fish(user_id: int, session: AsyncSession) -> Sequence[FishRec
         return (await session.execute(stmt)).scalars().all()
 
 
+async def update_quilty(meta: QualityMeta, session: AsyncSession) -> QualityMetaData:
+    async with session:
+        stmt = select(QualityMetaData).where(QualityMetaData.name == meta.name)
+        result = await session.execute(stmt)
+        quality = result.scalar_one_or_none()
+
+        if quality is None:
+            quality = QualityMetaData(
+                **meta.model_dump(),
+            )
+            session.add(quality)
+        else:
+            session.add(quality)
+            quality.length_range_start = meta.length_range_start
+            quality.length_range_end = meta.length_range_end
+            quality.price_per_length = meta.price_per_length
+            quality.probability = meta.probability
+
+        await session.commit()
+        return quality
+
+
 async def get_or_create_quilty(
     meta: QualityMeta, session: AsyncSession
 ) -> QualityMetaData:
@@ -62,6 +84,18 @@ async def get_quailty(name: str, session: AsyncSession) -> QualityMetaData:
         stmt = select(QualityMetaData).where(QualityMetaData.name == name)
         result = await session.execute(stmt)
         return result.scalar_one()
+
+
+async def update_fish(data: F_Meta, session: AsyncSession):
+    async with session:
+        if (fish := await get_fish_meta_or_none(data.name, session)) is not None:
+            session.add(fish)
+            fish.quality = data.quality
+
+        else:
+            fish = FishMeta(name=data.name, quality=data.quality)
+            session.add(fish)
+        await session.commit()
 
 
 async def get_or_create_fish(data: F_Meta, session: AsyncSession):
