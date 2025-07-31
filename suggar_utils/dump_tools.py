@@ -23,18 +23,28 @@ db_lock = Lock()
 class StatusManager:
     _instance = None
     __running = False
+    __disable = False
 
     def __new__(cls) -> Self:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def set_running(self, value: bool):
+    def set_disable(self, value: bool):
+        self.__disable = value
+
+    def set_unready(self, value: bool):
         self.__running = value
 
     def is_unready(self) -> bool:
         return self.__running
 
+    def is_disabled(self) -> bool:
+        return self.__disable
+
+    @property
+    def ready(self) -> bool:
+        return not self.__running and not self.__disable
 
 class UserFunDataSchema(BaseModel):
     """
@@ -85,7 +95,7 @@ async def reset_all_by_data(data: list[UserFunDataSchema]) -> None:
 async def reset_from_update_file():
     async with db_lock:
         try:
-            StatusManager().set_running(True)
+            StatusManager().set_unready(True)
             if not UPDATE_FILE.exists():
                 logger.warning(f"JSON文件({UPDATE_FILE!s})不存在")
                 return
@@ -100,13 +110,13 @@ async def reset_from_update_file():
                     d.id = to_uuid(str(d.id))
             await reset_all_by_data(final_list)
         finally:
-            StatusManager().set_running(False)
+            StatusManager().set_unready(False)
 
 
 async def dump_to_json():
     async with db_lock:
         try:
-            StatusManager().set_running(True)
+            StatusManager().set_unready(True)
             eco_accounts = await list_accounts()
             final_list = []
             for acc in eco_accounts:
@@ -130,4 +140,4 @@ async def dump_to_json():
             async with open(DUMP_PATH, "w", encoding="utf-8") as f:
                 await f.write(json.dumps(final_list, ensure_ascii=False, indent=4))
         finally:
-            StatusManager().set_running(False)
+            StatusManager().set_unready(False)
