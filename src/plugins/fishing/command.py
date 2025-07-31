@@ -185,8 +185,7 @@ async def _(bot: Bot, event: MessageEvent):
         + MessageSegment.text(
             f"你钓到了 [{fish.metadata.quality}]{fish.metadata.name} 了！"
             + f"\n长度：{f'{fish.length!s}cm' if fish.length < 100 else f'{fish.length / 100:.2f}m'}\n"
-            + f"{fish.metadata.prompt}\n"
-            if fish.metadata.prompt
-            else "" + "已收进你的背包～"
+            + (f"{fish.metadata.prompt}\n" if fish.metadata.prompt else "")
+            + "已收进你的背包～"
         )
     )
