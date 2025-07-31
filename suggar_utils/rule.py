@@ -7,10 +7,12 @@ driver = get_driver()
 
 
 async def is_global_admin(event: UserIDEvent) -> bool:
-    return await check_global_admin(event.user_id)
+    return check_global_admin(event.user_id)
 
 
-async def check_global_admin(user_id: int) -> bool:
+def check_global_admin(user_id: int) -> bool:
     return user_id in (
-        {int(i) for i in driver.config.superusers} | set(config_manager.config.admins),
+        {int(i) for i in driver.config.superusers}.union(
+            set(config_manager.config.admins)
+        ),
     )

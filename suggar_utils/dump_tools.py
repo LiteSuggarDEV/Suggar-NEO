@@ -22,7 +22,7 @@ db_lock = Lock()
 
 class StatusManager:
     _instance = None
-    __running = False
+    __repair = False
     __disable = False
 
     def __new__(cls) -> Self:
@@ -34,17 +34,18 @@ class StatusManager:
         self.__disable = value
 
     def set_unready(self, value: bool):
-        self.__running = value
+        self.__repair = value
 
     def is_unready(self) -> bool:
-        return self.__running
+        return self.__repair
 
     def is_disabled(self) -> bool:
         return self.__disable
 
     @property
     def ready(self) -> bool:
-        return not self.__running and not self.__disable
+        return (not self.__repair) and (not self.__disable)
+
 
 class UserFunDataSchema(BaseModel):
     """

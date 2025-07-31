@@ -36,13 +36,16 @@ watch_user = defaultdict(
     lambda: TokenBucket(rate=1 / config_manager.config.rate_limit, capacity=1)
 )
 
+
 @on_command("set_enable", permission=is_global_admin).handle()
 async def _(event: UserIDEvent, matcher: Matcher, args: Message = CommandArg()):
     arg = args.extract_plain_text().strip()
     if arg in ("true", "yes", "1", "on"):
         StatusManager().set_disable(False)
+        await matcher.finish("已启用")
     elif arg in ("false", "no", "0", "off"):
         StatusManager().set_disable(True)
+        await matcher.finish("已关闭")
     else:
         await matcher.finish("请输入正确的参数，true/yes/1/on/false/no/0/off")
 
@@ -57,7 +60,7 @@ async def poke(matcher: Matcher, event: PokeNotifyEvent):
     bucket = data[ins_id]
     if not bucket.consume():
         raise IgnoredException("Too fast!")
-    if StatusManager().ready and not await is_global_admin(event):
+    if (not StatusManager().ready) and (not await is_global_admin(event)):
         await matcher.send("正在维护/数据迁移中，暂时不支持该操作！")
         raise IgnoredException("Under repair/migration")
 
@@ -89,6 +92,6 @@ async def run(matcher: Matcher, event: MessageEvent):
         with contextlib.suppress(Exception):
             await matcher.send(random.choice(config_manager.config.rate_reply))
         raise IgnoredException("Too fast!")
-    if StatusManager().ready and not await is_global_admin(event):
+    if (not StatusManager().ready) and (not await is_global_admin(event)):
         await matcher.send("正在维护/数据迁移中，暂时不支持该操作！")
         raise IgnoredException("Under repair/migration")
