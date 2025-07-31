@@ -90,7 +90,7 @@ async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
     price = 0
     if not msg:
         await sell.send("请输入要出售的鱼/特定品质的鱼")
-    if msg == QualityEnum.UNKNOWNN.value:
+    if msg == QualityEnum.UNKNOWN.value:
         await sell.finish("这个不能出售哦")
     try:
         if price := await sell_fish(event.user_id, fish_name=msg):
