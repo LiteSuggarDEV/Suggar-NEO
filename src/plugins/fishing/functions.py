@@ -229,6 +229,8 @@ async def sell_fish(
                 fishes = list(result.scalars().all())
                 session.add_all(fishes)
             else:
+                assert quality_name
+                quality = await get_quality(quality_name, session)
                 stmt = select(FishMeta).where(FishMeta.quality == quality_name)
                 result = await session.execute(stmt)
                 metas = result.scalars().all()
