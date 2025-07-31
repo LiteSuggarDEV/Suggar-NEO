@@ -40,7 +40,7 @@ class QualityEnum(str, Enum):
     LEGENDARY = "传说"
     MYTHICAL = "神话"
     SUPER_RARE = "神秘"
-    UNKNOWN = "???"
+    UNKNOWNN = "???"
 
 
 DEFAULT_QUALITY = [
@@ -101,7 +101,7 @@ DEFAULT_QUALITY = [
         length_range_end=200000,
     ),
     QualityMeta(
-        name=QualityEnum.UNKNOWN,
+        name=QualityEnum.UNKNOWNN,
         probability=0.01,
         price_per_length=0,
         length_range_start=11451419,
@@ -309,12 +309,12 @@ DEFAULT_FISH_LIST = [
     # ?
     FishMeta(
         name="那一天的鱿鱼",
-        quality=QualityEnum.UNKNOWN,
+        quality=QualityEnum.UNKNOWNN,
         prompt="啥 啊 这 是",
     ),
     FishMeta(
         name="东北鱼姐",
-        quality=QualityEnum.UNKNOWN,
+        quality=QualityEnum.UNKNOWNN,
         prompt="带派的鱼",
     ),
     FishMeta(
@@ -324,7 +324,7 @@ DEFAULT_FISH_LIST = [
     ),
     FishMeta(
         name="玉！",
-        quality=QualityEnum.UNKNOWN,
+        quality=QualityEnum.UNKNOWNN,
         prompt="合乎粥礼的鱼",
     ),
     FishMeta(
@@ -334,12 +334,12 @@ DEFAULT_FISH_LIST = [
     ),
     FishMeta(
         name="JohnRichard",
-        quality=QualityEnum.UNKNOWN,
+        quality=QualityEnum.UNKNOWNN,
         prompt="这是谁",
     ),
     FishMeta(
         name="Mrling",
-        quality=QualityEnum.UNKNOWN,
+        quality=QualityEnum.UNKNOWNN,
         prompt="这是串场了嘛",
     ),
 ]

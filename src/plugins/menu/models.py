@@ -7,7 +7,7 @@ class CategoryEnum(str, Enum):
     FUN = "娱乐"
     UTILS = "工具"
     MANAGE = "管理"
-    UNKNOW = "其他"
+    UNKNOWN = "其他"
     GAME = "游戏"
 
 
@@ -30,7 +30,7 @@ class MatcherData(pydantic.BaseModel):
     usage: str
     icon: str = ""
     color: str = "#ff9ed8"
-    category: str = CategoryEnum.UNKNOW
+    category: str = CategoryEnum.UNKNOWN
     aliases: list[str] = []
     params: list[CommandParam] = []
     examples: list[str] = []
