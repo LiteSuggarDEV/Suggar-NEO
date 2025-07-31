@@ -38,7 +38,7 @@ sell = on_command(
             description="卖鱼",
             usage="/卖鱼 <鱼名>/<品质名>",
             examples=["/卖鱼 稀有"],
-            category=CategoryEnum.FUN,
+            category=CategoryEnum.GAME.value,
             params=[
                 CommandParam(
                     name="fish-name",
@@ -58,10 +58,11 @@ sell = on_command(
 fishing = on_fullmatch(
     ("钓鱼", *[f"{prefix}钓鱼" for prefix in get_driver().config.command_start]),
     priority=10,
+    block=True,
     state=dict(
         MatcherData(
             name="钓鱼",
-            category=CategoryEnum.FUN,
+            category=CategoryEnum.GAME.value,
             description="钓鱼 来当赛博钓鱼佬吧～",
             usage="钓鱼",
         )
@@ -70,10 +71,11 @@ fishing = on_fullmatch(
 bag = on_fullmatch(
     ("背包", *[f"{prefix}背包" for prefix in get_driver().config.command_start]),
     priority=10,
+    block=True,
     state=dict(
         MatcherData(
             name="背包",
-            category=CategoryEnum.FUN,
+            category=CategoryEnum.GAME.value,
             description="背包",
             usage="背包",
         )

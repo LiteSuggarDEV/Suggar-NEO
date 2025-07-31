@@ -4,7 +4,7 @@ import nonebot
 from nonebot import get_driver
 from nonebot.log import logger
 
-from .models import CommandCategory, MatcherData
+from .models import CategoryEnum, CommandCategory, MatcherData
 from .utils import CommandsManager, cached_html_to_pic, get_page_html
 
 
@@ -63,27 +63,33 @@ async def load_menus():
     """加载菜单并预渲染图片"""
     categories = (
         CommandCategory(
-            name="娱乐",
+            name=CategoryEnum.FUN.value,
             icon="fa fa-music",
             description="娱乐和游戏相关的指令",
             commands=[],
         ),
         CommandCategory(
-            name="工具",
+            name=CategoryEnum.UTILS.value,
             icon="fa fa-wrench",
             description="工具指令",
             commands=[],
         ),
         CommandCategory(
-            name="管理",
+            name=CategoryEnum.MANAGE.value,
             icon="fa fa-cogs",
             description="Suggar的管理指令",
             commands=[],
         ),
         CommandCategory(
-            name="其他",
+            name=CategoryEnum.UNKNOWN.value,
             icon="fa fa-question",
             description="这些指令还没有被分类哦～",
+            commands=[],
+        ),
+        CommandCategory(
+            name=CategoryEnum.GAME.value,
+            icon="fa fa-gamepad",
+            description="游戏指令",
             commands=[],
         ),
     )

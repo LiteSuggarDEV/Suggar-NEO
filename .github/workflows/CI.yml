@@ -52,7 +52,7 @@ jobs:
       - name: Setup database
         run: |
           echo "Setting up database for CI..."
-          uv run nb orm upgrade head
+          uv run nb orm upgrade
 
       - name: Load test
         run: |
