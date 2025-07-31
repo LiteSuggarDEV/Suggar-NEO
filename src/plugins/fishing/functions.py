@@ -2,7 +2,7 @@ from collections.abc import Sequence
 
 from nonebot_plugin_orm import AsyncSession, get_session
 from nonebot_plugin_value.uuid_lib import to_uuid
-from sqlalchemy import insert, select
+from sqlalchemy import delete, insert, select
 
 from .models import FishMeta, FishRecord, QualityMetaData, UserFishMetaData
 from .pyd_models import Fish, QualityMeta, UserData
@@ -245,7 +245,8 @@ async def sell_fish(
             total_length = sum([fish.length for fish in fishes])
             price = float(total_length) * quality.price_per_length
             for fish in fishes:
-                await session.delete(fish)
+                stmt = delete(FishRecord).where(FishRecord.id == fish.id)
+                await session.execute(stmt)
         except Exception:
             await session.rollback()
             raise

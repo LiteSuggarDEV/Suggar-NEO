@@ -8,6 +8,7 @@ class CategoryEnum(str, Enum):
     UTILS = "工具"
     MANAGE = "管理"
     UNKNOW = "其他"
+    GAME = "游戏"
 
 
 class ParamType(str, Enum):

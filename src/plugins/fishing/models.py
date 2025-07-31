@@ -41,6 +41,7 @@ class FishMeta(Model):
     quality: MappedColumn[str] = mapped_column(
         ForeignKey("fishing_quality_meta.name"), nullable=False
     )
+    prompt: MappedColumn[str] = mapped_column(String(255), nullable=False, default="")
 
     __table_args__ = (
         Index("idx_fish_meta_name", "name"),

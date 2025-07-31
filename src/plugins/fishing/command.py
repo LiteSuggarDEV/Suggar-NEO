@@ -2,15 +2,16 @@ import random
 from collections import defaultdict
 from datetime import datetime
 
-from nonebot import get_driver, on_command, on_fullmatch
-from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment
+from nonebot import get_driver, on_fullmatch, on_startswith
+from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent, MessageSegment
 from nonebot.exception import NoneBotException
+from nonebot.params import CommandArg
 from nonebot_plugin_orm import get_session
 from nonebot_plugin_value.api.api_balance import add_balance
 from nonebot_plugin_value.uuid_lib import to_uuid
 from sqlalchemy import select
 
-from src.plugins.menu.models import CategoryEnum, MatcherData
+from src.plugins.menu.models import CategoryEnum, CommandParam, MatcherData, ParamType
 from suggar_utils.config import config_manager
 from suggar_utils.token_bucket import TokenBucket
 from suggar_utils.utils import send_forward_msg
@@ -20,23 +21,36 @@ from .models import (
     FishMeta,
     QualityMetaData,
 )
-from .pyd_models import Fish
+from .pyd_models import Fish, QualityEnum
 from .pyd_models import FishMeta as F_Meta
 
 watch_user = defaultdict(
     lambda: TokenBucket(rate=1 / config_manager.config.fishing_rate_limit, capacity=1)
 )
 
-sell = on_command(
-    "卖鱼",
-    priority=10,
+sell = on_startswith(
+    ("卖鱼", *[f"{prefix}卖鱼" for prefix in get_driver().config.command_start]),
+    priority=5,
     block=True,
     state=dict(
         MatcherData(
-            name="/卖鱼",
+            name="卖鱼",
             description="卖鱼",
-            usage="/卖鱼 <鱼名>/<品质名>",
+            usage="卖鱼 <鱼名>/<品质名>",
+            examples=["卖鱼 稀有"],
             category=CategoryEnum.FUN,
+            params=[
+                CommandParam(
+                    name="fish-name",
+                    description="鱼名",
+                    param_type=ParamType.OPTIONAL,
+                ),
+                CommandParam(
+                    name="quality-name",
+                    description="品质名",
+                    param_type=ParamType.OPTIONAL,
+                ),
+            ],
         )
     ),
 )
@@ -68,9 +82,13 @@ bag = on_fullmatch(
 
 
 @sell.handle()
-async def _(bot: Bot, event: MessageEvent):
-    msg = event.get_message().extract_plain_text().strip()
+async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
+    msg = arg.extract_plain_text().strip()
     price = 0
+    if not msg:
+        await sell.send("请输入要出售的鱼/特定品质的鱼")
+    if msg == QualityEnum.UNKNOWN.value:
+        await sell.finish("这个不能出售哦")
     try:
         if price := await sell_fish(event.user_id, fish_name=msg):
             await sell.send(f"成功出售所有 {msg}，获得{price}金币")
@@ -85,10 +103,13 @@ async def _(bot: Bot, event: MessageEvent):
         await sell.send("发生错误，卖鱼失败了")
         raise
 
+
 @bag.handle()
 async def _(bot: Bot, event: MessageEvent):
     data = await get_user_data_pyd(event.user_id)
-    msg_list = []
+    msg_list = [
+        MessageSegment.text(f"{event.sender.nickname!s}({event.get_user_id()})的背包：")
+    ]
     quality_dict: dict[str, dict[str, dict[str, int]]] = {}
     for fish in data.fishes:
         if fish.metadata.quality not in quality_dict:
@@ -103,14 +124,15 @@ async def _(bot: Bot, event: MessageEvent):
                 "count": 1,
                 "length": fish.length,
             }
-    for quality, quality_data in quality_dict.items():
-        msg = f"==={quality}品质===\n"
-        for fish_name, fish_data in quality_data.items():
-            msg += (
-                f"{fish_name}：{fish_data['count']}条，总长度"
-                + f"""{str(fish_data["length"]) + "cm" if fish_data["length"] < 100 else (f"{fish_data['length'] / 100:.2f}m")}\n"""
-            )
-        msg_list.append(MessageSegment.text(msg))
+    for quality in QualityEnum:
+        if quality_data := quality_dict.get(quality.value):
+            msg = f"==={quality}品质===\n"
+            for fish_name, fish_data in quality_data.items():
+                msg += (
+                    f"{fish_name}：{fish_data['count']}条，总长度"
+                    + f"""{str(fish_data["length"]) + "cm" if fish_data["length"] < 100 else (f"{fish_data['length'] / 100:.2f}m")}\n"""
+                )
+            msg_list.append(MessageSegment.text(msg))
     await send_forward_msg(
         bot,
         event,
@@ -132,9 +154,11 @@ async def _(bot: Bot, event: MessageEvent):
             (await session.execute(select(QualityMetaData))).scalars().all()
         )
         session.add_all(quality_sequence)
-        probability_choose = (random.randint(1, 100)) / 100
+        probability_choose = (random.randint(1, 10000)) / 10000
         if probability_choose == float(1):
-            await fishing.finish("...鱼竿折断了的说")
+            await fishing.finish("...鱼竿断了的说")
+        elif probability_choose >= 0.9:
+            await fishing.finish("...空军了")
         quality_list = [
             q for q in quality_sequence if probability_choose <= q.probability
         ]
