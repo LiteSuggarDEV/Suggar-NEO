@@ -91,9 +91,10 @@ async def update_fish(data: F_Meta, session: AsyncSession):
         if (fish := await get_fish_meta_or_none(data.name, session)) is not None:
             session.add(fish)
             fish.quality = data.quality
+            fish.prompt = data.prompt
 
         else:
-            fish = FishMeta(name=data.name, quality=data.quality)
+            fish = FishMeta(name=data.name, quality=data.quality, prompt=data.prompt)
             session.add(fish)
         await session.commit()
 
