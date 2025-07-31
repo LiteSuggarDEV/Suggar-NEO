@@ -25,7 +25,6 @@ from nonebot.rule import (
 
 from suggar_utils.config import config_manager
 from suggar_utils.dump_tools import StatusManager
-from suggar_utils.event import UserIDEvent
 from suggar_utils.rule import is_global_admin
 from suggar_utils.token_bucket import TokenBucket
 

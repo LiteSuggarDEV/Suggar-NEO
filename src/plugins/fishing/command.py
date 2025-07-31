@@ -2,7 +2,7 @@ import random
 from collections import defaultdict
 from datetime import datetime
 
-from nonebot import get_driver, on_fullmatch, on_startswith
+from nonebot import get_driver, on_fullmatch, on_message
 from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent, MessageSegment
 from nonebot.exception import NoneBotException
 from nonebot.params import CommandArg
@@ -28,8 +28,7 @@ watch_user = defaultdict(
     lambda: TokenBucket(rate=1 / config_manager.config.fishing_rate_limit, capacity=1)
 )
 
-sell = on_startswith(
-    ("卖鱼", *[f"{prefix}卖鱼" for prefix in get_driver().config.command_start]),
+sell = on_message(
     priority=5,
     block=True,
     state=dict(
@@ -84,6 +83,15 @@ bag = on_fullmatch(
 @sell.handle()
 async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
     msg = arg.extract_plain_text().strip()
+    for i in (
+        "卖鱼",
+        *[f"{prefix}卖鱼" for prefix in get_driver().config.command_start],
+    ):
+        if event.message.extract_plain_text().strip().startswith(i):
+            break
+    else:
+        sell.skip()
+
     price = 0
     if not msg:
         await sell.send("请输入要出售的鱼/特定品质的鱼")
