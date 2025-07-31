@@ -37,8 +37,10 @@ watch_user = defaultdict(
 )
 
 
-@on_command("set_enable", permission=is_global_admin).handle()
-async def _(event: UserIDEvent, matcher: Matcher, args: Message = CommandArg()):
+@on_command("set_enable", priority=2).handle()
+async def _(event: MessageEvent, matcher: Matcher, args: Message = CommandArg()):
+    if not await is_global_admin(event):
+        return
     arg = args.extract_plain_text().strip()
     if arg in ("true", "yes", "1", "on"):
         StatusManager().set_disable(False)
