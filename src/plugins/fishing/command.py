@@ -14,7 +14,7 @@ from sqlalchemy import select
 from src.plugins.menu.models import CategoryEnum, CommandParam, MatcherData, ParamType
 from suggar_utils.config import config_manager
 from suggar_utils.token_bucket import TokenBucket
-from suggar_utils.utils import send_forward_msg
+from suggar_utils.utils import is_same_day, send_forward_msg
 
 from .functions import add_fish_record, get_user_data_pyd, sell_fish
 from .models import (
@@ -281,6 +281,17 @@ async def _(bot: Bot, event: MessageEvent):
             session.add(user_meta)
             await session.commit()
             await session.refresh(user_meta)
+        if user_meta.today_fishing_count >= config_manager.config.max_fishing_count:
+            if is_same_day(
+                int(datetime.now().timestamp()),
+                int(user_meta.last_fishing_time.timestamp()),
+            ):
+                await fishing.finish("今天的钓鱼次数已达上限，请明天再来！")
+            else:
+                user_meta.today_fishing_count = 0
+                user_meta.last_fishing_time = datetime.now()
+                await session.commit()
+                await session.refresh(user_meta)
         luck_level = user_meta.lucky_of_the_sea
         multi_fish_level = user_meta.multi_fish
         feeding_level = user_meta.feeding
@@ -300,12 +311,16 @@ async def _(bot: Bot, event: MessageEvent):
                     await do_fishing(event, session, probability_choose, feeding_level)
                     for _ in range(
                         1,
-                        int(0.65 * multi_fish_level)
-                        if int(0.65 * multi_fish_level) > 1
+                        int(0.5 * multi_fish_level)
+                        if int(0.5 * multi_fish_level) > 1
                         else 1,
                     )
                 ]
             )
+        user_meta.today_fishing_count += len(fishes)
+        user_meta.last_fishing_time = datetime.now()
+        await session.commit()
+        await session.refresh(user_meta)
     await fishing.finish(
         MessageSegment.reply(event.message_id)
         + MessageSegment.text(
