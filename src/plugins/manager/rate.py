@@ -60,10 +60,12 @@ async def poke(matcher: Matcher, event: PokeNotifyEvent):
 
     bucket = data[ins_id]
     if not bucket.consume():
-        raise IgnoredException("Too fast!")
+        matcher.stop_propagation()
+        raise IgnoredException("Rate limit exceeded, operation ignored.")
     if (not StatusManager().ready) and (not await is_global_admin(event)):
         await matcher.send("正在维护/数据迁移中，暂时不支持该操作！")
-        raise IgnoredException("Under repair/migration")
+        matcher.stop_propagation()
+        raise IgnoredException("Maintenance in progress, operation not supported.")
 
 
 @run_preprocessor
@@ -92,7 +94,9 @@ async def run(matcher: Matcher, event: MessageEvent):
     if not bucket.consume():
         with contextlib.suppress(Exception):
             await matcher.send(random.choice(config_manager.config.rate_reply))
-        raise IgnoredException("Too fast!")
+        matcher.stop_propagation()
+        raise IgnoredException("Rate limit exceeded, operation ignored.")
     if (not StatusManager().ready) and (not await is_global_admin(event)):
         await matcher.send("正在维护/数据迁移中，暂时不支持该操作！")
-        raise IgnoredException("Under repair/migration")
+        matcher.stop_propagation()
+        raise IgnoredException("Maintenance in progress, operation not supported.")

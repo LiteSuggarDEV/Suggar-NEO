@@ -81,14 +81,14 @@ DEFAULT_QUALITY = [
     ),
     QualityMeta(
         name=QualityEnum.LEGENDARY,
-        probability=0.1,
+        probability=0.025,
         price_per_length=20.0,
         length_range_start=10000,
         length_range_end=50000,
     ),
     QualityMeta(
         name=QualityEnum.MYTHICAL,
-        probability=0.025,
+        probability=0.02,
         price_per_length=30.0,
         length_range_start=25000,
         length_range_end=65000,

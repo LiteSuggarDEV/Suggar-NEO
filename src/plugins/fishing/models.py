@@ -22,6 +22,10 @@ class UserFishMetaData(Model):
     lucky_of_the_sea: MappedColumn[int] = mapped_column(Integer, default=0)
     multi_fish: MappedColumn[int] = mapped_column(Integer, default=0)
     feeding: MappedColumn[int] = mapped_column(Integer, default=0)
+    last_fishing_time: MappedColumn[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.now()
+    )
+    today_fishing_count: MappedColumn[int] = mapped_column(Integer, default=0)
 
 
 class QualityMetaData(Model):
