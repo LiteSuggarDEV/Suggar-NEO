@@ -269,9 +269,9 @@ async def _(bot: Bot, event: MessageEvent):
     )
 
 max_levels = {
-    "lucky_of_the_sea": 35,  # 幸运属性上限
-    "multi_fish": 35,  # 多重钓竿上限
-    "feeding": 35,  # 自动打窝上限
+    "lucky_of_the_sea": 40,  # 幸运属性上限
+    "multi_fish": 40,  # 多重钓竿上限
+    "feeding": 40,  # 自动打窝上限
 }
 
 
