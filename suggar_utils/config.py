@@ -14,7 +14,6 @@ from .store import CONFIG_DIR
 
 
 class Config(BaseModel):
-    tools_calling: bool = True
     rate_limit: int = 3
     fishing_rate_limit: int = 10
     max_fishing_count: int = 70
