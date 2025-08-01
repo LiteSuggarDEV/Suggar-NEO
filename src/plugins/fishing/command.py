@@ -167,6 +167,8 @@ async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
                     await del_balance(uid, coast)
                 except Exception:
                     await enchant.finish(f"余额不足，需要{coast}")
+                if user_meta.lucky_of_the_sea > 35:
+                    await enchant.finish("海之眷顾已达最高等级")
                 user_meta.lucky_of_the_sea += 1
                 await session.commit()
                 await session.refresh(user_meta)
@@ -179,6 +181,8 @@ async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
                     await del_balance(uid, coast)
                 except Exception:
                     await enchant.finish(f"余额不足，需要{coast}")
+                if user_meta.multi_fish > 35:
+                    await enchant.finish("多重钓竿已达最高等级")
                 user_meta.multi_fish += 1
                 await session.commit()
                 await session.refresh(user_meta)
@@ -191,6 +195,8 @@ async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
                     await del_balance(uid, coast)
                 except Exception:
                     await enchant.finish("金币不足")
+                if user_meta.feeding > 35:
+                    await enchant.finish("自动打窝已达最高等级")
                 user_meta.feeding += 1
                 await session.commit()
                 await session.refresh(user_meta)
@@ -299,6 +305,8 @@ async def _(bot: Bot, event: MessageEvent):
         probability_choose = ((random.randint(1, 10000)) / 10000) * (
             1 - 0.02 * luck_level
         )
+        if probability_choose <= 0.05:
+            probability_choose = 0.05
         if probability_choose == float(1):
             await fishing.finish("...鱼竿断了的说")
         elif probability_choose >= 0.9:
