@@ -745,7 +745,7 @@ wheels = [
 
 [[package]]
 name = "nonebot-plugin-value"
-version = "0.1.3.post1"
+version = "0.1.3.post2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
@@ -755,9 +755,9 @@ dependencies = [
     { name = "nonebot2" },
     { name = "sqlalchemy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3b/5c/46878ae26b47241d7ac8b5c94efc07237c0a02823839a2ff4ce6c4b73ce0/nonebot_plugin_value-0.1.3.post1.tar.gz", hash = "sha256:f8dc78d1330ecbe7d72d417f203d3b8d9d9832eced11d6f626973ffc0a20937f", size = 58123 }
+sdist = { url = "https://files.pythonhosted.org/packages/cb/c4/e629f096001ad24abac98e991ca42dcb44171b40512c8f396e2f81ba56bc/nonebot_plugin_value-0.1.3.post2.tar.gz", hash = "sha256:22c4d6852f5c2c294bffb85317e61175cfb88ceb5d0d26150d8943c7ed9310a5", size = 57972 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/18/72/947bb8746ac294c144176965c1b4bd2a8dcedbac00518576be9fc8d56c3f/nonebot_plugin_value-0.1.3.post1-py3-none-any.whl", hash = "sha256:b3d87da47d62b8894dbc70c215b77b3954fa6ddcf53a72254b463b351d14751c", size = 54615 },
+    { url = "https://files.pythonhosted.org/packages/12/82/4ca42053171f2d1e4cdef491445090537721a918a339a25c3348fc29a83a/nonebot_plugin_value-0.1.3.post2-py3-none-any.whl", hash = "sha256:d19f0af7cb1bd733f147577ceabba39bf396b0e72e57c6bea357fc562051d7c8", size = 54431 },
 ]
 
 [[package]]
@@ -1396,7 +1396,7 @@ requires-dist = [
     { name = "nonebot-plugin-localstore", specifier = ">=0.7.4" },
     { name = "nonebot-plugin-orm", extras = ["default"], specifier = ">=0.8.1" },
     { name = "nonebot-plugin-suggarchat", specifier = ">=3.1.2.post1" },
-    { name = "nonebot-plugin-value", specifier = "==0.1.3.post1" },
+    { name = "nonebot-plugin-value", specifier = "==0.1.3.post2" },
     { name = "nonebot2", extras = ["fastapi"], specifier = ">=2.4.2" },
     { name = "openai", specifier = ">=1.95.0" },
     { name = "pillow", specifier = ">=11.3.0" },

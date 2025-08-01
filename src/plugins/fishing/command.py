@@ -6,8 +6,8 @@ from nonebot import get_driver, on_command, on_fullmatch
 from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent, MessageSegment
 from nonebot.exception import NoneBotException
 from nonebot.params import CommandArg
-from nonebot_plugin_orm import get_session
-from nonebot_plugin_value.api.api_balance import add_balance
+from nonebot_plugin_orm import AsyncSession, get_session
+from nonebot_plugin_value.api.api_balance import add_balance, del_balance
 from nonebot_plugin_value.uuid_lib import to_uuid
 from sqlalchemy import select
 
@@ -20,12 +20,34 @@ from .functions import add_fish_record, get_user_data_pyd, sell_fish
 from .models import (
     FishMeta,
     QualityMetaData,
+    UserFishMetaData,
 )
 from .pyd_models import Fish, QualityEnum
 from .pyd_models import FishMeta as F_Meta
 
 watch_user = defaultdict(
     lambda: TokenBucket(rate=1 / config_manager.config.fishing_rate_limit, capacity=1)
+)
+
+enchant = on_command(
+    "鱼竿附魔",
+    priority=10,
+    block=True,
+    state=dict(
+        MatcherData(
+            name="鱼竿附魔",
+            usage="/鱼竿附魔",
+            description="添加鱼竿附魔等级",
+            category=CategoryEnum.GAME.value,
+            params=[
+                CommandParam(
+                    name="种类",
+                    description="附魔种类(海之眷顾，多重钓竿，自动打窝)",
+                    param_type=ParamType.OPTIONAL,
+                )
+            ],
+        )
+    ),
 )
 
 sell = on_command(
@@ -81,6 +103,102 @@ bag = on_fullmatch(
         )
     ),
 )
+
+
+async def do_fishing(
+    event: MessageEvent,
+    session: AsyncSession,
+    probability_choose: float,
+    feeding_level: int,
+) -> Fish:
+    quality_sequence = (await session.execute(select(QualityMetaData))).scalars().all()
+    session.add_all(quality_sequence)
+    quality_list = [q for q in quality_sequence if probability_choose <= q.probability]
+    if not quality_list:
+        quality = random.choice([q for q in quality_sequence if q.probability > 0.4])
+    else:
+        quality = random.choice(quality_list)
+    stmt = select(FishMeta).where(FishMeta.quality == quality.name)
+    fish_to_choose = (await session.execute(stmt)).scalars().all()
+    session.add_all(fish_to_choose)
+    fish_meta = random.choice(fish_to_choose)
+    fish_meta_pyd = F_Meta.model_validate(fish_meta, from_attributes=True)
+    fish = Fish(
+        user_id=event.get_user_id(),
+        length=int(
+            float(random.randint(quality.length_range_start, quality.length_range_end))
+            * (1.0 + 0.1 * feeding_level)
+        ),
+        time=datetime.now(),
+        metadata=fish_meta_pyd,
+    )
+    await add_fish_record(event.user_id, fish)
+    return fish
+
+
+@enchant.handle()
+async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
+    msg = arg.extract_plain_text()
+    uid = to_uuid(event.get_user_id())
+    async with get_session() as session:
+        if not (
+            user_meta := (
+                await session.execute(
+                    select(UserFishMetaData).where(UserFishMetaData.user_id == uid)
+                )
+            ).scalar_one_or_none()
+        ):
+            user_meta = UserFishMetaData(user_id=uid)
+            session.add(user_meta)
+            await session.commit()
+            await session.refresh(user_meta)
+        session.add(user_meta)
+        match msg:
+            case "":
+                await enchant.finish(
+                    f"{event.sender.nickname!s}({event.user_id!s})的附魔信息：\n"
+                    + f"自动打窝：Level {user_meta.feeding!s}\n"
+                    + f"海之眷顾：Level {user_meta.lucky_of_the_sea!s}\n"
+                    + f"多重钓竿：Level {user_meta.multi_fish!s}"
+                )
+            case "海之眷顾":
+                coast = 1000 * user_meta.lucky_of_the_sea + 1500
+                try:
+                    await del_balance(uid, coast)
+                except Exception:
+                    await enchant.finish(f"余额不足，需要{coast}")
+                user_meta.lucky_of_the_sea += 1
+                await session.commit()
+                await session.refresh(user_meta)
+                await enchant.finish(
+                    f"已将海之眷顾提高到Level{user_meta.lucky_of_the_sea}，消耗{coast}金币"
+                )
+            case "多重钓竿":
+                coast = 1000 * user_meta.multi_fish + 2000
+                try:
+                    await del_balance(uid, coast)
+                except Exception:
+                    await enchant.finish("余额不足")
+                user_meta.multi_fish += 1
+                await session.commit()
+                await session.refresh(user_meta)
+                await enchant.finish(
+                    f"已将多重钓竿提高到Level {user_meta.multi_fish}，消耗{coast}金币"
+                )
+            case "自动打窝":
+                coast = 1500 * user_meta.multi_fish + 1000
+                try:
+                    await del_balance(uid, coast)
+                except Exception:
+                    await enchant.finish("金币不足")
+                user_meta.feeding += 1
+                await session.commit()
+                await session.refresh(user_meta)
+                await enchant.finish(
+                    f"已将自动打窝提高到Level {user_meta.feeding}，消耗{coast}金币"
+                )
+            case _:
+                await enchant.finish("不理解的参数")
 
 
 @sell.handle()
@@ -151,44 +269,55 @@ async def _(bot: Bot, event: MessageEvent):
     bukkit = watch_user[ins_id]
     if not bukkit.consume():
         await fishing.finish("鱼竿过热了，休息一下吧......")
+
     await fishing.send("正在钓鱼......")
+    uid = to_uuid(event.get_user_id())
     async with get_session() as session:
-        quality_sequence = (
-            (await session.execute(select(QualityMetaData))).scalars().all()
+        result = await session.execute(
+            select(UserFishMetaData).where(UserFishMetaData.user_id == uid)
         )
-        session.add_all(quality_sequence)
-        probability_choose = (random.randint(1, 10000)) / 10000
+        if not (user_meta := result.scalar_one_or_none()):
+            user_meta = UserFishMetaData(user_id=uid)
+            session.add(user_meta)
+            await session.commit()
+            await session.refresh(user_meta)
+        luck_level = user_meta.lucky_of_the_sea
+        multi_fish_level = user_meta.multi_fish
+        feeding_level = user_meta.feeding
+
+        probability_choose = ((random.randint(1, 10000)) / 10000) * (
+            1 - 0.05 * luck_level
+        )
         if probability_choose == float(1):
             await fishing.finish("...鱼竿断了的说")
         elif probability_choose >= 0.9:
             await fishing.finish("...空军了")
-        quality_list = [
-            q for q in quality_sequence if probability_choose <= q.probability
-        ]
-        if not quality_list:
-            quality = random.choice(
-                [q for q in quality_sequence if q.probability > 0.4]
+        should_mutifish = random.randint(1, 50) <= multi_fish_level * 10
+        fishes = [await do_fishing(event, session, probability_choose, feeding_level)]
+        if should_mutifish:
+            fishes.extend(
+                [
+                    await do_fishing(event, session, probability_choose, feeding_level)
+                    for _ in range(
+                        1,
+                        int(0.75 * multi_fish_level)
+                        if int(0.75 * multi_fish_level) > 1
+                        else 1,
+                    )
+                ]
             )
-        else:
-            quality = random.choice(quality_list)
-        stmt = select(FishMeta).where(FishMeta.quality == quality.name)
-        fish_to_choose = (await session.execute(stmt)).scalars().all()
-        session.add_all(fish_to_choose)
-        fish_meta = random.choice(fish_to_choose)
-        fish_meta_pyd = F_Meta.model_validate(fish_meta, from_attributes=True)
-        fish = Fish(
-            user_id=event.get_user_id(),
-            length=random.randint(quality.length_range_start, quality.length_range_end),
-            time=datetime.now(),
-            metadata=fish_meta_pyd,
-        )
-        await add_fish_record(event.user_id, fish)
     await fishing.finish(
         MessageSegment.reply(event.message_id)
         + MessageSegment.text(
-            f"你钓到了 [{fish.metadata.quality}]{fish.metadata.name} 了！"
-            + f"\n长度：{f'{fish.length!s}cm' if fish.length < 100 else f'{fish.length / 100:.2f}m'}\n"
-            + (f"{fish.metadata.prompt}\n" if fish.metadata.prompt else "")
+            "你钓到了 "
+            + "".join(
+                [
+                    f"\n[{fish.metadata.quality}]{fish.metadata.name} 长度：{f'{fish.length!s}cm' if fish.length < 100 else f'{fish.length / 100:.2f}m'}\n"
+                    + (f"{fish.metadata.prompt}\n" if fish.metadata.prompt else "")
+                    for fish in fishes
+                ]
+            )
+            + "了！\n"
             + "已收进你的背包～"
         )
     )

@@ -19,6 +19,9 @@ from nonebot_plugin_orm import Model
 class UserFishMetaData(Model):
     __tablename__ = "fishing_user_meta"
     user_id: MappedColumn[str] = mapped_column(String(50), primary_key=True)
+    lucky_of_the_sea: MappedColumn[int] = mapped_column(Integer, default=0)
+    multi_fish: MappedColumn[int] = mapped_column(Integer, default=0)
+    feeding: MappedColumn[int] = mapped_column(Integer, default=0)
 
 
 class QualityMetaData(Model):
