@@ -47,5 +47,5 @@ async def init_currency():
         repo = AccountRepository(session)
         currency_id = (await get_default_currency()).id
         for account in accounts:
-            if account.balance >= 20000000:
-                await repo.update_balance(account.id, 20000000, currency_id)
+            if account.balance >= 30000000:
+                await repo.update_balance(account.id, 30000000, currency_id)
