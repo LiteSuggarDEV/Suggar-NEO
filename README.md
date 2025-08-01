@@ -21,3 +21,7 @@ Bot使用了的外部插件：
 - nonebot_plugin_htmlrender
 - nonebot_plugin_localstore
 - nonebot_plugin_orm
+
+## 说明
+
+本项目的钓鱼功能灵感来源于[U1-Project](https://github.com/CrashVibe/U1_wiki)
