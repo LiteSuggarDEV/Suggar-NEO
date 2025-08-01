@@ -162,7 +162,7 @@ async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
                     + f"多重钓竿：Level {user_meta.multi_fish!s}"
                 )
             case "海之眷顾":
-                coast = 1000 * user_meta.lucky_of_the_sea + 1500
+                coast = 10000 * user_meta.lucky_of_the_sea + 2500
                 try:
                     await del_balance(uid, coast)
                 except Exception:
@@ -174,11 +174,11 @@ async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
                     f"已将海之眷顾提高到Level{user_meta.lucky_of_the_sea}，消耗{coast}金币"
                 )
             case "多重钓竿":
-                coast = 1000 * user_meta.multi_fish + 2000
+                coast = 15000 * user_meta.multi_fish + 5000
                 try:
                     await del_balance(uid, coast)
                 except Exception:
-                    await enchant.finish("余额不足")
+                    await enchant.finish(f"余额不足，需要{coast}")
                 user_meta.multi_fish += 1
                 await session.commit()
                 await session.refresh(user_meta)
@@ -186,7 +186,7 @@ async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
                     f"已将多重钓竿提高到Level {user_meta.multi_fish}，消耗{coast}金币"
                 )
             case "自动打窝":
-                coast = 1500 * user_meta.multi_fish + 1000
+                coast = 7000 * user_meta.multi_fish + 4000
                 try:
                     await del_balance(uid, coast)
                 except Exception:
@@ -222,7 +222,7 @@ async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
         raise
     except Exception:
         await sell.send("发生错误，卖鱼失败了")
-        raise
+
 
 
 @bag.handle()
@@ -286,13 +286,13 @@ async def _(bot: Bot, event: MessageEvent):
         feeding_level = user_meta.feeding
 
         probability_choose = ((random.randint(1, 10000)) / 10000) * (
-            1 - 0.05 * luck_level
+            1 - 0.005 * luck_level
         )
         if probability_choose == float(1):
             await fishing.finish("...鱼竿断了的说")
         elif probability_choose >= 0.9:
             await fishing.finish("...空军了")
-        should_mutifish = random.randint(1, 50) <= multi_fish_level * 10
+        should_mutifish = random.randint(1, 100) <= multi_fish_level * 5
         fishes = [await do_fishing(event, session, probability_choose, feeding_level)]
         if should_mutifish:
             fishes.extend(
@@ -300,8 +300,8 @@ async def _(bot: Bot, event: MessageEvent):
                     await do_fishing(event, session, probability_choose, feeding_level)
                     for _ in range(
                         1,
-                        int(0.75 * multi_fish_level)
-                        if int(0.75 * multi_fish_level) > 1
+                        int(0.65 * multi_fish_level)
+                        if int(0.65 * multi_fish_level) > 1
                         else 1,
                     )
                 ]
