@@ -219,6 +219,7 @@ async def handle_enchant(bot: Bot, event: MessageEvent, arg: Message = CommandAr
             # 升级属性
             setattr(user_meta, attr_name, current_level + 1)
             await session.commit()
+            await session.refresh(user_meta)
             await enchant.finish(
                 f"已将{display_name}提高到Level {getattr(user_meta, attr_name)}，消耗{cost}金币"
             )

@@ -719,7 +719,7 @@ default = [
 
 [[package]]
 name = "nonebot-plugin-suggarchat"
-version = "3.1.2.post1"
+version = "3.1.2.post2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
@@ -738,9 +738,9 @@ dependencies = [
     { name = "tomli-w" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4f/60/3d7b7f65b5a3060d13ba38e270c8621d755ffc2fb1ced92f65eb4b91923b/nonebot_plugin_suggarchat-3.1.2.post1.tar.gz", hash = "sha256:08fe083cb7ab3eef6c8c461d6263294abef2c9abe61c4124ecba62163529cff5", size = 53873 }
+sdist = { url = "https://files.pythonhosted.org/packages/4b/4a/48d5ead55151d9ab505a72da13b63d3a0547584f8278dca0afdd74732649/nonebot_plugin_suggarchat-3.1.2.post2.tar.gz", hash = "sha256:1163eb62f9a66faeecd43bd6a1ec165e76b0f127650642a7c2b1116824d2b905", size = 53960 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8a/6a/fcb70ba3e1973b25ec3b507c3dbd0232cac30eb3344a76f6c95b7d27169e/nonebot_plugin_suggarchat-3.1.2.post1-py3-none-any.whl", hash = "sha256:8abab2096b50e0a6cad746ab439cb19dbbaa6409a3ac82a5e70661c3157383e6", size = 66856 },
+    { url = "https://files.pythonhosted.org/packages/3e/01/04dff22586e7ea44dd63316915c9ccabf22ca9efa41b326a31417eab3845/nonebot_plugin_suggarchat-3.1.2.post2-py3-none-any.whl", hash = "sha256:15408fceb2cf4fed6fd0910ff96e1529773548ef837981b3e5f02ea4ffc76875", size = 66951 },
 ]
 
 [[package]]
@@ -1395,7 +1395,7 @@ requires-dist = [
     { name = "nonebot-plugin-htmlrender", specifier = ">=0.6.6" },
     { name = "nonebot-plugin-localstore", specifier = ">=0.7.4" },
     { name = "nonebot-plugin-orm", extras = ["default"], specifier = ">=0.8.1" },
-    { name = "nonebot-plugin-suggarchat", specifier = ">=3.1.2.post1" },
+    { name = "nonebot-plugin-suggarchat", specifier = ">=3.1.2.post2" },
     { name = "nonebot-plugin-value", specifier = "==0.1.3.post2" },
     { name = "nonebot2", extras = ["fastapi"], specifier = ">=2.4.2" },
     { name = "openai", specifier = ">=1.95.0" },
