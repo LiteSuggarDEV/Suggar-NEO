@@ -127,7 +127,7 @@ async def do_fishing(
         user_id=event.get_user_id(),
         length=int(
             float(random.randint(quality.length_range_start, quality.length_range_end))
-            * (1.0 + 0.1 * feeding_level)
+            * (1.0 + 0.05 * feeding_level)
         ),
         time=datetime.now(),
         metadata=fish_meta_pyd,
@@ -297,13 +297,13 @@ async def _(bot: Bot, event: MessageEvent):
         feeding_level = user_meta.feeding
 
         probability_choose = ((random.randint(1, 10000)) / 10000) * (
-            1 - 0.005 * luck_level
+            1 - 0.01 * luck_level
         )
         if probability_choose == float(1):
             await fishing.finish("...鱼竿断了的说")
         elif probability_choose >= 0.9:
             await fishing.finish("...空军了")
-        should_mutifish = random.randint(1, 100) <= multi_fish_level * 5
+        should_mutifish = random.randint(1, 100) <= multi_fish_level * 10
         fishes = [await do_fishing(event, session, probability_choose, feeding_level)]
         if should_mutifish:
             fishes.extend(
@@ -311,8 +311,8 @@ async def _(bot: Bot, event: MessageEvent):
                     await do_fishing(event, session, probability_choose, feeding_level)
                     for _ in range(
                         1,
-                        int(0.5 * multi_fish_level)
-                        if int(0.5 * multi_fish_level) > 1
+                        int(0.6 * multi_fish_level)
+                        if int(0.6 * multi_fish_level) > 1
                         else 1,
                     )
                 ]
