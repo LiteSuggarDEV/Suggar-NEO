@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 
+from nonebot import logger
 from nonebot_plugin_orm import AsyncSession, get_session
 from nonebot_plugin_value.uuid_lib import to_uuid
 from sqlalchemy import delete, insert, select
@@ -204,7 +205,13 @@ async def add_fish_record(user_id: int, fish: Fish):
             user_id=to_uuid(str(user_id)),
         )
         session.add(record)
-        await session.commit()
+        try:
+            await session.flush()
+        except Exception as e:
+            await session.rollback()  # 发生异常时回滚
+            logger.warning(f"插入鱼记录失败: {e}")
+            raise
+        await session.commit()  # 提交事务
 
 
 async def sell_fish(

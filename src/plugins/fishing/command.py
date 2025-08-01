@@ -56,6 +56,7 @@ async def get_or_create_user_meta(
         user_meta = UserFishMetaData(user_id=user_id)
         session.add(user_meta)
         await session.commit()
+        await session.refresh(user_meta)
 
     return user_meta
 
@@ -64,36 +65,44 @@ async def perform_fishing(
     event: MessageEvent, session: AsyncSession, probability: float, feeding_level: int
 ) -> Fish:
     """执行一次钓鱼操作"""
-    # 获取所有品质并按概率过滤
-    qualities = (await session.scalars(select(QualityMetaData))).all()
-    valid_qualities = [q for q in qualities if probability <= q.probability]
+    async with session:
+        # 获取所有品质并按概率过滤
+        qualities = (await session.scalars(select(QualityMetaData))).all()
+        valid_qualities = [q for q in qualities if probability <= q.probability]
 
-    # 选择品质
-    quality = (
-        random.choice(valid_qualities)
-        if valid_qualities
-        else random.choice([q for q in qualities if q.probability > 0.4])
-    )
+        # 选择品质
+        quality = (
+            random.choice(valid_qualities)
+            if valid_qualities
+            else random.choice([q for q in qualities if q.probability > 0.4])
+        )
 
-    # 选择鱼种
-    fish_to_choose = (
-        await session.scalars(select(FishMeta).where(FishMeta.quality == quality.name))
-    ).all()
-    fish_meta = random.choice(fish_to_choose)
+        # 选择鱼种
+        fish_to_choose = (
+            await session.scalars(
+                select(FishMeta).where(FishMeta.quality == quality.name)
+            )
+        ).all()
+        fish_meta = random.choice(fish_to_choose)
 
-    # 计算鱼长度
-    length = random.randint(quality.length_range_start, quality.length_range_end)
-    length = int(length * (1 + 0.05 * feeding_level))
+        # 计算鱼长度
+        length = random.randint(quality.length_range_start, quality.length_range_end)
+        length = int(length * (1 + 0.05 * feeding_level))
 
-    # 创建鱼对象
-    fish = Fish(
-        user_id=event.get_user_id(),
-        length=length,
-        time=datetime.now(),
-        metadata=F_Meta.model_validate(fish_meta, from_attributes=True),
-    )
+        # 创建鱼对象
+        fish = Fish(
+            user_id=event.get_user_id(),
+            length=length,
+            time=datetime.now(),
+            metadata=F_Meta.model_validate(fish_meta, from_attributes=True),
+        )
 
-    await add_fish_record(event.user_id, fish)
+    try:
+        await add_fish_record(event.user_id, fish)
+    except Exception as e:
+        logger.warning(f"保存鱼记录失败: {e}")
+        raise  # 重新抛出异常以便外层处理
+
     return fish
 
 
