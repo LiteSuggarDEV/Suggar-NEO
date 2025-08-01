@@ -2,7 +2,7 @@ import random
 from collections import defaultdict
 from datetime import datetime
 
-from nonebot import get_driver, on_command, on_fullmatch
+from nonebot import get_driver, logger, on_command, on_fullmatch
 from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent, MessageSegment
 from nonebot.exception import NoneBotException
 from nonebot.params import CommandArg
@@ -213,7 +213,7 @@ async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
 
     price = 0
     if not msg:
-        await sell.send("请输入要出售的鱼/特定品质的鱼")
+        await sell.finish("请输入要出售的鱼/特定品质的鱼")
     if msg == QualityEnum.UNKNOWN.value:
         await sell.finish("这个不能出售哦")
     try:
@@ -226,9 +226,9 @@ async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
         await add_balance(to_uuid(event.get_user_id()), price, "卖鱼")
     except NoneBotException:
         raise
-    except Exception:
+    except Exception as e:
         await sell.send("发生错误，卖鱼失败了")
-
+        logger.warning(e)
 
 
 @bag.handle()
@@ -268,6 +268,12 @@ async def _(bot: Bot, event: MessageEvent):
         msg_list,
     )
 
+max_levels = {
+    "lucky_of_the_sea": 35,  # 幸运属性上限
+    "multi_fish": 35,  # 多重钓竿上限
+    "feeding": 35,  # 自动打窝上限
+}
+
 
 @fishing.handle()
 async def _(bot: Bot, event: MessageEvent):
@@ -279,70 +285,66 @@ async def _(bot: Bot, event: MessageEvent):
     await fishing.send("正在钓鱼......")
     uid = to_uuid(event.get_user_id())
     async with get_session() as session:
-        result = await session.execute(
-            select(UserFishMetaData).where(UserFishMetaData.user_id == uid)
-        )
-        if not (user_meta := result.scalar_one_or_none()):
-            user_meta = UserFishMetaData(user_id=uid)
-            session.add(user_meta)
-            await session.commit()
-            await session.refresh(user_meta)
-
-        if user_meta.lucky_of_the_sea > 35:
-            user_meta.lucky_of_the_sea = 35
-            await session.commit()
-            await session.refresh(user_meta)
-        if user_meta.multi_fish > 35:
-            user_meta.multi_fish = 35
-            await session.commit()
-            await session.refresh(user_meta)
-        if user_meta.feeding > 35:
-            user_meta.feeding = 35
-            await session.commit()
-            await session.refresh(user_meta)
-
-        if user_meta.today_fishing_count >= config_manager.config.max_fishing_count:
-            if is_same_day(
-                int(datetime.now().timestamp()),
-                int(user_meta.last_fishing_time.timestamp()),
-            ):
-                await fishing.finish("今天的钓鱼次数已达上限，请明天再来！")
-            else:
-                user_meta.today_fishing_count = 0
-                user_meta.last_fishing_time = datetime.now()
+        try:
+            result = await session.execute(
+                select(UserFishMetaData).where(UserFishMetaData.user_id == uid)
+            )
+            if not (user_meta := result.scalar_one_or_none()):
+                user_meta = UserFishMetaData(user_id=uid)
+                session.add(user_meta)
                 await session.commit()
                 await session.refresh(user_meta)
-        luck_level = user_meta.lucky_of_the_sea
-        multi_fish_level = user_meta.multi_fish
-        feeding_level = user_meta.feeding
 
-        probability_choose = ((random.randint(1, 10000)) / 10000) * (
-            1 - 0.05 * luck_level
-        )
-        if probability_choose <= 0.05:
-            probability_choose = 0.05
-        if probability_choose == float(1):
-            await fishing.finish("...鱼竿断了的说")
-        elif probability_choose >= 0.9:
-            await fishing.finish("...空军了")
-        should_mutifish = random.randint(1, 100) <= multi_fish_level * 10
-        fishes = [await do_fishing(event, session, probability_choose, feeding_level)]
-        if should_mutifish:
-            fishes.extend(
-                [
-                    await do_fishing(event, session, probability_choose, feeding_level)
-                    for _ in range(
-                        1,
-                        int(0.4 * multi_fish_level)
-                        if int(0.4 * multi_fish_level) > 1
-                        else 1,
-                    )
-                ]
+            for attr, max_level in max_levels.items():
+                if getattr(user_meta, attr) > max_level:
+                    setattr(user_meta, attr, max_level)
+
+            if user_meta.today_fishing_count >= config_manager.config.max_fishing_count:
+                if is_same_day(
+                    int(datetime.now().timestamp()),
+                    int(user_meta.last_fishing_time.timestamp()),
+                ):
+                    await fishing.finish("今天的钓鱼次数已达上限，请明天再来！")
+                else:
+                    user_meta.today_fishing_count = 0
+                    user_meta.last_fishing_time = datetime.now()
+            luck_level = user_meta.lucky_of_the_sea
+            multi_fish_level = user_meta.multi_fish
+            feeding_level = user_meta.feeding
+
+            probability_choose = ((random.randint(1, 10000)) / 10000) * (
+                1 - 0.05 * luck_level
             )
-        user_meta.today_fishing_count += len(fishes)
-        user_meta.last_fishing_time = datetime.now()
-        await session.commit()
-        await session.refresh(user_meta)
+            if probability_choose <= 0.05:
+                probability_choose = 0.05
+            if probability_choose == float(1):
+                await fishing.finish("...鱼竿断了的说")
+            elif probability_choose >= 0.9:
+                await fishing.finish("...空军了")
+            should_mutifish = random.randint(1, 100) <= multi_fish_level * 10
+            fishes = [
+                await do_fishing(event, session, probability_choose, feeding_level)
+            ]
+            if should_mutifish:
+                fishes.extend(
+                    [
+                        await do_fishing(
+                            event, session, probability_choose, feeding_level
+                        )
+                        for _ in range(
+                            1,
+                            int(0.4 * multi_fish_level)
+                            if int(0.4 * multi_fish_level) > 1
+                            else 1,
+                        )
+                    ]
+                )
+            user_meta.today_fishing_count += 1
+            user_meta.last_fishing_time = datetime.now()
+        except:
+            raise
+        else:
+            await session.commit()
     await fishing.finish(
         MessageSegment.reply(event.message_id)
         + MessageSegment.text(
