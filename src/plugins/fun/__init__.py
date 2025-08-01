@@ -1,15 +1,20 @@
 from nonebot import get_driver, logger
 from nonebot.plugin import PluginMetadata, require
 
-from suggar_utils.value import SUGGAR_EXP_ID
-
 require("nonebot_plugin_orm")
 require("nonebot_plugin_value")
 require("nonebot_plugin_suggarchat")
 require("menu")
-
-from nonebot_plugin_value.api.api_currency import get_or_create_currency
+from nonebot_plugin_orm import get_session
+from nonebot_plugin_value.api.api_balance import list_accounts
+from nonebot_plugin_value.api.api_currency import (
+    get_default_currency,
+    get_or_create_currency,
+)
 from nonebot_plugin_value.pyd_models.currency_pyd import CurrencyData
+from nonebot_plugin_value.repository import AccountRepository
+
+from suggar_utils.value import SUGGAR_EXP_ID
 
 from . import auto, query, signin
 
@@ -37,3 +42,10 @@ async def init_currency():
             symbol="EXP",
         )
     )
+    accounts = await list_accounts()
+    async with get_session() as session:
+        repo = AccountRepository(session)
+        currency_id = (await get_default_currency()).id
+        for account in accounts:
+            if account.balance >= 30000000:
+                await repo.update_balance(account.id, 30000000, currency_id)
