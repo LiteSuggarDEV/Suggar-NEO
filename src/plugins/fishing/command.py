@@ -297,7 +297,7 @@ async def _(bot: Bot, event: MessageEvent):
         feeding_level = user_meta.feeding
 
         probability_choose = ((random.randint(1, 10000)) / 10000) * (
-            1 - 0.01 * luck_level
+            1 - 0.02 * luck_level
         )
         if probability_choose == float(1):
             await fishing.finish("...鱼竿断了的说")
@@ -311,8 +311,8 @@ async def _(bot: Bot, event: MessageEvent):
                     await do_fishing(event, session, probability_choose, feeding_level)
                     for _ in range(
                         1,
-                        int(0.6 * multi_fish_level)
-                        if int(0.6 * multi_fish_level) > 1
+                        int(0.45 * multi_fish_level)
+                        if int(0.45 * multi_fish_level) > 1
                         else 1,
                     )
                 ]
