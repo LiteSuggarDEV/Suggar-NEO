@@ -167,7 +167,7 @@ async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
                     await del_balance(uid, coast)
                 except Exception:
                     await enchant.finish(f"余额不足，需要{coast}")
-                if user_meta.lucky_of_the_sea > 35:
+                if user_meta.lucky_of_the_sea > 40:
                     await enchant.finish("海之眷顾已达最高等级")
                 user_meta.lucky_of_the_sea += 1
                 await session.commit()
@@ -181,7 +181,7 @@ async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
                     await del_balance(uid, coast)
                 except Exception:
                     await enchant.finish(f"余额不足，需要{coast}")
-                if user_meta.multi_fish > 35:
+                if user_meta.multi_fish > 40:
                     await enchant.finish("多重钓竿已达最高等级")
                 user_meta.multi_fish += 1
                 await session.commit()
@@ -195,7 +195,7 @@ async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
                     await del_balance(uid, coast)
                 except Exception:
                     await enchant.finish("金币不足")
-                if user_meta.feeding > 35:
+                if user_meta.feeding > 40:
                     await enchant.finish("自动打窝已达最高等级")
                 user_meta.feeding += 1
                 await session.commit()
@@ -287,6 +287,20 @@ async def _(bot: Bot, event: MessageEvent):
             session.add(user_meta)
             await session.commit()
             await session.refresh(user_meta)
+
+        if user_meta.lucky_of_the_sea > 35:
+            user_meta.lucky_of_the_sea = 35
+            await session.commit()
+            await session.refresh(user_meta)
+        if user_meta.multi_fish > 35:
+            user_meta.multi_fish = 35
+            await session.commit()
+            await session.refresh(user_meta)
+        if user_meta.feeding > 35:
+            user_meta.feeding = 35
+            await session.commit()
+            await session.refresh(user_meta)
+
         if user_meta.today_fishing_count >= config_manager.config.max_fishing_count:
             if is_same_day(
                 int(datetime.now().timestamp()),
@@ -303,7 +317,7 @@ async def _(bot: Bot, event: MessageEvent):
         feeding_level = user_meta.feeding
 
         probability_choose = ((random.randint(1, 10000)) / 10000) * (
-            1 - 0.02 * luck_level
+            1 - 0.05 * luck_level
         )
         if probability_choose <= 0.05:
             probability_choose = 0.05
@@ -319,8 +333,8 @@ async def _(bot: Bot, event: MessageEvent):
                     await do_fishing(event, session, probability_choose, feeding_level)
                     for _ in range(
                         1,
-                        int(0.45 * multi_fish_level)
-                        if int(0.45 * multi_fish_level) > 1
+                        int(0.4 * multi_fish_level)
+                        if int(0.4 * multi_fish_level) > 1
                         else 1,
                     )
                 ]
