@@ -1,7 +1,6 @@
 import random
 from collections import defaultdict
 from datetime import datetime
-from tkinter import E
 
 from nonebot import get_driver, on_command, on_fullmatch
 from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent, MessageSegment
