@@ -64,7 +64,10 @@ async def get_or_create_user_meta(
 
 
 async def perform_fishing(
-    event: MessageEvent, session: AsyncSession, probability: float, feeding_level: int
+    event: MessageEvent,
+    session: AsyncSession,
+    probability: float,
+    feeding_level: int,
 ) -> Fish:
     """执行一次钓鱼操作"""
     async with session:
@@ -341,7 +344,7 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
         feeding_level = min(user_meta.feeding, MAX_ENCHANT_LEVEL)
 
         # 计算概率
-        luck_factor = 1 - (sqrt(lucky_level / 16) / 6)
+        luck_factor = 1 - (sqrt(lucky_level / 6) / 6)
         probability = max(random.random() * luck_factor, MIN_PROBABILITY)
 
         # 钓鱼
