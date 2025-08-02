@@ -60,7 +60,7 @@ async def cached_html_to_pic(html: str) -> str:
     key = _hash_md(html)
     if key in _html_cache:
         return _html_cache[key]
-    bas64_img = f"base64://{base64.b64encode(await html_to_pic(html, viewport={'width': 600, 'height': 100})).decode('utf-8')}"
+    bas64_img = f"base64://{base64.b64encode(await html_to_pic(html, viewport={'width': 550, 'height': 200})).decode('utf-8')}"
     _html_cache[key] = bas64_img
     return bas64_img
 
