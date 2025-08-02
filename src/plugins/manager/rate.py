@@ -2,7 +2,7 @@ import contextlib
 import random
 from collections import defaultdict
 
-from nonebot import on_command
+from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent,
     Message,
