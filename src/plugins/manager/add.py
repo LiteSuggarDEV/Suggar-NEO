@@ -10,7 +10,7 @@ from suggar_utils.blacklist.black import bl_manager
 from suggar_utils.utils import send_to_admin
 
 
-@on_request().handle()
+@on_request(priority=1).handle()
 async def _(event: RequestEvent, bot: Bot):
     if isinstance(event, FriendRequestEvent):
         if await bl_manager.is_private_black(str(event.user_id)):

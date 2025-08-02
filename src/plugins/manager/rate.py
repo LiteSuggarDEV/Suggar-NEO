@@ -21,6 +21,7 @@ from nonebot.rule import (
     RegexRule,
     ShellCommandRule,
     StartswithRule,
+    ToMeRule,
 )
 
 from suggar_utils.config import config_manager
@@ -60,11 +61,10 @@ async def poke(matcher: Matcher, event: PokeNotifyEvent):
 
     bucket = data[ins_id]
     if not bucket.consume():
-        matcher.stop_propagation()
         raise IgnoredException("Rate limit exceeded, operation ignored.")
     if (not StatusManager().ready) and (not await is_global_admin(event)):
-        await matcher.send("正在维护/数据迁移中，暂时不支持该操作！")
-        matcher.stop_propagation()
+        with contextlib.suppress(Exception):
+            await matcher.send("正在维护/数据迁移中，暂时不支持该操作！")
         raise IgnoredException("Maintenance in progress, operation not supported.")
 
 
@@ -79,7 +79,8 @@ async def run(matcher: Matcher, event: MessageEvent):
             | EndswithRule
             | KeywordsRule
             | ShellCommandRule
-            | RegexRule,
+            | RegexRule
+            | ToMeRule,
         )
         for checker in matcher.rule.checkers
     ):  # 检查该匹配器是否有文字类匹配类规则
@@ -94,9 +95,8 @@ async def run(matcher: Matcher, event: MessageEvent):
     if not bucket.consume():
         with contextlib.suppress(Exception):
             await matcher.send(random.choice(config_manager.config.rate_reply))
-        matcher.stop_propagation()
         raise IgnoredException("Rate limit exceeded, operation ignored.")
     if (not StatusManager().ready) and (not await is_global_admin(event)):
-        await matcher.send("正在维护/数据迁移中，暂时不支持该操作！")
-        matcher.stop_propagation()
+        with contextlib.suppress(Exception):
+            await matcher.send("正在维护/数据迁移中，暂时不支持该操作！")
         raise IgnoredException("Maintenance in progress, operation not supported.")

@@ -1,6 +1,8 @@
+import contextlib
 import random
 from collections import defaultdict
 from datetime import datetime
+from math import sqrt
 
 from nonebot import get_driver, logger, on_command, on_fullmatch
 from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent, MessageSegment
@@ -29,7 +31,7 @@ ENCHANT_COST_FACTORS = {
     "自动打窝": (7000, 4000),
 }
 FISHING_RATE_LIMIT = config_manager.config.fishing_rate_limit
-MIN_PROBABILITY = 0.05
+MIN_PROBABILITY = 0.01
 
 
 #  辅助函数
@@ -315,14 +317,15 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
         user_meta = await get_or_create_user_meta(session, uid)
 
         # 检查钓鱼次数
-        today_count = user_meta.today_fishing_count
-        last_time = user_meta.last_fishing_time
+        today_count: int = user_meta.today_fishing_count
+        last_time: datetime = user_meta.last_fishing_time
 
         # 重置每日计数
-        if last_time and not is_same_day(
-            int(datetime.now().timestamp()), int(last_time.timestamp())
-        ):
-            today_count = user_meta.today_fishing_count = 0
+        with contextlib.suppress(Exception):
+            if not is_same_day(
+                int(datetime.now().timestamp()), int(last_time.timestamp())
+            ):
+                today_count = user_meta.today_fishing_count = 0
 
         # 检查上限
         if today_count >= config_manager.config.max_fishing_count:
@@ -338,15 +341,15 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
         feeding_level = min(user_meta.feeding, MAX_ENCHANT_LEVEL)
 
         # 计算概率
-        luck_factor = 1 - 0.05 * lucky_level
+        luck_factor = 1 - (sqrt(lucky_level / 16) / 6)
         probability = max(random.random() * luck_factor, MIN_PROBABILITY)
 
         # 钓鱼
         fishes = [await perform_fishing(event, session, probability, feeding_level)]
 
         # 多重钓竿
-        if random.randint(1, 100) <= multi_level * 10:  # 10% per level
-            extra_count = max(int(0.4 * multi_level), 1)
+        if random.randint(1, 100) <= multi_level * 5:  # 5% per level,20 级则100%
+            extra_count = max(int(2 * sqrt(multi_level / 1.5)), 1)
 
             fishes.extend(
                 [
@@ -369,7 +372,7 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
         fish_details.append(detail)
 
     result_msg = MessageSegment.reply(event.message_id) + MessageSegment.text(
-        "你钓到了：\n" + "\n\n".join(fish_details) + "\n已收进背包～"
+        "你钓到了：\n" + "\n".join(fish_details) + "\n已收进背包～",
     )
 
     await fishing.finish(result_msg)

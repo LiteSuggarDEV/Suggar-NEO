@@ -23,7 +23,9 @@ class UserFishMetaData(Model):
     multi_fish: MappedColumn[int] = mapped_column(Integer, default=0)
     feeding: MappedColumn[int] = mapped_column(Integer, default=0)
     last_fishing_time: MappedColumn[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.now()
+        DateTime,
+        nullable=False,
+        default=datetime.now(),
     )
     today_fishing_count: MappedColumn[int] = mapped_column(Integer, default=0)
 

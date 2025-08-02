@@ -32,15 +32,15 @@ class UserData(BaseModel):
 
 
 class QualityEnum(str, Enum):
-    BAD = "腐烂"
-    COMMON = "普通"
-    GOOD = "上等"
-    RARE = "稀有"
-    EPIC = "史诗"
+    UNKNOWN = "???"
+    SUPER_RARE = "神秘"
     LEGENDARY = "传说"
     MYTHICAL = "神话"
-    SUPER_RARE = "神秘"
-    UNKNOWN = "???"
+    EPIC = "史诗"
+    RARE = "稀有"
+    GOOD = "上等"
+    COMMON = "普通"
+    BAD = "腐烂"
 
 
 DEFAULT_QUALITY = [
