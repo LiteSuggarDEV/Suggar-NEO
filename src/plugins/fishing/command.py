@@ -344,7 +344,14 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
         feeding_level = min(user_meta.feeding, MAX_ENCHANT_LEVEL)
 
         # 计算概率
-        luck_factor = 1 - (sqrt(lucky_level / 6) / 6)
+        luck_factor = 1 - (sqrt(lucky_level / 6) / 5)
+        if (
+            today_count >= config_manager.config.max_fishing_count * 0.8
+            and lucky_level <= 25
+        ):
+            luck_factor *= min(
+                0.75 * (config_manager.config.max_fishing_count / today_count), 0.8
+            )
         probability = max(random.random() * luck_factor, MIN_PROBABILITY)
 
         # 钓鱼

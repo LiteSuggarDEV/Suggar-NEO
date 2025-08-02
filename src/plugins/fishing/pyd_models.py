@@ -81,7 +81,7 @@ DEFAULT_QUALITY = [
     ),
     QualityMeta(
         name=QualityEnum.LEGENDARY,
-        probability=0.025,
+        probability=0.03,
         price_per_length=20.0,
         length_range_start=10000,
         length_range_end=50000,
