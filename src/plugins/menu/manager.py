@@ -99,7 +99,7 @@ async def load_menus():
     menu_mamager.load_menus()
     menu_mamager.print_menus()
 
-    asyncio.create_task(_render_menu_images())
+    asyncio.create_task(_render_menu_images())  # noqa: RUF006
 
 
 async def _render_menu_images():
