@@ -2,7 +2,7 @@ import contextlib
 import random
 from collections import defaultdict
 
-from nonebot import logger, on_command
+from nonebot import on_command
 from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent,
     Message,
@@ -91,11 +91,11 @@ async def run(matcher: Matcher, event: MessageEvent):
     data = watch_group if isinstance(event, GroupMessageEvent) else watch_user
 
     bucket = data[ins_id]
-    if not bucket.consume():
-        if has_text_rule:
+    if has_text_rule:
+        if not bucket.consume() and (not await is_global_admin(event)):
             with contextlib.suppress(Exception):
                 await matcher.send(random.choice(config_manager.config.rate_reply))
-        raise IgnoredException("Rate limit exceeded, operation ignored.")
+            raise IgnoredException("Rate limit exceeded, operation ignored.")
     if (not StatusManager().ready) and (not await is_global_admin(event)):
         if has_text_rule:
             with contextlib.suppress(Exception):
