@@ -70,7 +70,7 @@ async def poke(matcher: Matcher, event: PokeNotifyEvent):
 
 @run_preprocessor
 async def run(matcher: Matcher, event: MessageEvent):
-    if not any(
+    has_text_rule = any(
         isinstance(
             checker.call,
             FullmatchRule
@@ -83,8 +83,7 @@ async def run(matcher: Matcher, event: MessageEvent):
             | ToMeRule,
         )
         for checker in matcher.rule.checkers
-    ):  # 检查该匹配器是否有文字类匹配类规则
-        return
+    )  # 检查该匹配器是否有文字类匹配类规则
 
     ins_id = str(
         event.group_id if isinstance(event, GroupMessageEvent) else event.user_id
@@ -93,12 +92,12 @@ async def run(matcher: Matcher, event: MessageEvent):
 
     bucket = data[ins_id]
     if not bucket.consume():
-        with contextlib.suppress(Exception):
-            await matcher.send(random.choice(config_manager.config.rate_reply))
-        logger.warning(f"Rate limit exceeded for {ins_id}")
+        if has_text_rule:
+            with contextlib.suppress(Exception):
+                await matcher.send(random.choice(config_manager.config.rate_reply))
         raise IgnoredException("Rate limit exceeded, operation ignored.")
     if (not StatusManager().ready) and (not await is_global_admin(event)):
-        logger.info(f"{ins_id}未就绪")
-        with contextlib.suppress(Exception):
-            await matcher.send("正在维护/数据迁移中，暂时不支持该操作！")
+        if has_text_rule:
+            with contextlib.suppress(Exception):
+                await matcher.send("正在维护/数据迁移中，暂时不支持该操作！")
         raise IgnoredException("Maintenance in progress, operation not supported.")
