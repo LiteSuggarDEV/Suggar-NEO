@@ -1,3 +1,4 @@
+import asyncio
 from dataclasses import dataclass, field
 
 import nonebot
@@ -98,6 +99,10 @@ async def load_menus():
     menu_mamager.load_menus()
     menu_mamager.print_menus()
 
+    asyncio.create_task(_render_menu_images())
+
+
+async def _render_menu_images():
     logger.info("开始预渲染菜单图片...")
     pages = get_page_html()
     for page in pages:
