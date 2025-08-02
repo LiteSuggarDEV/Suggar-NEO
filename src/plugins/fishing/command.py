@@ -77,13 +77,15 @@ async def perform_fishing(
     async with session:
         # 获取所有品质并按概率过滤
         qualities = (await session.scalars(select(QualityMetaData))).all()
-        valid_qualities = [q for q in qualities if probability <= q.probability]
+        valid_qualities = [q for q in qualities if probability <= q.probability].sort(
+            key=lambda q: q.probability, reverse=True
+        )
 
         # 选择品质
         quality = (
             random.choice(valid_qualities)
             if valid_qualities
-            else random.choice([q for q in qualities if q.probability > 0.4])
+            else random.choice([q for q in qualities if q.probability > 0.01])
         )
 
         # 选择鱼种
@@ -120,8 +122,9 @@ watch_user = defaultdict(lambda: TokenBucket(rate=1 / FISHING_RATE_LIMIT, capaci
 
 # 鱼竿附魔命令
 enchant_matcher_data = MatcherData(
-    name="鱼竿附魔",
+    name="/鱼竿附魔",
     usage="/鱼竿附魔",
+    aliases=["/enchant"],
     description="添加鱼竿附魔等级",
     category=CategoryEnum.GAME.value,
     params=[
@@ -133,7 +136,11 @@ enchant_matcher_data = MatcherData(
     ],
 )
 enchant = on_command(
-    "鱼竿附魔", priority=10, block=True, state=enchant_matcher_data.model_dump()
+    "鱼竿附魔",
+    aliases={"enchant"},
+    priority=10,
+    block=True,
+    state=enchant_matcher_data.model_dump(),
 )
 
 # 卖鱼命令
@@ -296,11 +303,7 @@ async def handle_bag(bot: Bot, event: MessageEvent):
             section = [f"==={quality}品质==="]
             for name, fish_data in quality_dict[quality_value].items():
                 total_length = fish_data["length"]
-                length_str = (
-                    f"{total_length}cm"
-                    if total_length < 100
-                    else f"{total_length / 100:.2f}m"
-                )
+                length_str = format_length(total_length)
                 section.append(f"{name}：{fish_data['count']}条，总长度{length_str}")
             msg_list.append(MessageSegment.text("\n".join(section)))
 
@@ -348,7 +351,7 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
         feeding_level = min(user_meta.feeding, MAX_ENCHANT_LEVEL)
 
         # 计算概率
-        luck_factor = 1 - (sqrt(lucky_level / 6) / 4)
+        luck_factor = 1 - (sqrt(lucky_level / 6) / 3.5)
         if (
             today_count >= config_manager.config.max_fishing_count * 0.8
             and lucky_level <= 25

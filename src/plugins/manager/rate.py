@@ -2,7 +2,7 @@ import contextlib
 import random
 from collections import defaultdict
 
-from nonebot import on_command
+from nonebot import logger, on_command
 from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent,
     Message,
@@ -95,8 +95,10 @@ async def run(matcher: Matcher, event: MessageEvent):
     if not bucket.consume():
         with contextlib.suppress(Exception):
             await matcher.send(random.choice(config_manager.config.rate_reply))
+        logger.warning(f"Rate limit exceeded for {ins_id}")
         raise IgnoredException("Rate limit exceeded, operation ignored.")
     if (not StatusManager().ready) and (not await is_global_admin(event)):
+        logger.info(f"{ins_id}未就绪")
         with contextlib.suppress(Exception):
             await matcher.send("正在维护/数据迁移中，暂时不支持该操作！")
         raise IgnoredException("Maintenance in progress, operation not supported.")
