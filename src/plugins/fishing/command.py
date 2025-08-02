@@ -37,8 +37,12 @@ MIN_PROBABILITY = 0.01
 #  辅助函数
 def format_length(length: int) -> str:
     """格式化鱼的长度显示"""
-    return f"{length}cm" if length < 100 else f"{length / 100:.2f}m"
-
+    if length < 100:
+        return f"{length}cm"
+    elif length < 100000:
+        return f"{length / 100:.2f}m"
+    else:
+        return f"{length / 100000:.2f}km"
 
 def calculate_enchant_cost(level: int, enchant_type: str) -> int:
     """计算附魔升级消耗"""
@@ -344,7 +348,7 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
         feeding_level = min(user_meta.feeding, MAX_ENCHANT_LEVEL)
 
         # 计算概率
-        luck_factor = 1 - (sqrt(lucky_level / 6) / 5)
+        luck_factor = 1 - (sqrt(lucky_level / 6) / 4)
         if (
             today_count >= config_manager.config.max_fishing_count * 0.8
             and lucky_level <= 25
