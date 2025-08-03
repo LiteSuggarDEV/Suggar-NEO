@@ -34,6 +34,9 @@ class Config(BaseModel):
         "喵喵喵！请慢点哦！",
         "欸干什么啦？！别急啦！",
     ]
+    reset_balance: bool = (
+        False  # 在这一次启动中会按比例重置所有用户的余额（解决通货膨胀）
+    )
 
 
 class ConfigManager:

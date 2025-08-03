@@ -351,7 +351,7 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
         feeding_level = min(user_meta.feeding, MAX_ENCHANT_LEVEL)
 
         # 计算概率
-        luck_factor = 1 - (sqrt(lucky_level / 6) / 3.5)
+        luck_factor = 1 - (sqrt(lucky_level / 6) / 5)  # 0.2 at level 40
         if (
             today_count >= config_manager.config.max_fishing_count * 0.8
             and lucky_level <= 25
@@ -366,7 +366,7 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
 
         # 多重钓竿
         if random.randint(1, 100) <= multi_level * 5:  # 5% per level,20 级则100%
-            extra_count = max(int(2 * sqrt(multi_level / 1.5)), 1)
+            extra_count = max(int(2 * sqrt(multi_level / 3)), 1)
 
             fishes.extend(
                 [
