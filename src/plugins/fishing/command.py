@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import datetime
 from math import sqrt
 
-from nonebot import get_driver, logger, on_command, on_fullmatch
+from nonebot import MatcherGroup, get_driver, logger
 from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent, MessageSegment
 from nonebot.exception import NoneBotException
 from nonebot.params import CommandArg
@@ -15,6 +15,7 @@ from sqlalchemy import select
 
 from src.plugins.menu.models import CategoryEnum, CommandParam, MatcherData, ParamType
 from suggar_utils.config import config_manager
+from suggar_utils.switch_models import FuncEnum, is_enabled
 from suggar_utils.token_bucket import TokenBucket
 from suggar_utils.utils import is_same_day, send_forward_msg
 
@@ -31,6 +32,7 @@ ENCHANT_COST_FACTORS = {
     "自动打窝": (7000, 4000),
 }
 MIN_PROBABILITY = 0.01
+base_matcher = MatcherGroup(rule=is_enabled(FuncEnum.FISHING))
 
 
 #  辅助函数
@@ -137,7 +139,7 @@ enchant_matcher_data = MatcherData(
         )
     ],
 )
-enchant = on_command(
+enchant = base_matcher.on_command(
     "鱼竿附魔",
     aliases={"enchant"},
     priority=10,
@@ -165,7 +167,9 @@ sell_matcher_data = MatcherData(
         ),
     ],
 )
-sell = on_command("卖鱼", priority=10, block=True, state=sell_matcher_data.model_dump())
+sell = base_matcher.on_command(
+    "卖鱼", priority=10, block=True, state=sell_matcher_data.model_dump()
+)
 
 # 钓鱼命令
 fishing_matcher_data = MatcherData(
@@ -175,7 +179,7 @@ fishing_matcher_data = MatcherData(
     usage="钓鱼",
 )
 command_starts = [f"{prefix}钓鱼" for prefix in get_driver().config.command_start]
-fishing = on_fullmatch(
+fishing = base_matcher.on_fullmatch(
     ("钓鱼", *command_starts),
     priority=10,
     block=True,
@@ -186,7 +190,7 @@ fishing = on_fullmatch(
 bag_matcher_data = MatcherData(
     name="背包", category=CategoryEnum.GAME.value, description="背包", usage="背包"
 )
-bag = on_fullmatch(
+bag = base_matcher.on_fullmatch(
     ("背包", *[f"{prefix}背包" for prefix in get_driver().config.command_start]),
     priority=10,
     block=True,

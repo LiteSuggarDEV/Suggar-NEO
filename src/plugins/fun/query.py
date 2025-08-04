@@ -14,6 +14,7 @@ from nonebot_plugin_value.api.api_balance import get_or_create_account
 
 from src.plugins.menu.models import CategoryEnum, CommandParam, MatcherData, ParamType
 from suggar_utils.config import config_manager
+from suggar_utils.switch_models import FuncEnum, is_enabled
 from suggar_utils.value import SUGGAR_EXP_ID, to_uuid
 
 command_start = get_driver().config.command_start
@@ -41,6 +42,7 @@ command_start = get_driver().config.command_start
             ],
         )
     ),
+    rule=is_enabled(FuncEnum.DAILY),
 ).handle()
 async def _(
     bot: Bot, event: MessageEvent, matcher: Matcher, args: Message = CommandArg()
@@ -82,7 +84,7 @@ async def _(
 
 @on_fullmatch(
     "等级",
-    rule=to_me(),
+    rule=to_me() & is_enabled(FuncEnum.DAILY),
     block=True,
     state=dict(
         MatcherData(
@@ -108,6 +110,7 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
 
 @on_fullmatch(
     "余额",
+    rule=is_enabled(FuncEnum.DAILY),
     state=dict(
         MatcherData(
             name="信息查询",
