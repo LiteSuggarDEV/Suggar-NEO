@@ -3,7 +3,7 @@ from enum import Enum
 
 from nonebot import require
 from nonebot.adapters.onebot.v11 import GroupMessageEvent
-from sqlalchemy import String, select
+from sqlalchemy import String, insert, select
 from sqlalchemy.orm import MappedColumn, mapped_column
 
 require("nonebot_plugin_orm")
@@ -36,10 +36,14 @@ async def get_or_create_switch(group_id: str, session: AsyncSession) -> Function
         result = await session.execute(stmt)
         switch = result.scalar_one_or_none()
         if not switch:
-            switch = FunctionSwitch(group_id=group_id)
-            session.add(switch)
+            stmt = insert(FunctionSwitch).values(group_id=group_id)
+            await session.execute(stmt)
             await session.commit()
-            await session.refresh(switch)
+            switch = (
+                await session.execute(
+                    select(FunctionSwitch).where(FunctionSwitch.group_id == group_id)
+                )
+            ).scalar_one()
         session.add(switch)
         return switch
 
