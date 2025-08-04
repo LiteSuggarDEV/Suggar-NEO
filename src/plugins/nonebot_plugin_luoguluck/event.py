@@ -14,6 +14,7 @@ from nonebot.adapters.onebot.v11 import (
 from nonebot_plugin_localstore import get_plugin_data_dir
 
 from src.plugins.menu.models import CategoryEnum, MatcherData
+from suggar_utils.switch_models import FuncEnum, is_enabled
 
 from .image import get_image
 
@@ -32,6 +33,7 @@ luck = on_command(
             category=CategoryEnum.FUN,
         ),
     ),
+    rule=is_enabled(FuncEnum.LUCK),
 )
 
 

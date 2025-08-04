@@ -10,6 +10,7 @@ from nonebot_plugin_value.api.api_balance import get_or_create_account
 
 from src.plugins.menu.models import CategoryEnum, MatcherData
 from suggar_utils.store import get_or_create_user_model
+from suggar_utils.switch_models import FuncEnum, is_enabled
 from suggar_utils.utils import is_same_day
 from suggar_utils.value import SUGGAR_EXP_ID, add_balance, to_uuid
 
@@ -24,6 +25,7 @@ from suggar_utils.value import SUGGAR_EXP_ID, add_balance, to_uuid
             category=CategoryEnum.FUN,
         )
     ),
+    rule=is_enabled(FuncEnum.DAILY),
 ).handle()
 async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
     economy_data = await get_or_create_account(to_uuid(str(event.user_id)))
