@@ -1,5 +1,4 @@
-import nonebot
-from nonebot import get_driver
+from nonebot import get_driver, on_fullmatch
 from nonebot.adapters.onebot.v11 import (
     Bot,
     MessageEvent,
@@ -9,7 +8,7 @@ from nonebot.adapters.onebot.v11 import (
 from suggar_utils.config import config_manager
 from suggar_utils.utils import send_forward_msg
 
-from .models import CategoryEnum, CommandParam, MatcherData, ParamType
+from .models import CategoryEnum, MatcherData
 from .utils import (
     cached_html_to_pic,
     get_page_html,
@@ -18,19 +17,12 @@ from .utils import (
 command_start = get_driver().config.command_start
 
 
-@nonebot.on_command(
+@on_fullmatch(
     ("菜单", "menu", "help", "帮助"),
     state=MatcherData(
         name="Menu",
         description="展示菜单",
-        usage="/menu",
-        params=[
-            CommandParam(
-                name="板块",
-                description="菜单板块",
-                param_type=ParamType.OPTIONAL,
-            )
-        ],
+        usage="menu",
         category=CategoryEnum.UTILS,
     ).model_dump(),
     priority=10,
