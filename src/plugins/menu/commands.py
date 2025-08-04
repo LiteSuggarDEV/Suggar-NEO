@@ -19,7 +19,7 @@ command_start = get_driver().config.command_start
 
 
 @nonebot.on_command(
-    (f"{prefix}menu" for prefix in command_start),
+    tuple([f"{prefix}menu" for prefix in command_start]),
     state=MatcherData(
         name="Menu",
         description="展示菜单",
