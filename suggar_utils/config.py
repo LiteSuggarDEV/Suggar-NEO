@@ -13,10 +13,30 @@ from watchfiles import awatch
 from .store import CONFIG_DIR
 
 
+class ProbabilityFactor(BaseModel):
+    """
+    Set a probability factor for fishing.
+
+    The probability factor is calculated as follows:
+    lucky_factor -> f(lucky_level) = sqrt(lucky_level / lucky_sqrt) / lucky_sub
+    probability = lucky_factor * random.random() if it's bigger than 0.01 else it will be 0.01. (random.random() in [0, 1])
+    We will choose a fish quality which is not bigger than the probability, then choose a fish from the quality randomly.
+    """
+
+    lucky_sqrt: int = 6
+    lucky_sub: int = 6
+    # If user has muilti fish buff, fish_count = max(1, 2 * sqrt(multi_fish_level / multi_fish_sub))
+    multi_fish_sub: int = 3
+
+
+class FishingConfig(BaseModel):
+    rate_limit: int = 6
+    max_fishing_count: int = 60
+    probability: ProbabilityFactor = ProbabilityFactor()
+
+
 class Config(BaseModel):
     rate_limit: int = 3
-    fishing_rate_limit: int = 10
-    max_fishing_count: int = 70
     enable_menu: bool = True
     bot_name: str = "Suggar"
     notify_group: list[int] = [
@@ -34,6 +54,7 @@ class Config(BaseModel):
         "喵喵喵！请慢点哦！",
         "欸干什么啦？！别急啦！",
     ]
+    fishing: FishingConfig = FishingConfig()
     reset_balance: bool = (
         False  # 在这一次启动中会按比例重置所有用户的余额（解决通货膨胀）
     )

@@ -3,7 +3,7 @@ import hashlib
 from collections.abc import Generator
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, TypeVar
 
 from nonebot_plugin_htmlrender import html_to_pic, md_to_pic
 from typing_extensions import Self
@@ -19,6 +19,9 @@ PAGE_DIR.mkdir(parents=True, exist_ok=True)
 _md_cache: dict[str, str] = {}
 _html_cache: dict[str, str] = {}
 page_list: list[str] = []
+T = TypeVar(
+    "T",
+)
 
 
 class CommandsManager:
@@ -41,7 +44,16 @@ class CommandsManager:
     def get_menu_data(self) -> list[CommandCategory]:
         return [value for value in self.categories.values() if value.commands]
 
-    def get_category(self, name: str) -> CommandCategory:
+    def get_category(self, *, name: str, default: T = None) -> CommandCategory | T:
+        return self.categories.get(name, default)
+
+    def category_exists(self, name: str) -> bool:
+        return name in self.categories
+
+    def category(self, name: str) -> CommandCategory:
+        """获取分类"""
+        if not self.category_exists(name):
+            raise KeyError(f"Category {name} does not exist")
         return self.categories[name]
 
 
@@ -108,7 +120,7 @@ def generate_command_card(command: MatcherData) -> str:
     <div class="command-card">
         <div class="command-header">
             <div class="command-icon" style="background-color: {command.color};">
-                <i class="{command.icon if command.icon else CommandsManager().get_category(command.category).icon}"></i>
+                <i class="{command.icon or CommandsManager().category(name=command.category).icon}"></i>
             </div>
             <div class="command-name">{command.name}</div>
         </div>
