@@ -14,6 +14,7 @@ from . import (
     pardon,
     rate,
     send,
+    switch,
 )
 
 __plugin_meta__ = PluginMetadata(
@@ -34,6 +35,7 @@ __all__ = [
     "pardon",
     "rate",
     "send",
+    "switch",
 ]
 
 
