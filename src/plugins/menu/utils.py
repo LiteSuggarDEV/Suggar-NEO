@@ -53,7 +53,7 @@ class CommandsManager:
     def category(self, name: str) -> CommandCategory:
         """获取分类"""
         if not self.category_exists(name):
-            raise ValueError(f"Category {name} does not exist")
+            raise KeyError(f"Category {name} does not exist")
         return self.categories[name]
 
 
