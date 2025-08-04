@@ -120,7 +120,7 @@ def generate_command_card(command: MatcherData) -> str:
     <div class="command-card">
         <div class="command-header">
             <div class="command-icon" style="background-color: {command.color};">
-                <i class="{command.icon if command.icon else CommandsManager().category(name=command.category).icon}"></i>
+                <i class="{command.icon or CommandsManager().category(name=command.category).icon}"></i>
             </div>
             <div class="command-name">{command.name}</div>
         </div>
