@@ -1,3 +1,5 @@
+import asyncio
+from collections import defaultdict
 from collections.abc import Awaitable, Callable
 from enum import Enum
 
@@ -10,6 +12,8 @@ require("nonebot_plugin_orm")
 from nonebot_plugin_orm import AsyncSession, Model, get_session
 
 from .store import to_uuid
+
+_Lock = defaultdict(lambda: asyncio.Lock())
 
 
 class FuncEnum(str, Enum):
@@ -27,25 +31,28 @@ class FunctionSwitch(Model):
 
 
 async def get_or_create_switch(group_id: str, session: AsyncSession) -> FunctionSwitch:
-    async with session:
-        stmt = (
-            select(FunctionSwitch)
-            .where(FunctionSwitch.group_id == group_id)
-            .with_for_update()
-        )
-        result = await session.execute(stmt)
-        switch = result.scalar_one_or_none()
-        if not switch:
-            stmt = insert(FunctionSwitch).values(group_id=group_id)
-            await session.execute(stmt)
-            await session.commit()
-            switch = (
-                await session.execute(
-                    select(FunctionSwitch).where(FunctionSwitch.group_id == group_id)
-                )
-            ).scalar_one()
-        session.add(switch)
-        return switch
+    async with _Lock[group_id]:
+        async with session:
+            stmt = (
+                select(FunctionSwitch)
+                .where(FunctionSwitch.group_id == group_id)
+                .with_for_update()
+            )
+            result = await session.execute(stmt)
+            switch = result.scalar_one_or_none()
+            if not switch:
+                stmt = insert(FunctionSwitch).values(group_id=group_id)
+                await session.execute(stmt)
+                await session.commit()
+                switch = (
+                    await session.execute(
+                        select(FunctionSwitch).where(
+                            FunctionSwitch.group_id == group_id
+                        )
+                    )
+                ).scalar_one()
+            session.add(switch)
+            return switch
 
 
 def is_enabled(func_name: FuncEnum) -> Callable[..., Awaitable[bool]]:
