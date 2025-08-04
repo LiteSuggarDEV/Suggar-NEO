@@ -30,7 +30,6 @@ ENCHANT_COST_FACTORS = {
     "多重钓竿": (15000, 5000),
     "自动打窝": (7000, 4000),
 }
-FISHING_RATE_LIMIT = config_manager.config.fishing_rate_limit
 MIN_PROBABILITY = 0.01
 
 
@@ -43,6 +42,7 @@ def format_length(length: int) -> str:
         return f"{length / 100:.2f}m"
     else:
         return f"{length / 100000:.2f}km"
+
 
 def calculate_enchant_cost(level: int, enchant_type: str) -> int:
     """计算附魔升级消耗"""
@@ -118,7 +118,9 @@ async def perform_fishing(
 
 
 #  命令处理器
-watch_user = defaultdict(lambda: TokenBucket(rate=1 / FISHING_RATE_LIMIT, capacity=1))
+watch_user = defaultdict(
+    lambda: TokenBucket(rate=1 / config_manager.config.fishing.rate_limit, capacity=1)
+)
 
 # 鱼竿附魔命令
 enchant_matcher_data = MatcherData(
@@ -315,6 +317,7 @@ async def handle_bag(bot: Bot, event: MessageEvent):
 @fishing.handle()
 async def handle_fishing(bot: Bot, event: MessageEvent):
     user_id = str(event.user_id)
+    config = config_manager.config
 
     # 检查冷却
     if not watch_user[user_id].consume():
@@ -338,7 +341,7 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
                 today_count = user_meta.today_fishing_count = 0
 
         # 检查上限
-        if today_count >= config_manager.config.max_fishing_count:
+        if today_count >= config.fishing.max_fishing_count:
             return await fishing.finish("今天的钓鱼次数已达上限，请明天再来！")
 
         # 更新钓鱼次数
@@ -351,13 +354,14 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
         feeding_level = min(user_meta.feeding, MAX_ENCHANT_LEVEL)
 
         # 计算概率
-        luck_factor = 1 - (sqrt(lucky_level / 6) / 5)  # 0.2 at level 40
-        if (
-            today_count >= config_manager.config.max_fishing_count * 0.8
-            and lucky_level <= 25
-        ):
+        luck_factor = 1 - (
+            sqrt(lucky_level / config.fishing.probability.lucky_sqrt)
+            / config.fishing.probability.lucky_sub
+        )  # 0.2 at level 40
+        if today_count >= config.fishing.max_fishing_count * 0.8 and lucky_level <= 25:
             luck_factor *= min(
-                0.75 * (config_manager.config.max_fishing_count / today_count), 0.8
+                0.75 * (config.fishing.max_fishing_count / today_count),
+                0.8,
             )
         probability = max(random.random() * luck_factor, MIN_PROBABILITY)
 
@@ -366,7 +370,10 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
 
         # 多重钓竿
         if random.randint(1, 100) <= multi_level * 5:  # 5% per level,20 级则100%
-            extra_count = max(int(2 * sqrt(multi_level / 3)), 1)
+            extra_count = max(
+                int(2 * sqrt(multi_level / config.fishing.probability.multi_fish_sub)),
+                1,
+            )
 
             fishes.extend(
                 [
