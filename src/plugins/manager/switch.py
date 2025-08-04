@@ -44,7 +44,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
             "请提供功能名称和状态，例如：/set_func fishing on"
             + f"\n可用：{', '.join([e.value for e in FuncEnum])}"
         )
-    if msg[0] not in FuncEnum:
+    if msg[0] not in FuncEnum.__members__:
         await func_switch.finish(
             f"功能名称错误，请使用以下功能：{', '.join([e.value for e in FuncEnum])}"
         )
