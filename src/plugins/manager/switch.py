@@ -66,6 +66,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     group_id = to_uuid(str(event.group_id))
     async with get_session() as session:
         group = await get_or_create_switch(group_id, session)
+        session.add(group)
         setattr(group, func, status)
         await session.commit()
-        await func_switch.finish(f"{func} 已设置为 {status!s}")
+    await func_switch.finish(f"{func} 已设置为 {status!s}")
