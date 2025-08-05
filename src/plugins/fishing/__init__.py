@@ -8,7 +8,7 @@ from nonebot_plugin_orm import get_session
 from nonebot_plugin_value import get_or_create_currency
 from nonebot_plugin_value.api.api_balance import (
     batch_add_balance,
-    batch_del_balance,
+    del_account,
     list_accounts,
 )
 
@@ -45,13 +45,13 @@ async def init_fish():
     if config_manager.config.eco2fishing:
         logger.warning("正在将账户余额转换为钓鱼积分...")
         accounts = await list_accounts()
-        account_balance = [
-            (account.currency_id, account.balance) for account in accounts
+        account_balance: list[tuple[str, float]] = [
+            (account.id, account.balance) for account in accounts
         ]
-        await batch_del_balance(
-            account_balance,
-        )
+
         await batch_add_balance(account_balance, currency_id=FISHING_POINT.id)
+        for account in accounts:
+            await del_account(account.id)
         config_manager.config.eco2fishing = False
         await config_manager.save_config()
         await config_manager.reload_config()
