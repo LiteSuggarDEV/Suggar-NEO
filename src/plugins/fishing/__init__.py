@@ -44,7 +44,7 @@ async def init_fish():
     await get_or_create_currency(FISHING_POINT)
     if config_manager.config.eco2fishing:
         logger.warning("正在将账户余额转换为钓鱼积分...")
-        accounts = await list_accounts()
+        accounts = await list_accounts(FISHING_POINT.id)
         account_balance = [
             (account.currency_id, account.balance) for account in accounts
         ]
