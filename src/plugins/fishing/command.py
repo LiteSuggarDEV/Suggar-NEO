@@ -9,7 +9,12 @@ from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent, MessageSegme
 from nonebot.exception import NoneBotException
 from nonebot.params import CommandArg
 from nonebot_plugin_orm import AsyncSession, get_session
-from nonebot_plugin_value.api.api_balance import add_balance, del_balance
+from nonebot_plugin_value.api.api_balance import (
+    add_balance,
+    del_balance,
+    get_or_create_account,
+)
+from nonebot_plugin_value.exception import TransactionException
 from nonebot_plugin_value.uuid_lib import to_uuid
 from sqlalchemy import select
 
@@ -21,7 +26,7 @@ from suggar_utils.utils import is_same_day, send_forward_msg
 
 from .functions import add_fish_record, get_user_data_pyd, sell_fish
 from .models import FishMeta, QualityMetaData, UserFishMetaData
-from .pyd_models import Fish, QualityEnum
+from .pyd_models import FISHING_POINT, Fish, QualityEnum
 from .pyd_models import FishMeta as F_Meta
 
 #  常量配置
@@ -171,6 +176,24 @@ sell = base_matcher.on_command(
     "卖鱼", priority=10, block=True, state=sell_matcher_data.model_dump()
 )
 
+to_money_matcher_data = MatcherData(
+    name="/兑换货币",
+    description="兑换货币",
+    usage="/兑换货币 <数量>",
+    examples=["/兑换货币 100"],
+    category=CategoryEnum.GAME.value,
+    params=[
+        CommandParam(
+            name="amount",
+            description="兑换数量",
+            param_type=ParamType.OPTIONAL,
+        )
+    ],
+)
+to_money = base_matcher.on_command(
+    "兑换货币", priority=10, block=True, state=to_money_matcher_data.model_dump()
+)
+
 # 钓鱼命令
 fishing_matcher_data = MatcherData(
     name="钓鱼",
@@ -196,6 +219,30 @@ bag = base_matcher.on_fullmatch(
     block=True,
     state=bag_matcher_data.model_dump(),
 )
+
+
+@to_money.handle()
+async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
+    msg = arg.extract_plain_text().strip()
+    uid = to_uuid(event.get_user_id())
+    if not msg:
+        await to_money.finish(
+            f"请输入兑换数量，当前兑换比例为1:10000，您的钓鱼积分为{(await get_or_create_account(uid, FISHING_POINT.id)).balance}。"
+        )
+    if not msg.isdigit():
+        return await to_money.finish("请输入有效的数字")
+
+    amount = int(msg)
+    if amount <= 0:
+        await to_money.finish("兑换数量必须大于0")
+    if amount < 10000:
+        await to_money.finish("兑换数量过小")
+    try:
+        await del_balance(uid, amount, "兑换货币", FISHING_POINT.id)
+        await add_balance(uid, amount / 10000, "兑换货币")
+        await to_money.finish(f"成功兑换{amount / 10000}金币，消耗{amount}钓鱼积分")
+    except TransactionException:
+        await to_money.finish("你没有那么多的钓鱼积分")
 
 
 #  命令处理逻辑
@@ -272,7 +319,7 @@ async def handle_sell(bot: Bot, event: MessageEvent, arg: Message = CommandArg()
             else:
                 return await sell.finish("没有这个品质/名字的鱼")
 
-        await add_balance(to_uuid(event.get_user_id()), price, "卖鱼")
+        await add_balance(to_uuid(event.get_user_id()), price, "卖鱼", FISHING_POINT.id)
     except NoneBotException:
         raise
     except Exception as e:
