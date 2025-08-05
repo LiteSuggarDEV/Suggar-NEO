@@ -40,7 +40,7 @@ func_switch = on_command(
 @func_switch.handle()
 async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     msg = args.extract_plain_text().strip().split()
-    if not len(msg) >= 1:
+    if len(msg) < 1:
         await func_switch.finish(
             "请提供功能名称和状态，例如：/set_func fishing on"
             + f"\n可用：{', '.join(list(FuncEnum.__members__))}"
