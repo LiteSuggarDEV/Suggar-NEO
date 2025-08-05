@@ -14,6 +14,7 @@ from nonebot_plugin_value.api.api_balance import (
     del_balance,
     get_or_create_account,
 )
+from nonebot_plugin_value.exception import TransactionException
 from nonebot_plugin_value.uuid_lib import to_uuid
 from sqlalchemy import select
 
@@ -240,7 +241,7 @@ async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
         await del_balance(uid, amount, "兑换货币", FISHING_POINT.id)
         await add_balance(uid, amount / 10000, "兑换货币")
         await to_money.finish(f"成功兑换{amount / 10000}金币，消耗{amount}钓鱼积分")
-    except Exception:
+    except TransactionException:
         await to_money.finish("你没有那么多的钓鱼积分")
 
 
