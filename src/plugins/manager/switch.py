@@ -49,7 +49,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         await func_switch.finish(
             f"功能名称错误，请使用以下功能：{', '.join(list(FuncEnum.__members__))}"
         )
-    func = FuncEnum.__members__[msg[0]].value
+    func = FuncEnum(msg[0]).value
     match msg[1].lower():
         case "on" | "enable" | "true" | "1" | "开启":
             status = True
