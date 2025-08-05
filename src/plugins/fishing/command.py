@@ -235,7 +235,7 @@ async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
     amount = int(msg)
     if amount <= 0:
         await to_money.finish("兑换数量必须大于0")
-    if (amount / 10000) < 1:
+    if amount < 10000:
         await to_money.finish("兑换数量过小")
     try:
         await del_balance(uid, amount, "兑换货币", FISHING_POINT.id)
