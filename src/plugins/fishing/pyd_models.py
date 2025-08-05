@@ -1,8 +1,17 @@
 from datetime import datetime
 from enum import Enum
 
+from nonebot_plugin_value.pyd_models.currency_pyd import CurrencyData
+from nonebot_plugin_value.uuid_lib import to_uuid
 from pydantic import BaseModel
 
+FISHING_POINT = CurrencyData(
+    id=to_uuid("fishing_point"),
+    allow_negative=False,
+    display_name="钓鱼点数",
+    default_balance=0,
+    symbol="🎣",
+)
 
 class QualityMeta(BaseModel):
     name: str
