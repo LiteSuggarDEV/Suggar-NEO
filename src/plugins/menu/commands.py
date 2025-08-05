@@ -16,8 +16,14 @@ from .utils import (
 
 command_start = get_driver().config.command_start
 
+
 @on_fullmatch(
-    tuple([f"{prefix}menu" for prefix in command_start]),
+    tuple(
+        [f"{prefix}menu" for prefix in command_start]
+        + [f"{prefix}菜单" for prefix in command_start]
+        + [f"{prefix}help" for prefix in command_start]
+        + [f"{prefix}帮助" for prefix in command_start]
+    ),
     state=MatcherData(
         name="Menu",
         description="展示菜单",

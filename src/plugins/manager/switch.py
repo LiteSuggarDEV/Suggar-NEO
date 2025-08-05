@@ -6,13 +6,14 @@ from nonebot.params import CommandArg
 from nonebot_plugin_orm import get_session
 
 from src.plugins.menu.models import CategoryEnum, CommandParam, MatcherData, ParamType
+from suggar_utils.rule import is_global_admin
 from suggar_utils.store import to_uuid
 from suggar_utils.switch_models import FuncEnum, get_or_create_switch
 
 func_switch = on_command(
     "设置功能",
     aliases={"set_func"},
-    permission=GROUP_ADMIN | GROUP_OWNER,
+    permission=GROUP_ADMIN | GROUP_OWNER | is_global_admin,
     priority=10,
     block=True,
     state=MatcherData(
@@ -42,13 +43,13 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     if len(msg) != 2:
         await func_switch.finish(
             "请提供功能名称和状态，例如：/set_func fishing on"
-            + f"\n可用：{', '.join([e.value for e in FuncEnum])}"
+            + f"\n可用：{', '.join(list(FuncEnum.__members__))}"
         )
     if msg[0] not in FuncEnum.__members__:
         await func_switch.finish(
-            f"功能名称错误，请使用以下功能：{', '.join([e.value for e in FuncEnum])}"
+            f"功能名称错误，请使用以下功能：{', '.join(list(FuncEnum.__members__))}"
         )
-    func = FuncEnum[msg[0]].value
+    func = FuncEnum.__members__[msg[0]].value
     match msg[1].lower():
         case "on" | "enable" | "true" | "1" | "开启":
             status = True
