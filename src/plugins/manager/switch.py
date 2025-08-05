@@ -40,7 +40,7 @@ func_switch = on_command(
 @func_switch.handle()
 async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     msg = args.extract_plain_text().strip().split()
-    if len(msg) != 2:
+    if len(msg) < 1:
         await func_switch.finish(
             "请提供功能名称和状态，例如：/set_func fishing on"
             + f"\n可用：{', '.join(list(FuncEnum.__members__))}"
@@ -49,7 +49,11 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         await func_switch.finish(
             f"功能名称错误，请使用以下功能：{', '.join(list(FuncEnum.__members__))}"
         )
-    func = FuncEnum(msg[0]).value
+    func: str = getattr(FuncEnum, msg[0]).value
+    if not len(msg) >= 2:
+        async with get_session() as session:
+            group = await get_or_create_switch(to_uuid(str(event.group_id)), session)
+            await func_switch.finish(f"{func} 当前状态为 {getattr(group, func)!s}")
     match msg[1].lower():
         case "on" | "enable" | "true" | "1" | "开启":
             status = True
@@ -62,6 +66,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     group_id = to_uuid(str(event.group_id))
     async with get_session() as session:
         group = await get_or_create_switch(group_id, session)
+        session.add(group)
         setattr(group, func, status)
         await session.commit()
-        await func_switch.finish(f"{func} 已设置为 {status!s}")
+    await func_switch.finish(f"{func} 已设置为 {status!s}")

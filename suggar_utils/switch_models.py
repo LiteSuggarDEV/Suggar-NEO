@@ -4,7 +4,7 @@ from collections.abc import Awaitable, Callable
 from enum import Enum
 
 from nonebot import require
-from nonebot.adapters.onebot.v11 import GroupMessageEvent
+from nonebot.adapters.onebot.v11 import GroupMessageEvent, MessageEvent
 from sqlalchemy import String, insert, select
 from sqlalchemy.orm import MappedColumn, mapped_column
 
@@ -60,10 +60,12 @@ def is_enabled(func_name: FuncEnum) -> Callable[..., Awaitable[bool]]:
     判断当前群组是否启用功能
     """
 
-    async def check(event: GroupMessageEvent) -> bool:
-        group_id = to_uuid(str(event.group_id))
-        async with get_session() as session:
-            data = await get_or_create_switch(group_id, session)
-            return getattr(data, func_name.value)
+    async def check(event: MessageEvent) -> bool:
+        if isinstance(event, GroupMessageEvent):
+            group_id = to_uuid(str(event.group_id))
+            async with get_session() as session:
+                data = await get_or_create_switch(group_id, session)
+                return getattr(data, func_name.value)
+        return True
 
     return check
