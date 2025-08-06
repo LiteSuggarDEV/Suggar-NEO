@@ -18,7 +18,14 @@ user_lock = defaultdict(lambda: Lock())
 async def get_user_progress(
     user_id: int, session: AsyncSession
 ) -> dict[str, list[str]]:
-    return json.loads((await get_or_create_user_model(user_id, session)).progress)
+    try:
+        progress = (await get_or_create_user_model(user_id, session)).progress
+        data: dict[str, list[str]] = json.loads(progress)
+        return data
+    except json.JSONDecodeError:
+        logger.warning(f"Invalid progress data: {progress}")
+        await refresh_progress(user_id, session)
+        return {}
 
 
 async def refresh_progress(user_id: int, session: AsyncSession):
