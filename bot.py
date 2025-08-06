@@ -9,7 +9,7 @@ import nonebot
 from dotenv import dotenv_values, load_dotenv
 from nonebot import get_driver
 from nonebot.adapters.onebot.v11 import Adapter as ONEBOT_V11Adapter
-from nonebot.adapters.onebot.v11 import Bot
+from nonebot.adapters.onebot.v11 import Bot, MessageSegment
 from nonebot.log import default_format, logger_id
 
 if not Path(".env").exists():
@@ -33,7 +33,7 @@ driver.register_adapter(ONEBOT_V11Adapter)
 
 nonebot.load_from_toml("pyproject.toml")
 
-from suggar_utils.utils import send_to_admin
+from suggar_utils.utils import send_forward_msg_to_admin
 
 if TYPE_CHECKING:
     # avoid sphinx autodoc resolve annotation failed
@@ -109,7 +109,12 @@ class AsyncErrorHandler:
 
                 bot = nonebot.get_bot()
                 if isinstance(bot, Bot):
-                    await send_to_admin(content)
+                    await send_forward_msg_to_admin(
+                        bot,
+                        "Suggar-Exception",
+                        bot.self_id,
+                        [MessageSegment.text(content)],
+                    )
 
         except Exception as e:
             nonebot.logger.warning(f"发送群消息失败: {e}")

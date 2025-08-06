@@ -182,6 +182,19 @@ to_money_matcher_data = MatcherData(
 to_money = base_matcher.on_command(
     "兑换货币", priority=10, block=True, state=to_money_matcher_data.model_dump()
 )
+points_matcher_data = MatcherData(
+    name="/钓鱼积分",
+    description="查看钓鱼积分",
+    usage="/钓鱼积分",
+    examples=["/钓鱼积分"],
+    category=CategoryEnum.GAME.value,
+)
+points = base_matcher.on_command(
+    "钓鱼积分",
+    priority=10,
+    block=True,
+    state=points_matcher_data.model_dump(),
+)
 
 # 钓鱼命令
 fishing_matcher_data = MatcherData(
@@ -224,6 +237,14 @@ progress = base_matcher.on_fullmatch(
     block=True,
     state=progress_matcher_data.model_dump(),
 )
+
+@points.handle()
+async def _(bot: Bot, event: MessageEvent):
+    uid = to_uuid(event.get_user_id())
+    account = await get_or_create_account(uid, FISHING_POINT.id)
+    await points.finish(
+        f"{event.sender.nickname}({event.get_user_id()})的钓鱼积分为{account.balance}。"
+    )
 
 
 @to_money.handle()
@@ -286,7 +307,7 @@ async def handle_enchant(bot: Bot, event: MessageEvent, arg: Message = CommandAr
             # 计算消耗并扣款
             cost = calculate_enchant_cost(current_level, display_name)
             try:
-                await del_balance(uid, cost, FISHING_POINT.id)
+                await del_balance(uid, cost, "附魔", currency_id=FISHING_POINT.id)
             except Exception:
                 return await enchant.finish(f"余额不足，需要{cost}积分")
 
