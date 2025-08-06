@@ -17,7 +17,7 @@ user_lock = defaultdict(lambda: Lock())
 async def get_user_progress(
     user_id: int, session: AsyncSession
 ) -> dict[str, list[str]]:
-    return (await get_or_create_user_model(user_id, session)).has_fish
+    return (await get_or_create_user_model(user_id, session)).progress
 
 
 async def refresh_progress(user_id: int, session: AsyncSession):
@@ -35,7 +35,7 @@ async def refresh_progress(user_id: int, session: AsyncSession):
                 if name not in quality_dict[quality]:
                     quality_dict[quality].append(name)
             user_meta = await get_or_create_user_model(user_id, session)
-            user_meta.has_fish = quality_dict
+            user_meta.progress = quality_dict
             await session.commit()
 
 
