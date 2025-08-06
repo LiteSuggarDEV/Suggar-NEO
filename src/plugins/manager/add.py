@@ -10,7 +10,7 @@ from suggar_utils.blacklist.black import bl_manager
 from suggar_utils.utils import send_to_admin
 
 
-@on_request(priority=1).handle()
+@on_request(priority=1, block=True).handle()
 async def _(event: RequestEvent, bot: Bot):
     if isinstance(event, FriendRequestEvent):
         if await bl_manager.is_private_black(str(event.user_id)):
@@ -33,7 +33,6 @@ async def _(event: RequestEvent, bot: Bot):
             await event.reject(bot)
             return
         flag = event.flag
-        # 获取LiteBot的群组列表
         group_list = await bot.get_group_list()
         group_joins = [int(group["group_id"]) for group in group_list]
         if event.sub_type != "invite":

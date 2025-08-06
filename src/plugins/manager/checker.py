@@ -44,7 +44,7 @@ async def _(event: GroupBanNoticeEvent):
     if event.user_id != event.self_id:
         return
     await send_to_admin(
-        f"{config_manager.config.bot_name}在群{event.group_id}中被禁言了{event.duration}分钟，请不要错过这条消息。"
+        f"{config_manager.config.bot_name}在群{event.group_id}中{f'被禁言了{event.duration}分钟' if event.duration else '被解除了禁言'}，请不要错过这条消息。"
     )
 
 
