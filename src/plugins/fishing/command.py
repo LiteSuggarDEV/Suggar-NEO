@@ -498,6 +498,6 @@ async def handle_progress(bot: Bot, event: MessageEvent):
             )
         await progress.finish(
             f"{event.sender.nickname}({event.get_user_id()})的钓鱼进度：\n"
-            f"今日钓鱼次数：{user_meta.today_fishing_count}/{config_manager.config.fishing.max_fishing_count}\n"
-            + "\n".join(msg_list)
+            f"今日钓鱼次数：{user_meta.today_fishing_count}/{config_manager.config.fishing.max_fishing_count}\n收集进度："
+            + "".join(msg_list)
         )
