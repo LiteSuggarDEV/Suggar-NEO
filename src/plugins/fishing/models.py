@@ -3,6 +3,7 @@ from datetime import datetime
 from nonebot import require
 from sqlalchemy import (
     FLOAT,
+    JSON,
     DateTime,
     ForeignKey,
     Index,
@@ -28,6 +29,7 @@ class UserFishMetaData(Model):
         default=datetime.now(),
     )
     today_fishing_count: MappedColumn[int] = mapped_column(Integer, default=0)
+    has_fish: MappedColumn[dict[str, list[str]]] = mapped_column(JSON, default={})
 
 
 class QualityMetaData(Model):

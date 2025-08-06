@@ -1,3 +1,5 @@
+from asyncio import Lock
+from collections import defaultdict
 from collections.abc import Sequence
 
 from nonebot import logger
@@ -8,6 +10,34 @@ from sqlalchemy import delete, insert, select
 from .models import FishMeta, FishRecord, QualityMetaData, UserFishMetaData
 from .pyd_models import Fish, QualityMeta, UserData
 from .pyd_models import FishMeta as F_Meta
+
+user_lock = defaultdict(lambda: Lock())
+
+
+async def get_user_progress(
+    user_id: int, session: AsyncSession
+) -> dict[str, list[str]]:
+    async with session:
+        return (await get_or_create_user_model(user_id, session)).has_fish
+
+
+async def refresh_progress(user_id: int, session: AsyncSession):
+    async with user_lock[user_id]:
+        async with session:
+            data = await get_user_data_pyd(user_id)
+            quality_dict: dict[str, list[str]] = {}
+            for fish in data.fishes:
+                quality = fish.metadata.quality
+                name = fish.metadata.name
+
+                if quality not in quality_dict:
+                    quality_dict[quality] = []
+
+                if name not in quality_dict[quality]:
+                    quality_dict[quality].append(name)
+            user_meta = await get_or_create_user_model(user_id, session)
+            user_meta.has_fish = quality_dict
+            await session.commit()
 
 
 async def create_fish(fish: FishMeta):
@@ -219,47 +249,48 @@ async def sell_fish(
     fish_name: str | None = None,
     quality_name: str | None = None,
 ) -> float:
-    async with get_session() as session:
-        assert fish_name or quality_name
-        price = 0
-        try:
-            if fish_name:
-                fish_meta = await get_fish_meta_or_none(fish_name, session)
-                if not fish_meta:
-                    return 0
-                quality = await get_quality(fish_meta.quality, session)
-                stmt = select(FishRecord).where(
-                    FishRecord.fish_name == fish_meta.name,
-                    FishRecord.user_id == to_uuid(str(user_id)),
-                )
-                result = await session.execute(stmt)
-                fishes = list(result.scalars().all())
-                session.add_all(fishes)
-            else:
-                assert quality_name
-                quality = await get_quality(quality_name, session)
-                stmt = select(FishMeta).where(FishMeta.quality == quality_name)
-                result = await session.execute(stmt)
-                metas = result.scalars().all()
-                fishes = []
-                for meta in metas:
+    async with user_lock[user_id]:
+        async with get_session() as session:
+            assert fish_name or quality_name
+            price = 0
+            try:
+                if fish_name:
+                    fish_meta = await get_fish_meta_or_none(fish_name, session)
+                    if not fish_meta:
+                        return 0
+                    quality = await get_quality(fish_meta.quality, session)
                     stmt = select(FishRecord).where(
-                        FishRecord.fish_name == meta.name,
+                        FishRecord.fish_name == fish_meta.name,
                         FishRecord.user_id == to_uuid(str(user_id)),
                     )
-                    data = (await session.execute(stmt)).scalars().all()
-                    session.add_all(data)
-                    fishes.extend(list(data))
-            if not fishes:
-                return 0
-            total_length = sum([fish.length for fish in fishes])
-            price = float(total_length) * quality.price_per_length
-            for fish in fishes:
-                stmt = delete(FishRecord).where(FishRecord.id == fish.id)
-                await session.execute(stmt)
-        except Exception:
-            await session.rollback()
-            raise
-        else:
-            await session.commit()
-    return price
+                    result = await session.execute(stmt)
+                    fishes = list(result.scalars().all())
+                    session.add_all(fishes)
+                else:
+                    assert quality_name
+                    quality = await get_quality(quality_name, session)
+                    stmt = select(FishMeta).where(FishMeta.quality == quality_name)
+                    result = await session.execute(stmt)
+                    metas = result.scalars().all()
+                    fishes = []
+                    for meta in metas:
+                        stmt = select(FishRecord).where(
+                            FishRecord.fish_name == meta.name,
+                            FishRecord.user_id == to_uuid(str(user_id)),
+                        )
+                        data = (await session.execute(stmt)).scalars().all()
+                        session.add_all(data)
+                        fishes.extend(list(data))
+                if not fishes:
+                    return 0
+                total_length = sum([fish.length for fish in fishes])
+                price = float(total_length) * quality.price_per_length
+                for fish in fishes:
+                    stmt = delete(FishRecord).where(FishRecord.id == fish.id)
+                    await session.execute(stmt)
+            except Exception:
+                await session.rollback()
+                raise
+            else:
+                await session.commit()
+        return price
