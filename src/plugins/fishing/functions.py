@@ -17,8 +17,7 @@ user_lock = defaultdict(lambda: Lock())
 async def get_user_progress(
     user_id: int, session: AsyncSession
 ) -> dict[str, list[str]]:
-    async with session:
-        return (await get_or_create_user_model(user_id, session)).has_fish
+    return (await get_or_create_user_model(user_id, session)).has_fish
 
 
 async def refresh_progress(user_id: int, session: AsyncSession):
