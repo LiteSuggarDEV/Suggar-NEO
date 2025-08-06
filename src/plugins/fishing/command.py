@@ -431,7 +431,7 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
                 * (config.fishing.max_fishing_count / user_meta.today_fishing_count),
                 0.8,
             )
-        probability = max(random.random() * luck_factor, MIN_PROBABILITY)
+        probability = max(random.randint(1,9999)/10000 * luck_factor, MIN_PROBABILITY)
 
         # 钓鱼
         fishes = [await perform_fishing(event, session, probability, feeding_level)]
