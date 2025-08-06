@@ -2,8 +2,9 @@ import contextlib
 import random
 from collections import defaultdict
 
-from nonebot import on_command
+from nonebot import on_command, on_notice
 from nonebot.adapters.onebot.v11 import (
+    GroupBanNoticeEvent,
     GroupMessageEvent,
     Message,
     MessageEvent,
@@ -28,6 +29,7 @@ from suggar_utils.config import config_manager
 from suggar_utils.dump_tools import StatusManager
 from suggar_utils.rule import is_global_admin
 from suggar_utils.token_bucket import TokenBucket
+from suggar_utils.utils import send_to_admin
 
 watch_group = defaultdict(
     lambda: TokenBucket(rate=1 / config_manager.config.rate_limit, capacity=1)
@@ -35,6 +37,15 @@ watch_group = defaultdict(
 watch_user = defaultdict(
     lambda: TokenBucket(rate=1 / config_manager.config.rate_limit, capacity=1)
 )
+
+
+@on_notice(block=False, priority=10).handle()
+async def _(event: GroupBanNoticeEvent):
+    if event.user_id != event.self_id:
+        return
+    await send_to_admin(
+        f"{config_manager.config.bot_name}在群{event.group_id}中被禁言了{event.duration}分钟，请不要错过这条消息。"
+    )
 
 
 @on_command("set_enable", priority=2).handle()
