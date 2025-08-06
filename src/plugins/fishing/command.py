@@ -383,7 +383,13 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
     async with get_session() as session:
         user_meta = await get_or_create_user_model(event.user_id, session)
         session.add(user_meta)
-
+        if isinstance(user_meta.last_fishing_time, str):
+            try:
+                user_meta.last_fishing_time = datetime.fromisoformat(
+                    user_meta.last_fishing_time
+                )
+            except ValueError:
+                user_meta.last_fishing_time = datetime.now()
         logger.debug(
             f"用户 {user_id} 今日钓鱼次数: {user_meta.today_fishing_count!s}, 上次钓鱼时间: {user_meta.last_fishing_time.strftime('%Y-%m-%d %H:%M:%S')}"
         )
