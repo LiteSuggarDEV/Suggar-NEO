@@ -431,7 +431,9 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
                 * (config.fishing.max_fishing_count / user_meta.today_fishing_count),
                 0.8,
             )
-        probability = max(random.randint(1,9999)/10000 * luck_factor, MIN_PROBABILITY)
+        probability = max(
+            random.randint(1, 9999) / 10000 * luck_factor, MIN_PROBABILITY
+        )
 
         # 钓鱼
         fishes = [await perform_fishing(event, session, probability, feeding_level)]
@@ -482,7 +484,7 @@ async def handle_progress(bot: Bot, event: MessageEvent):
         session.add(user_meta)
         progress_data = await get_user_progress(event.user_id, session)
         msg_list = []
-        for quality in progress_data:
+        for quality in QualityEnum:
             all_fish_count = len(
                 (
                     await session.execute(
@@ -492,7 +494,7 @@ async def handle_progress(bot: Bot, event: MessageEvent):
                 .scalars()
                 .all()
             )
-            this_count = len(progress_data[quality])
+            this_count = len(progress_data.get(quality, []))
             msg_list.append(
                 f"\n{quality}品质收集进度：{this_count}/{all_fish_count} ({this_count / all_fish_count:.2%})"
             )
