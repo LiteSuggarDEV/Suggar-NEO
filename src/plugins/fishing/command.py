@@ -315,12 +315,12 @@ async def handle_sell(bot: Bot, event: MessageEvent, arg: Message = CommandArg()
         # 尝试按鱼名出售
         price = await sell_fish(event.user_id, fish_name=msg)
         if price:
-            await sell.send(f"成功出售所有 {msg}，获得{price}金币")
+            await sell.send(f"成功出售所有 {msg}，获得{price}钓鱼积分")
         else:
             # 尝试按品质出售
             price = await sell_fish(event.user_id, quality_name=msg)
             if price:
-                await sell.send(f"成功出售所有{msg}品质的鱼，获得{price}金币")
+                await sell.send(f"成功出售所有{msg}品质的鱼，获得{price}钓鱼积分")
             else:
                 return await sell.finish("没有这个品质/名字的鱼")
 
