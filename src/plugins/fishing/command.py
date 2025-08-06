@@ -241,9 +241,16 @@ progress = base_matcher.on_fullmatch(
 @points.handle()
 async def _(bot: Bot, event: MessageEvent):
     uid = to_uuid(event.get_user_id())
-    account = await get_or_create_account(uid, FISHING_POINT.id)
+    try:
+        account = await get_or_create_account(uid, FISHING_POINT.id)
+        balance = account.balance
+    except Exception as e:
+        await points.finish(
+            f"获取钓鱼积分时发生错误: {str(e)}"
+        )
+        return
     await points.finish(
-        f"{event.sender.nickname}({event.get_user_id()})的钓鱼积分为{account.balance}。"
+        f"{event.sender.nickname}({event.get_user_id()})的钓鱼积分为{balance}。"
     )
 
 
