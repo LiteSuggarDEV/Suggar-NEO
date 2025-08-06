@@ -476,6 +476,7 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
 
     await fishing.finish(result_msg)
 
+
 @progress.handle()
 async def handle_progress(bot: Bot, event: MessageEvent):
     async with get_session() as session:

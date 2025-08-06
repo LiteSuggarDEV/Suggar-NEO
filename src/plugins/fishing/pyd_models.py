@@ -13,6 +13,7 @@ FISHING_POINT = CurrencyData(
     symbol="🎣",
 )
 
+
 class QualityMeta(BaseModel):
     name: str
     probability: float
