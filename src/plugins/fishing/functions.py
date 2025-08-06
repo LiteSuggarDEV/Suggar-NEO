@@ -58,17 +58,16 @@ async def get_or_create_user_model(
     user_id: int, session: AsyncSession
 ) -> UserFishMetaData:
     uid = to_uuid(str(user_id))
-    async with session:
-        stmt = (
-            select(UserFishMetaData)
-            .where(UserFishMetaData.user_id == uid)
-            .with_for_update()
-        )
-        if user_model := (await session.execute(stmt)).scalar_one_or_none():
-            return user_model
-        user_model = UserFishMetaData(user_id=uid)
-        session.add(user_model)
-        await session.commit()
+    stmt = (
+        select(UserFishMetaData)
+        .where(UserFishMetaData.user_id == uid)
+        .with_for_update()
+    )
+    if user_model := (await session.execute(stmt)).scalar_one_or_none():
+        return user_model
+    user_model = UserFishMetaData(user_id=uid)
+    session.add(user_model)
+    await session.commit()
     return user_model
 
 
