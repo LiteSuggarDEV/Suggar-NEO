@@ -24,7 +24,6 @@ async def get_user_progress(
         return data
     except json.JSONDecodeError:
         logger.warning(f"Invalid progress data: {progress}")
-        await refresh_progress(user_id, session)
         return {}
 
 
@@ -32,7 +31,10 @@ async def refresh_progress(user_id: int, session: AsyncSession):
     async with user_lock[user_id]:
         async with session:
             data = await get_user_data_pyd(user_id)
-            quality_dict: dict[str, list[str]] = {}
+            quality_dict: dict[str, list[str]] = await get_user_progress(
+                user_id, session
+            )
+
             for fish in data.fishes:
                 quality = fish.metadata.quality
                 name = fish.metadata.name
