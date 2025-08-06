@@ -1,3 +1,4 @@
+import json
 from asyncio import Lock
 from collections import defaultdict
 from collections.abc import Sequence
@@ -17,7 +18,14 @@ user_lock = defaultdict(lambda: Lock())
 async def get_user_progress(
     user_id: int, session: AsyncSession
 ) -> dict[str, list[str]]:
-    return (await get_or_create_user_model(user_id, session)).has_fish
+    try:
+        progress = (await get_or_create_user_model(user_id, session)).progress
+        data: dict[str, list[str]] = json.loads(progress)
+        return data
+    except json.JSONDecodeError:
+        logger.warning(f"Invalid progress data: {progress}")
+        await refresh_progress(user_id, session)
+        return {}
 
 
 async def refresh_progress(user_id: int, session: AsyncSession):
@@ -35,7 +43,8 @@ async def refresh_progress(user_id: int, session: AsyncSession):
                 if name not in quality_dict[quality]:
                     quality_dict[quality].append(name)
             user_meta = await get_or_create_user_model(user_id, session)
-            user_meta.has_fish = quality_dict
+            session.add(user_meta)
+            user_meta.progress = json.dumps(quality_dict)
             await session.commit()
 
 
@@ -50,7 +59,11 @@ async def get_or_create_user_model(
 ) -> UserFishMetaData:
     uid = to_uuid(str(user_id))
     async with session:
-        stmt = select(UserFishMetaData).where(UserFishMetaData.user_id == uid)
+        stmt = (
+            select(UserFishMetaData)
+            .where(UserFishMetaData.user_id == uid)
+            .with_for_update()
+        )
         if user_model := (await session.execute(stmt)).scalar_one_or_none():
             return user_model
         user_model = UserFishMetaData(user_id=uid)

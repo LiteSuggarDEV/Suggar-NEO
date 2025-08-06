@@ -6,7 +6,9 @@ from nonebot_plugin_value.uuid_lib import to_uuid
 from pydantic import BaseModel
 
 FISHING_POINT = CurrencyData(
-    id=to_uuid("fishing_point"),
+    id=to_uuid(
+        "fishing_point",
+    ),
     allow_negative=False,
     display_name="钓鱼点数",
     default_balance=0,
@@ -77,35 +79,35 @@ DEFAULT_QUALITY = [
     ),
     QualityMeta(
         name=QualityEnum.RARE,
-        probability=0.2,
+        probability=0.07,
         price_per_length=5.0,
         length_range_start=100,
         length_range_end=500,
     ),
     QualityMeta(
         name=QualityEnum.EPIC,
-        probability=0.05,
+        probability=0.03,
         price_per_length=8.0,
         length_range_start=500,
         length_range_end=2000,
     ),
     QualityMeta(
         name=QualityEnum.LEGENDARY,
-        probability=0.03,
+        probability=0.02,
         price_per_length=12.0,
         length_range_start=2000,
         length_range_end=6000,
     ),
     QualityMeta(
         name=QualityEnum.MYTHICAL,
-        probability=0.02,
+        probability=0.01,
         price_per_length=20.0,
         length_range_start=6000,
         length_range_end=20000,
     ),
     QualityMeta(
         name=QualityEnum.SUPER_RARE,
-        probability=0.015,
+        probability=0.005,
         price_per_length=30.0,
         length_range_start=20000,
         length_range_end=50000,
@@ -351,5 +353,85 @@ DEFAULT_FISH_LIST = [
         name="Mrling",
         quality=QualityEnum.UNKNOWN,
         prompt="这是串场了嘛",
+    ),
+    # 新增腐烂品质
+    FishMeta(
+        name="福岛变异鱼",
+        quality=QualityEnum.BAD,
+        prompt="自带荧光特效",
+    ),
+    FishMeta(
+        name="钉钉打卡鱼", quality=QualityEnum.BAD, prompt="每日自动发送「已打卡」"
+    ),
+    # 新增普通品质
+    FishMeta(
+        name="P社玩家鱼",
+        quality=QualityEnum.COMMON,
+        prompt="会喊「刁民住口」",
+    ),
+    FishMeta(
+        name="甲方需求鱼", quality=QualityEnum.COMMON, prompt="反复横跳的七彩渐变色"
+    ),
+    # 新增上等品质
+    FishMeta(
+        name="赛博朋克2077鱼",
+        quality=QualityEnum.GOOD,
+        prompt="内置未修复的BUG",
+    ),
+    # 新增稀有品质
+    FishMeta(
+        name="流浪地球MOSS鱼",
+        quality=QualityEnum.RARE,
+        prompt="不断重复「让人类保持理智是奢求」",
+    ),
+    FishMeta(
+        name="戴森球计划矿鱼",
+        quality=QualityEnum.RARE,
+        prompt="体内含钛矿石",
+    ),
+    # 新增史诗品质
+    FishMeta(
+        name="艾泽拉斯鱼人", quality=QualityEnum.EPIC, prompt="会喊「呜啦啦啦啦」"
+    ),
+    FishMeta(
+        name="三体脱水鱼",
+        quality=QualityEnum.EPIC,
+        prompt="遭遇危机自动变鱼干",
+    ),
+    # 新增传说品质
+    FishMeta(
+        name="宝可梦·鲤鱼王", quality=QualityEnum.LEGENDARY, prompt="只会水溅跃的神兽"
+    ),
+    FishMeta(
+        name="西游记奔波儿灞",
+        quality=QualityEnum.LEGENDARY,
+        prompt="喊「爷爷饶命」的鲇鱼精",
+    ),
+    # 新增神话品质
+    FishMeta(
+        name="北欧世界之鱼", quality=QualityEnum.MYTHICAL, prompt="环绕尘世巨蟒的眷属"
+    ),
+    FishMeta(
+        name="山海经·赢鱼",
+        quality=QualityEnum.MYTHICAL,
+        prompt="翼如鸟 鸣如磬",
+    ),
+    # 新增神秘品质
+    FishMeta(
+        name="MC方块鱼", quality=QualityEnum.SUPER_RARE, prompt="像素化外观 掉落经验球"
+    ),
+    FishMeta(
+        name="SCP-5047鱼",
+        quality=QualityEnum.SUPER_RARE,
+        prompt="会背诵《出师表》的异常实体",
+    ),
+    # 新增未知品质
+    FishMeta(
+        name="咕咕咕鱼", quality=QualityEnum.UNKNOWN, prompt="程序员特供型 每月32日出现"
+    ),
+    FishMeta(
+        name="二次元纸片鱼",
+        quality=QualityEnum.UNKNOWN,
+        prompt="没有厚度 无法被三维观测",
     ),
 ]

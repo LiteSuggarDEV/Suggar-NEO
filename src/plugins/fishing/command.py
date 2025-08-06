@@ -1,4 +1,3 @@
-import contextlib
 import random
 from collections import defaultdict
 from datetime import datetime
@@ -26,12 +25,13 @@ from suggar_utils.utils import is_same_day, send_forward_msg
 
 from .functions import (
     add_fish_record,
+    get_or_create_user_model,
     get_user_data_pyd,
     get_user_progress,
     refresh_progress,
     sell_fish,
 )
-from .models import FishMeta, QualityMetaData, UserFishMetaData
+from .models import FishMeta, QualityMetaData
 from .pyd_models import FISHING_POINT, Fish, QualityEnum
 from .pyd_models import FishMeta as F_Meta
 
@@ -61,23 +61,6 @@ def calculate_enchant_cost(level: int, enchant_type: str) -> int:
     """计算附魔升级消耗"""
     base, extra = ENCHANT_COST_FACTORS[enchant_type]
     return base * level + extra
-
-
-async def get_or_create_user_meta(
-    session: AsyncSession, user_id: str
-) -> UserFishMetaData:
-    """获取或创建用户元数据"""
-    user_meta = await session.scalar(
-        select(UserFishMetaData).where(UserFishMetaData.user_id == user_id)
-    )
-
-    if not user_meta:
-        user_meta = UserFishMetaData(user_id=user_id)
-        session.add(user_meta)
-        await session.commit()
-        await session.refresh(user_meta)
-
-    return user_meta
 
 
 async def perform_fishing(
@@ -274,7 +257,7 @@ async def handle_enchant(bot: Bot, event: MessageEvent, arg: Message = CommandAr
     uid = to_uuid(event.get_user_id())
 
     async with get_session() as session:
-        user_meta = await get_or_create_user_meta(session, uid)
+        user_meta = await get_or_create_user_model(event.user_id, session)
 
         # 显示当前附魔信息
         if not msg:
@@ -397,30 +380,37 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
         return await fishing.finish("鱼竿过热了，休息一下吧......")
 
     await fishing.send("正在钓鱼......")
-    uid = to_uuid(user_id)
-
     async with get_session() as session:
-        user_meta = await get_or_create_user_meta(session, uid)
+        user_meta = await get_or_create_user_model(event.user_id, session)
         session.add(user_meta)
+        if isinstance(user_meta.last_fishing_time, str):
+            try:
+                user_meta.last_fishing_time = datetime.fromisoformat(
+                    user_meta.last_fishing_time
+                )
+            except ValueError:
+                user_meta.last_fishing_time = datetime.now()
+        logger.debug(
+            f"用户 {user_id} 今日钓鱼次数: {user_meta.today_fishing_count!s}, 上次钓鱼时间: {user_meta.last_fishing_time.strftime('%Y-%m-%d %H:%M:%S')}"
+        )
 
-        # 检查钓鱼次数
-        today_count: int = user_meta.today_fishing_count
-        last_time: datetime = user_meta.last_fishing_time
-
-        # 重置每日计数
-        with contextlib.suppress(Exception):
-            if not is_same_day(
-                int(datetime.now().timestamp()), int(last_time.timestamp())
-            ):
-                today_count = user_meta.today_fishing_count = 0
+        if not is_same_day(
+            int(datetime.now().timestamp()),
+            int(user_meta.last_fishing_time.timestamp()),
+        ):
+            user_meta.today_fishing_count = 0
+            await session.commit()
+            await session.refresh(user_meta)
 
         # 检查上限
-        if today_count >= config.fishing.max_fishing_count:
+        if user_meta.today_fishing_count >= config.fishing.max_fishing_count:
             return await fishing.finish("今天你不能再钓更多的鱼了，明天再来吧～")
 
         # 更新钓鱼次数
-        user_meta.today_fishing_count = today_count + 1
+        user_meta.today_fishing_count += 1
         user_meta.last_fishing_time = datetime.now()
+        await session.commit()
+        await session.refresh(user_meta)
 
         # 确保附魔等级不超过上限
         lucky_level = min(user_meta.lucky_of_the_sea, MAX_ENCHANT_LEVEL)
@@ -432,12 +422,16 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
             sqrt(lucky_level / config.fishing.probability.lucky_sqrt)
             / config.fishing.probability.lucky_sub
         )  # 0.2 at level 40
-        if today_count >= config.fishing.max_fishing_count * 0.8 and lucky_level <= 25:
+        if (
+            user_meta.today_fishing_count >= config.fishing.max_fishing_count * 0.8
+            and lucky_level <= 25
+        ):
             luck_factor *= min(
-                0.75 * (config.fishing.max_fishing_count / today_count),
+                0.75
+                * (config.fishing.max_fishing_count / user_meta.today_fishing_count),
                 0.8,
             )
-        probability = max(random.random() * luck_factor, MIN_PROBABILITY)
+        probability = max(random.randint(1,9999)/10000 * luck_factor, MIN_PROBABILITY)
 
         # 钓鱼
         fishes = [await perform_fishing(event, session, probability, feeding_level)]
@@ -481,7 +475,10 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
 async def handle_progress(bot: Bot, event: MessageEvent):
     async with get_session() as session:
         await refresh_progress(event.user_id, session)
-        user_meta = await get_or_create_user_meta(session, to_uuid(event.get_user_id()))
+        user_meta = await get_or_create_user_model(
+            event.user_id,
+            session,
+        )
         session.add(user_meta)
         progress_data = await get_user_progress(event.user_id, session)
         msg_list = []
@@ -501,6 +498,6 @@ async def handle_progress(bot: Bot, event: MessageEvent):
             )
         await progress.finish(
             f"{event.sender.nickname}({event.get_user_id()})的钓鱼进度：\n"
-            f"今日钓鱼次数：{user_meta.today_fishing_count}/{config_manager.config.fishing.max_fishing_count}\n"
-            + "\n".join(msg_list)
+            f"今日钓鱼次数：{user_meta.today_fishing_count}/{config_manager.config.fishing.max_fishing_count}\n收集进度："
+            + "".join(msg_list)
         )
