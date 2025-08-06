@@ -24,7 +24,13 @@ from suggar_utils.switch_models import FuncEnum, is_enabled
 from suggar_utils.token_bucket import TokenBucket
 from suggar_utils.utils import is_same_day, send_forward_msg
 
-from .functions import add_fish_record, get_user_data_pyd, sell_fish
+from .functions import (
+    add_fish_record,
+    get_user_data_pyd,
+    get_user_progress,
+    refresh_progress,
+    sell_fish,
+)
 from .models import FishMeta, QualityMetaData, UserFishMetaData
 from .pyd_models import FISHING_POINT, Fish, QualityEnum
 from .pyd_models import FishMeta as F_Meta
@@ -220,6 +226,22 @@ bag = base_matcher.on_fullmatch(
     state=bag_matcher_data.model_dump(),
 )
 
+progress_matcher_data = MatcherData(
+    name="钓鱼进度",
+    category=CategoryEnum.GAME.value,
+    description="钓鱼进度",
+    usage="/钓鱼进度",
+)
+progress = base_matcher.on_fullmatch(
+    (
+        "钓鱼进度",
+        *[f"{prefix}钓鱼进度" for prefix in get_driver().config.command_start],
+    ),
+    priority=10,
+    block=True,
+    state=progress_matcher_data.model_dump(),
+)
+
 
 @to_money.handle()
 async def _(bot: Bot, event: MessageEvent, arg: Message = CommandArg()):
@@ -281,16 +303,16 @@ async def handle_enchant(bot: Bot, event: MessageEvent, arg: Message = CommandAr
             # 计算消耗并扣款
             cost = calculate_enchant_cost(current_level, display_name)
             try:
-                await del_balance(uid, cost)
+                await del_balance(uid, cost, FISHING_POINT.id)
             except Exception:
-                return await enchant.finish(f"余额不足，需要{cost}金币")
+                return await enchant.finish(f"余额不足，需要{cost}积分")
 
             # 升级属性
             setattr(user_meta, attr_name, current_level + 1)
             await session.commit()
             await session.refresh(user_meta)
             await enchant.finish(
-                f"已将{display_name}提高到Level {getattr(user_meta, attr_name)}，消耗{cost}金币"
+                f"已将{display_name}提高到Level {getattr(user_meta, attr_name)}，消耗{cost}积分"
             )
         else:
             await enchant.finish("不支持的附魔类型")
@@ -379,6 +401,7 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
 
     async with get_session() as session:
         user_meta = await get_or_create_user_meta(session, uid)
+        session.add(user_meta)
 
         # 检查钓鱼次数
         today_count: int = user_meta.today_fishing_count
@@ -393,7 +416,7 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
 
         # 检查上限
         if today_count >= config.fishing.max_fishing_count:
-            return await fishing.finish("今天的钓鱼次数已达上限，请明天再来！")
+            return await fishing.finish("今天你不能再钓更多的鱼了，明天再来吧～")
 
         # 更新钓鱼次数
         user_meta.today_fishing_count = today_count + 1
@@ -434,6 +457,7 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
             )
 
         await session.commit()
+        await refresh_progress(event.user_id, session)
 
     # 构建结果消息
     fish_details = []
@@ -451,3 +475,32 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
     )
 
     await fishing.finish(result_msg)
+
+
+@progress.handle()
+async def handle_progress(bot: Bot, event: MessageEvent):
+    async with get_session() as session:
+        await refresh_progress(event.user_id, session)
+        user_meta = await get_or_create_user_meta(session, to_uuid(event.get_user_id()))
+        session.add(user_meta)
+        progress_data = await get_user_progress(event.user_id, session)
+        msg_list = []
+        for quality in progress_data:
+            all_fish_count = len(
+                (
+                    await session.execute(
+                        select(FishMeta).where(FishMeta.quality == quality)
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            this_count = len(progress_data[quality])
+            msg_list.append(
+                f"\n{quality}品质收集进度：{this_count}/{all_fish_count} ({this_count / all_fish_count:.2%})"
+            )
+        await progress.finish(
+            f"{event.sender.nickname}({event.get_user_id()})的钓鱼进度：\n"
+            f"今日钓鱼次数：{user_meta.today_fishing_count}/{config_manager.config.fishing.max_fishing_count}\n"
+            + "\n".join(msg_list)
+        )

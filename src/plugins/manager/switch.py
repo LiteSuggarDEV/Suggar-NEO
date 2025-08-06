@@ -1,4 +1,3 @@
-
 from nonebot import on_command
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, Message
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
