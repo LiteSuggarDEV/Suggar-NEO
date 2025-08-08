@@ -719,7 +719,7 @@ default = [
 
 [[package]]
 name = "nonebot-plugin-suggarchat"
-version = "3.1.2.post2"
+version = "3.2.0.post1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
@@ -737,10 +737,11 @@ dependencies = [
     { name = "tomli" },
     { name = "tomli-w" },
     { name = "typing-extensions" },
+    { name = "watchfiles" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4b/4a/48d5ead55151d9ab505a72da13b63d3a0547584f8278dca0afdd74732649/nonebot_plugin_suggarchat-3.1.2.post2.tar.gz", hash = "sha256:1163eb62f9a66faeecd43bd6a1ec165e76b0f127650642a7c2b1116824d2b905", size = 53960 }
+sdist = { url = "https://files.pythonhosted.org/packages/0c/a5/71c022dd77ecd38dc89436187e0dbff7e86f688485d567e31177a000ea91/nonebot_plugin_suggarchat-3.2.0.post1.tar.gz", hash = "sha256:13467f6797f0e59627eb217b26b585f31eb38d49b6c513bf86079908ba7590e1", size = 55524 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3e/01/04dff22586e7ea44dd63316915c9ccabf22ca9efa41b326a31417eab3845/nonebot_plugin_suggarchat-3.1.2.post2-py3-none-any.whl", hash = "sha256:15408fceb2cf4fed6fd0910ff96e1529773548ef837981b3e5f02ea4ffc76875", size = 66951 },
+    { url = "https://files.pythonhosted.org/packages/ae/75/cfd92fa94698c452aa5cd7aa0accc1879dbc9378568a4c2ace37f4b70650/nonebot_plugin_suggarchat-3.2.0.post1-py3-none-any.whl", hash = "sha256:41e9cd87f60a761165ad306d830c668f9eba952dcfe60d9d4b566f85a77ea6f7", size = 68929 },
 ]
 
 [[package]]
@@ -1394,7 +1395,7 @@ requires-dist = [
     { name = "nonebot-plugin-htmlrender", specifier = ">=0.6.6" },
     { name = "nonebot-plugin-localstore", specifier = ">=0.7.4" },
     { name = "nonebot-plugin-orm", extras = ["default"], specifier = ">=0.8.1" },
-    { name = "nonebot-plugin-suggarchat", specifier = ">=3.1.2.post2" },
+    { name = "nonebot-plugin-suggarchat", extras = ["openai"], specifier = ">=3.2.0" },
     { name = "nonebot-plugin-value", specifier = ">=0.1.6" },
     { name = "nonebot2", extras = ["fastapi"], specifier = ">=2.4.2" },
     { name = "openai", specifier = ">=1.95.0" },
