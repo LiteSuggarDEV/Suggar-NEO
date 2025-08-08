@@ -8,7 +8,6 @@ from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent,
     Message,
     MessageEvent,
-    PokeNotifyEvent,
 )
 from nonebot.exception import IgnoredException
 from nonebot.matcher import Matcher
@@ -61,23 +60,6 @@ async def _(event: MessageEvent, matcher: Matcher, args: Message = CommandArg())
         await matcher.finish("已关闭")
     else:
         await matcher.finish("请输入正确的参数，true/yes/1/on/false/no/0/off")
-
-
-@run_preprocessor
-async def poke(matcher: Matcher, event: PokeNotifyEvent):
-    if event.target_id != event.self_id:
-        return
-    ins_id = str(event.group_id if event.group_id else event.user_id)
-    data = watch_group if event.group_id else watch_user
-
-    bucket = data[ins_id]
-    if not bucket.consume():
-        raise IgnoredException("Rate limit exceeded, operation ignored.")
-    if (not StatusManager().ready) and (not await is_global_admin(event)):
-        with contextlib.suppress(Exception):
-            await matcher.send("正在维护/数据迁移中，暂时不支持该操作！")
-        raise IgnoredException("Maintenance in progress, operation not supported.")
-
 
 @run_preprocessor
 async def run(matcher: Matcher, event: MessageEvent):
