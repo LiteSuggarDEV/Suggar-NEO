@@ -46,8 +46,8 @@ class UserData(BaseModel):
 class QualityEnum(str, Enum):
     UNKNOWN = "???"
     SUPER_RARE = "神秘"
-    LEGENDARY = "传说"
     MYTHICAL = "神话"
+    LEGENDARY = "传说"
     EPIC = "史诗"
     RARE = "稀有"
     GOOD = "上等"
@@ -87,34 +87,34 @@ DEFAULT_QUALITY = [
     QualityMeta(
         name=QualityEnum.EPIC,
         probability=0.03,
-        price_per_length=8.0,
+        price_per_length=10.0,
         length_range_start=500,
         length_range_end=2000,
     ),
     QualityMeta(
         name=QualityEnum.LEGENDARY,
         probability=0.02,
-        price_per_length=10.0,
+        price_per_length=12.0,
         length_range_start=2000,
         length_range_end=6000,
     ),
     QualityMeta(
         name=QualityEnum.MYTHICAL,
-        probability=0.01,
-        price_per_length=14.0,
+        probability=0.015,
+        price_per_length=16.0,
         length_range_start=6000,
         length_range_end=20000,
     ),
     QualityMeta(
         name=QualityEnum.SUPER_RARE,
-        probability=0.005,
-        price_per_length=20.0,
+        probability=0.01,
+        price_per_length=24.0,
         length_range_start=20000,
         length_range_end=50000,
     ),
     QualityMeta(
         name=QualityEnum.UNKNOWN,
-        probability=0.01,
+        probability=0.005,
         price_per_length=0,
         length_range_start=11451419,
         length_range_end=11451419,

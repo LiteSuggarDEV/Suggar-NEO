@@ -42,7 +42,7 @@ ENCHANT_COST_FACTORS = {
     "多重钓竿": (15000, 5000),
     "自动打窝": (7000, 4000),
 }
-MIN_PROBABILITY = 0.01
+MIN_PROBABILITY = 0.005  # 最低钓到鱼的概率
 base_matcher = MatcherGroup(rule=is_enabled(FuncEnum.FISHING))
 
 
@@ -245,9 +245,7 @@ async def _(bot: Bot, event: MessageEvent):
         account = await get_or_create_account(uid, FISHING_POINT.id)
         balance = account.balance
     except Exception as e:
-        await points.finish(
-            f"获取钓鱼积分时发生错误: {str(e)}"
-        )
+        await points.finish(f"获取钓鱼积分时发生错误: {e!s}")
         return
     await points.finish(
         f"{event.sender.nickname}({event.get_user_id()})的钓鱼积分为{balance}。"
@@ -411,11 +409,10 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
     async with get_session() as session:
         user_meta = await get_or_create_user_model(event.user_id, session)
         session.add(user_meta)
-        if isinstance(user_meta.last_fishing_time, str):
+        last_fishing_time = user_meta.last_fishing_time
+        if isinstance(last_fishing_time, str):
             try:
-                user_meta.last_fishing_time = datetime.fromisoformat(
-                    user_meta.last_fishing_time
-                )
+                user_meta.last_fishing_time = datetime.fromisoformat(last_fishing_time)
             except ValueError:
                 user_meta.last_fishing_time = datetime.now()
         logger.debug(
@@ -459,9 +456,7 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
                 * (config.fishing.max_fishing_count / user_meta.today_fishing_count),
                 0.8,
             )
-        probability = max(
-            random.randint(1, 9999) / 10000 * luck_factor, MIN_PROBABILITY
-        )
+        probability = max(random.random() * luck_factor, MIN_PROBABILITY)
 
         # 钓鱼
         fishes = [await perform_fishing(event, session, probability, feeding_level)]
