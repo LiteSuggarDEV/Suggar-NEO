@@ -7,6 +7,7 @@ from nonebot import MatcherGroup, get_driver, logger
 from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent, MessageSegment
 from nonebot.exception import NoneBotException
 from nonebot.params import CommandArg
+from nonebot.rule import Rule
 from nonebot_plugin_orm import AsyncSession, get_session
 from nonebot_plugin_value.api.api_balance import (
     add_balance,
@@ -43,7 +44,11 @@ ENCHANT_COST_FACTORS = {
     "自动打窝": (7000, 4000),
 }
 MIN_PROBABILITY = 0.005  # 最低钓到鱼的概率
-base_matcher = MatcherGroup(rule=is_enabled(FuncEnum.FISHING))
+base_matcher = MatcherGroup(
+    rule=Rule(
+        is_enabled(FuncEnum.FISHING), (lambda: config_manager.config.fishing.enable)
+    )
+)
 
 
 #  辅助函数
@@ -237,6 +242,7 @@ progress = base_matcher.on_fullmatch(
     block=True,
     state=progress_matcher_data.model_dump(),
 )
+
 
 @points.handle()
 async def _(bot: Bot, event: MessageEvent):
