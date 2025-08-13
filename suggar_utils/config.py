@@ -33,6 +33,7 @@ class FishingConfig(BaseModel):
     rate_limit: int = 6
     max_fishing_count: int = 60
     probability: ProbabilityFactor = ProbabilityFactor()
+    eco2fishing: bool = False  # 在这一次启动中会把账户所有余额转换为钓鱼积分
 
 
 class Config(BaseModel):
@@ -58,7 +59,6 @@ class Config(BaseModel):
     reset_balance: bool = (
         False  # 在这一次启动中会按比例重置所有用户的余额（解决通货膨胀）
     )
-    eco2fishing: bool = False  # 在这一次启动中会把账户所有余额转换为钓鱼积分
 
 
 class ConfigManager:

@@ -61,6 +61,7 @@ async def _(event: MessageEvent, matcher: Matcher, args: Message = CommandArg())
     else:
         await matcher.finish("请输入正确的参数，true/yes/1/on/false/no/0/off")
 
+
 @run_preprocessor
 async def run(matcher: Matcher, event: MessageEvent):
     has_text_rule = any(
