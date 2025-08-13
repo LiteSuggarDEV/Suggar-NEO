@@ -42,7 +42,7 @@ async def init_fish():
         for fish in DEFAULT_FISH_LIST:
             await update_fish(fish, session)
     await get_or_create_currency(FISHING_POINT)
-    if config_manager.config.eco2fishing:
+    if config_manager.config.fishing.eco2fishing:
         logger.warning("正在将账户余额转换为钓鱼积分...")
         accounts = await list_accounts()
         account_balance: list[tuple[str, float]] = [
@@ -52,7 +52,7 @@ async def init_fish():
         await batch_add_balance(account_balance, currency_id=FISHING_POINT.id)
         for account in accounts:
             await del_account(account.id)
-        config_manager.config.eco2fishing = False
+        config_manager.config.fishing.eco2fishing = False
         await config_manager.save_config()
         await config_manager.reload_config()
         logger.info("账户余额转换为钓鱼积分完成")

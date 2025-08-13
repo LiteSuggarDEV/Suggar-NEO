@@ -719,7 +719,7 @@ default = [
 
 [[package]]
 name = "nonebot-plugin-suggarchat"
-version = "3.2.0.post1"
+version = "3.3.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
@@ -739,9 +739,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "watchfiles" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0c/a5/71c022dd77ecd38dc89436187e0dbff7e86f688485d567e31177a000ea91/nonebot_plugin_suggarchat-3.2.0.post1.tar.gz", hash = "sha256:13467f6797f0e59627eb217b26b585f31eb38d49b6c513bf86079908ba7590e1", size = 55524 }
+sdist = { url = "https://files.pythonhosted.org/packages/ac/f9/26144758ce4c5648ce08d125c341a5d512ddac6900a90687a5b6ceb8be79/nonebot_plugin_suggarchat-3.3.1.1.tar.gz", hash = "sha256:d40597f5f3862058b3415d338901fda75a6e7932ce11d1c7dd9e5e471bf07fdc", size = 57037 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ae/75/cfd92fa94698c452aa5cd7aa0accc1879dbc9378568a4c2ace37f4b70650/nonebot_plugin_suggarchat-3.2.0.post1-py3-none-any.whl", hash = "sha256:41e9cd87f60a761165ad306d830c668f9eba952dcfe60d9d4b566f85a77ea6f7", size = 68929 },
+    { url = "https://files.pythonhosted.org/packages/42/a4/7b0b1ec5a11ede1a2c9861032f9d99f8e0d800550f7af3dbcad241d827a5/nonebot_plugin_suggarchat-3.3.1.1-py3-none-any.whl", hash = "sha256:c3d643a9125b72d4b05252af3cff0516c92c59a5de9ab6f6db196be111caa579", size = 70861 },
 ]
 
 [[package]]
@@ -1395,7 +1395,7 @@ requires-dist = [
     { name = "nonebot-plugin-htmlrender", specifier = ">=0.6.6" },
     { name = "nonebot-plugin-localstore", specifier = ">=0.7.4" },
     { name = "nonebot-plugin-orm", extras = ["default"], specifier = ">=0.8.1" },
-    { name = "nonebot-plugin-suggarchat", extras = ["openai"], specifier = ">=3.2.0" },
+    { name = "nonebot-plugin-suggarchat", extras = ["openai"], specifier = ">=3.3.1.1" },
     { name = "nonebot-plugin-value", specifier = ">=0.1.6" },
     { name = "nonebot2", extras = ["fastapi"], specifier = ">=2.4.2" },
     { name = "openai", specifier = ">=1.95.0" },

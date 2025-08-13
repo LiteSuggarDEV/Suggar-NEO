@@ -81,7 +81,9 @@ async def perform_fishing(
         quality = (
             random.choice(valid_qualities)
             if valid_qualities
-            else random.choice([q for q in qualities if q.probability > 0.01])
+            else random.choice(
+                [q for q in qualities if q.probability > MIN_PROBABILITY]
+            )
         )
 
         # 选择鱼种
@@ -237,6 +239,7 @@ progress = base_matcher.on_fullmatch(
     block=True,
     state=progress_matcher_data.model_dump(),
 )
+
 
 @points.handle()
 async def _(bot: Bot, event: MessageEvent):
@@ -446,16 +449,7 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
         luck_factor = 1 - (
             sqrt(lucky_level / config.fishing.probability.lucky_sqrt)
             / config.fishing.probability.lucky_sub
-        )  # 0.2 at level 40
-        if (
-            user_meta.today_fishing_count >= config.fishing.max_fishing_count * 0.8
-            and lucky_level <= 25
-        ):
-            luck_factor *= min(
-                0.75
-                * (config.fishing.max_fishing_count / user_meta.today_fishing_count),
-                0.8,
-            )
+        )
         probability = max(random.random() * luck_factor, MIN_PROBABILITY)
 
         # 钓鱼
