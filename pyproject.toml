@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "aiomysql>=0.2.0",
-    "amrita[full]>=0.2.0.post1",
+    "amrita[full]>=0.2.0.post2",
     "chardet>=5.2.0",
     "dotenv>=0.9.9",
     "extensions>=0.4",

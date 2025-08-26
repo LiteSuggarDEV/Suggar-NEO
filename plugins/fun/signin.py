@@ -11,7 +11,6 @@ from nonebot_plugin_value.api.api_balance import get_or_create_account
 
 from suggar_utils.store import get_or_create_user_model
 from suggar_utils.switch_models import FuncEnum, is_enabled
-from suggar_utils.utils import is_same_day
 from suggar_utils.value import SUGGAR_EXP_ID, add_balance, to_uuid
 
 
@@ -33,7 +32,7 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
         fun_data = await get_or_create_user_model(str(event.user_id), session)
         session.add(fun_data)
         last_daily = fun_data.last_daily
-        if is_same_day(int(last_daily.timestamp()), int(datetime.now().timestamp())):
+        if last_daily.date() == datetime.now().date():
             await matcher.finish(
                 MessageSegment.at(event.user_id)
                 + MessageSegment.text(

@@ -1,10 +1,6 @@
-from suggar_utils.config import config_manager
-from suggar_utils.event import UserIDEvent
+from amrita.plugins.perm.API.admin import is_lp_admin
+from nonebot.adapters.onebot.v11 import Event
 
 
-async def is_global_admin(event: UserIDEvent) -> bool:
-    return check_global_admin(event.user_id)
-
-
-def check_global_admin(user_id: int) -> bool:
-    return user_id in (config_manager.config.admins)
+async def is_global_admin(event: Event) -> bool:
+    return await is_lp_admin(event)

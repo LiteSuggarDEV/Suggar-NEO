@@ -13,7 +13,6 @@ from nonebot.params import CommandArg
 from nonebot.rule import to_me
 from nonebot_plugin_value.api.api_balance import get_or_create_account
 
-from suggar_utils.config import config_manager
 from suggar_utils.switch_models import FuncEnum, is_enabled
 from suggar_utils.value import SUGGAR_EXP_ID, to_uuid
 
@@ -35,9 +34,9 @@ command_start = get_driver().config.command_start
 async def _(
     bot: Bot, event: MessageEvent, matcher: Matcher, args: Message = CommandArg()
 ):
-    admins = config_manager.config.admins
+    admins = get_driver().config.superusers
     if isinstance(event, PrivateMessageEvent):
-        if event.user_id not in admins:
+        if str(event.user_id) not in admins:
             return
     if not args.extract_plain_text().strip():
         for seg in args:

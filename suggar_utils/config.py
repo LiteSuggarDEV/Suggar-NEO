@@ -37,24 +37,6 @@ class FishingConfig(BaseModel):
 
 
 class Config(BaseModel):
-    rate_limit: int = 3
-    enable_menu: bool = True
-    bot_name: str = "Suggar"
-    notify_group: list[int] = [
-        1002495699,
-    ]
-    public_group: int = 1002495699
-    admins: list[int] = [
-        3196373166,
-    ]
-    rate_reply: list[str] = [
-        "请求太快啦！",
-        "停停停等下！",
-        "什么？我没听清欸！",
-        "太快了啦！qwq让我缓缓啦！",
-        "喵喵喵！请慢点哦！",
-        "欸干什么啦？！别急啦！",
-    ]
     fishing: FishingConfig = FishingConfig()
     reset_balance: bool = (
         False  # 在这一次启动中会按比例重置所有用户的余额（解决通货膨胀）
