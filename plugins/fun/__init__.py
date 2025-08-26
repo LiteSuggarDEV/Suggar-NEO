@@ -3,7 +3,7 @@ from nonebot.plugin import PluginMetadata, require
 
 require("nonebot_plugin_orm")
 require("nonebot_plugin_value")
-require("nonebot_plugin_suggarchat")
+require("amrita.plugins.chat")
 require("menu")
 from nonebot_plugin_orm import get_session
 from nonebot_plugin_value.api.api_balance import list_accounts

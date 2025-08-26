@@ -1,9 +1,9 @@
 import random
 
+from amrita.plugins.chat.event import ChatEvent
+from amrita.plugins.chat.on_event import on_chat
 from nonebot import logger
 from nonebot.adapters.onebot.v11 import MessageEvent
-from nonebot_plugin_suggarchat.event import ChatEvent
-from nonebot_plugin_suggarchat.on_event import on_chat
 
 from suggar_utils.value import SUGGAR_EXP_ID, add_balance
 

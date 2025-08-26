@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "aiomysql>=0.2.0",
+    "amrita[full]>=0.2.0.post1",
     "chardet>=5.2.0",
     "dotenv>=0.9.9",
     "extensions>=0.4",
@@ -14,7 +15,6 @@ dependencies = [
     "nonebot-plugin-htmlrender>=0.6.6",
     "nonebot-plugin-localstore>=0.7.4",
     "nonebot-plugin-orm[default]>=0.8.1",
-    "nonebot-plugin-suggarchat[openai]>=3.3.1.1",
     "nonebot-plugin-value>=0.1.6",
     "nonebot2[fastapi]>=2.4.2",
     "openai>=1.95.0",
@@ -35,10 +35,7 @@ plugins = [
     "nonebot_plugin_orm",
     "nonebot_plugin_localstore",
     "nonebot_plugin_value",
-    "nonebot_plugin_htmlrender",
-    "nonebot_plugin_suggarchat",
 ]
-plugin_dirs = ["src/plugins", "src/custom_plugins"]
 builtin_plugins = []
 
 [tool.ruff]

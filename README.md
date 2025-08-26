@@ -9,29 +9,28 @@
 ```
 src/plugins/
 ├── fishing        # 钓鱼小游戏核心模块
-├── manager        # 群组管理工具集
-├── menu           # HTML交互菜单系统
 ├── fun            # 趣味功能套件（签到/货币）
-├── status         # 运行状态监控
 └── nonebot_plugin_luoguluck  # 洛谷运势插件
 ```
 
 ## 🛠 技术栈
 
-- **核心框架**：NoneBot2 + CQHTTP
+- **核心框架**：AmritaBot + OneBot V11
 - **数据层**：SQLAlchemy ORM + SQLite/MySQL + Value 经济系统
 - **验证层**：Pydantic 数据模型
-- **部署**：pyproject.toml + nb 命令行工具
+- **部署**：pyproject.toml + Amrita 命令行工具
 
 ## 🚀 快速启动
 
 ```bash
-uv run ./bot.py
+amrita run
 ```
 
 ## 📚 文档
 
 完整文档请查阅 [Suggar 官方文档](https://docs.suggar.top/project/Suggar/readme)
+
+[Amrita 文档](https://amrita.suggar.top)
 
 ## 💡 灵感来源
 
@@ -42,7 +41,6 @@ uv run ./bot.py
 已验证兼容插件：
 
 - [nonebot_plugin_value](https://github.com/LiteSuggarDEV/nonebot_plugin_value)
-- [nonebot_plugin_suggarchat](https://github.com/LiteSuggarDEV/nonebot_plugin_suggarchat)
 - nonebot_plugin_htmlrender
 - nonebot_plugin_localstore
 - nonebot_plugin_orm

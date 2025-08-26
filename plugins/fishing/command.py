@@ -3,6 +3,9 @@ from collections import defaultdict
 from datetime import datetime
 from math import sqrt
 
+from amrita.plugins.menu.models import (
+    MatcherData,
+)
 from nonebot import MatcherGroup, get_driver, logger
 from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent, MessageSegment
 from nonebot.exception import NoneBotException
@@ -17,7 +20,6 @@ from nonebot_plugin_value.exception import TransactionException
 from nonebot_plugin_value.uuid_lib import to_uuid
 from sqlalchemy import select
 
-from src.plugins.menu.models import CategoryEnum, CommandParam, MatcherData, ParamType
 from suggar_utils.config import config_manager
 from suggar_utils.switch_models import FuncEnum, is_enabled
 from suggar_utils.token_bucket import TokenBucket
@@ -124,16 +126,7 @@ watch_user = defaultdict(
 enchant_matcher_data = MatcherData(
     name="/鱼竿附魔",
     usage="/鱼竿附魔",
-    aliases=["/enchant"],
     description="添加鱼竿附魔等级",
-    category=CategoryEnum.GAME.value,
-    params=[
-        CommandParam(
-            name="种类",
-            description="附魔种类(海之眷顾，多重钓竿，自动打窝)",
-            param_type=ParamType.OPTIONAL,
-        )
-    ],
 )
 enchant = base_matcher.on_command(
     "鱼竿附魔",
@@ -148,20 +141,6 @@ sell_matcher_data = MatcherData(
     name="/卖鱼",
     description="卖鱼",
     usage="/卖鱼 <鱼名>/<品质名>",
-    examples=["/卖鱼 稀有"],
-    category=CategoryEnum.GAME.value,
-    params=[
-        CommandParam(
-            name="fish-name",
-            description="鱼名",
-            param_type=ParamType.OPTIONAL,
-        ),
-        CommandParam(
-            name="quality-name",
-            description="品质名",
-            param_type=ParamType.OPTIONAL,
-        ),
-    ],
 )
 sell = base_matcher.on_command(
     "卖鱼", priority=10, block=True, state=sell_matcher_data.model_dump()
@@ -171,15 +150,6 @@ to_money_matcher_data = MatcherData(
     name="/兑换货币",
     description="兑换货币",
     usage="/兑换货币 <数量>",
-    examples=["/兑换货币 100"],
-    category=CategoryEnum.GAME.value,
-    params=[
-        CommandParam(
-            name="amount",
-            description="兑换数量",
-            param_type=ParamType.OPTIONAL,
-        )
-    ],
 )
 to_money = base_matcher.on_command(
     "兑换货币", priority=10, block=True, state=to_money_matcher_data.model_dump()
@@ -188,8 +158,6 @@ points_matcher_data = MatcherData(
     name="/钓鱼积分",
     description="查看钓鱼积分",
     usage="/钓鱼积分",
-    examples=["/钓鱼积分"],
-    category=CategoryEnum.GAME.value,
 )
 points = base_matcher.on_command(
     "钓鱼积分",
@@ -201,7 +169,6 @@ points = base_matcher.on_command(
 # 钓鱼命令
 fishing_matcher_data = MatcherData(
     name="钓鱼",
-    category=CategoryEnum.GAME.value,
     description="钓鱼 来当赛博钓鱼佬吧～",
     usage="钓鱼",
 )
@@ -214,9 +181,7 @@ fishing = base_matcher.on_fullmatch(
 )
 
 # 背包命令
-bag_matcher_data = MatcherData(
-    name="背包", category=CategoryEnum.GAME.value, description="背包", usage="背包"
-)
+bag_matcher_data = MatcherData(name="背包", description="背包", usage="背包")
 bag = base_matcher.on_fullmatch(
     ("背包", *[f"{prefix}背包" for prefix in get_driver().config.command_start]),
     priority=10,
@@ -226,7 +191,6 @@ bag = base_matcher.on_fullmatch(
 
 progress_matcher_data = MatcherData(
     name="钓鱼进度",
-    category=CategoryEnum.GAME.value,
     description="钓鱼进度",
     usage="/钓鱼进度",
 )
