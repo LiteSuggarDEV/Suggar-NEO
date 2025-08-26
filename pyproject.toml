@@ -36,6 +36,9 @@ plugins = [
     "nonebot_plugin_localstore",
     "nonebot_plugin_value",
 ]
+plugin_dirs = [
+    "plugins",
+]
 builtin_plugins = []
 
 [tool.ruff]
