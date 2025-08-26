@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 
 from aiofiles import open
+from amrita.plugins.menu.models import MatcherData
 from nonebot import on_command
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -13,7 +14,6 @@ from nonebot.adapters.onebot.v11 import (
 )
 from nonebot_plugin_localstore import get_plugin_data_dir
 
-from src.plugins.menu.models import CategoryEnum, MatcherData
 from suggar_utils.switch_models import FuncEnum, is_enabled
 
 from .image import get_image
@@ -30,7 +30,6 @@ luck = on_command(
             name="今日运势",
             usage="/luck",
             description="洛谷同款的今日运势！",
-            category=CategoryEnum.FUN,
         ),
     ),
     rule=is_enabled(FuncEnum.LUCK),

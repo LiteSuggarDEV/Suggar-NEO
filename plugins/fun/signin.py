@@ -2,13 +2,13 @@ import math
 import random
 from datetime import datetime
 
+from amrita.plugins.menu.models import MatcherData
 from nonebot import on_fullmatch
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment
 from nonebot.matcher import Matcher
 from nonebot_plugin_orm import get_session
 from nonebot_plugin_value.api.api_balance import get_or_create_account
 
-from src.plugins.menu.models import CategoryEnum, MatcherData
 from suggar_utils.store import get_or_create_user_model
 from suggar_utils.switch_models import FuncEnum, is_enabled
 from suggar_utils.utils import is_same_day
@@ -22,7 +22,6 @@ from suggar_utils.value import SUGGAR_EXP_ID, add_balance, to_uuid
             name="每日签到",
             description="签到",
             usage="签到",
-            category=CategoryEnum.FUN,
         )
     ),
     rule=is_enabled(FuncEnum.DAILY),

@@ -1,3 +1,4 @@
+from amrita.plugins.menu.models import MatcherData
 from nonebot import get_driver, on_command, on_fullmatch
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -12,7 +13,6 @@ from nonebot.params import CommandArg
 from nonebot.rule import to_me
 from nonebot_plugin_value.api.api_balance import get_or_create_account
 
-from src.plugins.menu.models import CategoryEnum, CommandParam, MatcherData, ParamType
 from suggar_utils.config import config_manager
 from suggar_utils.switch_models import FuncEnum, is_enabled
 from suggar_utils.value import SUGGAR_EXP_ID, to_uuid
@@ -28,18 +28,6 @@ command_start = get_driver().config.command_start
             name="用户信息查询",
             description="查询一个人的等级信息～",
             usage="/查询",
-            category=CategoryEnum.UTILS,
-            params=[
-                CommandParam(
-                    name="用户",
-                    description="要查询的用户",
-                    param_type=ParamType.REQUIRED,
-                )
-            ],
-            examples=[
-                "/查询 123456",
-                "/查询 @JohnRichard",
-            ],
         )
     ),
     rule=is_enabled(FuncEnum.DAILY),
@@ -91,7 +79,6 @@ async def _(
             name="信息查询",
             description="查询你的等级～",
             usage="等级",
-            category=CategoryEnum.FUN,
         )
     ),
 ).handle()
@@ -116,7 +103,6 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
             name="信息查询",
             description="查询你的余额～",
             usage="余额",
-            category=CategoryEnum.FUN,
         )
     ),
 ).handle()

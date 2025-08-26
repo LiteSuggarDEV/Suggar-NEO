@@ -1,7 +1,7 @@
+from amrita.plugins.menu import MatcherData
 from nonebot import on_command
 from nonebot.matcher import Matcher
 
-from src.plugins.menu.models import CategoryEnum, MatcherData
 from suggar_utils.dump_tools import dump_to_json, reset_from_update_file
 from suggar_utils.rule import is_global_admin
 
@@ -13,7 +13,6 @@ from suggar_utils.rule import is_global_admin
             name="重写数据",
             description="从恢复文件重置数据",
             usage="/reset_data",
-            category=CategoryEnum.MANAGE,
         )
     ),
     permission=is_global_admin,
@@ -30,7 +29,6 @@ async def _(matcher: Matcher) -> None:
             name="导出数据",
             description="导出数据到json文件",
             usage="/dump_data",
-            category=CategoryEnum.MANAGE,
         )
     ),
     permission=is_global_admin,

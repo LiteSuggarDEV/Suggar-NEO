@@ -46,7 +46,7 @@ def generate_info():
     import platform
     import sys
 
-    import nonebot_plugin_suggarchat.config as suggarchat_config
+    import amrita.plugins.chat.config as suggarchat_config
     import psutil
 
     system_name = platform.system()
