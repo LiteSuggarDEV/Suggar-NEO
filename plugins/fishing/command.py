@@ -387,7 +387,7 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
             f"用户 {user_id} 今日钓鱼次数: {user_meta.today_fishing_count!s}, 上次钓鱼时间: {user_meta.last_fishing_time.strftime('%Y-%m-%d %H:%M:%S')}"
         )
 
-        if not (datetime.now().date() == user_meta.last_fishing_time.date(),):
+        if not datetime.now().date() == user_meta.last_fishing_time.date():
             user_meta.today_fishing_count = 0
             await session.commit()
             await session.refresh(user_meta)
