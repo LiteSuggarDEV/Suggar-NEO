@@ -37,7 +37,7 @@ plugins = [
     "nonebot_plugin_value",
 ]
 plugin_dirs = [
-    "plugins",
+    # "plugins",
 ]
 builtin_plugins = []
 
