@@ -52,7 +52,7 @@ wheels = [
 
 [[package]]
 name = "amrita"
-version = "0.2.0.post1"
+version = "0.2.0.post2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bcrypt" },
@@ -67,9 +67,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "uv" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2d/94/f75da3ff9d314f0dbde7abeff7ee871a25a962dc385643fd8392b39f2da2/amrita-0.2.0.post1.tar.gz", hash = "sha256:aea41b4b8b402f8ab924d566cd5be9ec803dc8199e3e44e43e063796db32cc63", size = 120387, upload-time = "2025-08-26T02:20:00.655Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6a/ed/13856a7e82e9ff725e5d53530a0bfae608e95b721b8b09a784946154873b/amrita-0.2.0.post2.tar.gz", hash = "sha256:1b8823363a12439cf3f72ffa22335ba7be4a83bcc8d83304f2fce7c82933bdd1", size = 120553, upload-time = "2025-08-26T13:55:31.172Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/62/16/bd788ba2af55121d134368442ea238cb3c6a80a3479b72d4c4dfd7e45e3b/amrita-0.2.0.post1-py3-none-any.whl", hash = "sha256:a92d67671c2d60e45fbe2e92af63fdbcb3921909e3886ad122c24e9c447b35d4", size = 167492, upload-time = "2025-08-26T02:19:58.517Z" },
+    { url = "https://files.pythonhosted.org/packages/a3/6a/1974bd664ea6b6f061722049e8abc165b5d01eccd219a556b804b7133b91/amrita-0.2.0.post2-py3-none-any.whl", hash = "sha256:4b8e4e9fe8c70ddf04d81d75912e0d85dcbbe9a1161a84a8d15e59b6c79803a7", size = 167542, upload-time = "2025-08-26T13:55:29.698Z" },
 ]
 
 [package.optional-dependencies]
@@ -1754,7 +1754,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "aiomysql", specifier = ">=0.2.0" },
-    { name = "amrita", extras = ["full"], specifier = ">=0.2.0.post1" },
+    { name = "amrita", extras = ["full"], specifier = ">=0.2.0.post2" },
     { name = "chardet", specifier = ">=5.2.0" },
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "extensions", specifier = ">=0.4" },
