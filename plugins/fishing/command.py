@@ -3,9 +3,12 @@ from collections import defaultdict
 from datetime import datetime
 from math import sqrt
 
+from amrita import get_amrita_config
+from amrita.plugins.manager.utils import TokenBucket
 from amrita.plugins.menu.models import (
     MatcherData,
 )
+from amrita.utils.send import send_forward_msg
 from nonebot import MatcherGroup, get_driver, logger
 from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent, MessageSegment
 from nonebot.exception import NoneBotException
@@ -22,8 +25,6 @@ from sqlalchemy import select
 
 from suggar_utils.config import config_manager
 from suggar_utils.switch_models import FuncEnum, is_enabled
-from suggar_utils.token_bucket import TokenBucket
-from suggar_utils.utils import is_same_day, send_forward_msg
 
 from .functions import (
     add_fish_record,
@@ -359,7 +360,7 @@ async def handle_bag(bot: Bot, event: MessageEvent):
             msg_list.append(MessageSegment.text("\n".join(section)))
 
     await send_forward_msg(
-        bot, event, config_manager.config.bot_name, str(event.self_id), msg_list
+        bot, event, get_amrita_config().bot_name, str(event.self_id), msg_list
     )
 
 
@@ -386,10 +387,7 @@ async def handle_fishing(bot: Bot, event: MessageEvent):
             f"用户 {user_id} 今日钓鱼次数: {user_meta.today_fishing_count!s}, 上次钓鱼时间: {user_meta.last_fishing_time.strftime('%Y-%m-%d %H:%M:%S')}"
         )
 
-        if not is_same_day(
-            int(datetime.now().timestamp()),
-            int(user_meta.last_fishing_time.timestamp()),
-        ):
+        if not (datetime.now().date() == user_meta.last_fishing_time.date(),):
             user_meta.today_fishing_count = 0
             await session.commit()
             await session.refresh(user_meta)

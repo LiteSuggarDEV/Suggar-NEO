@@ -1,9 +1,18 @@
-from amrita.plugins.menu import MatcherData
-from nonebot import on_command
+from nonebot import on_command, require
 from nonebot.matcher import Matcher
+from nonebot.plugin import PluginMetadata
+
+require("amrita.plugins.menu")
+from amrita.plugins.menu import MatcherData
 
 from suggar_utils.dump_tools import dump_to_json, reset_from_update_file
 from suggar_utils.rule import is_global_admin
+
+__plugin_meta__ = PluginMetadata(
+    name="数据管理",
+    description="数据Dump工具",
+    usage="",
+)
 
 
 @on_command(

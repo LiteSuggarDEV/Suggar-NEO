@@ -4,6 +4,7 @@ from datetime import datetime
 
 from aiofiles import open
 from nonebot import logger
+from nonebot.plugin import require
 from nonebot_plugin_orm import get_session
 from nonebot_plugin_value.api.api_balance import (
     add_balance,
@@ -12,39 +13,14 @@ from nonebot_plugin_value.api.api_balance import (
     list_accounts,
 )
 from pydantic import BaseModel, Field
-from typing_extensions import Self
+
+require("amrita.plugins.manager")
+from amrita.plugins.manager.status_manager import StatusManager
 
 from .store import DUMP_PATH, UPDATE_FILE, UserModel, get_or_create_user_model
 from .value import SUGGAR_EXP_ID, to_uuid
 
 db_lock = Lock()
-
-
-class StatusManager:
-    _instance = None
-    __repair = False
-    __disable = False
-
-    def __new__(cls) -> Self:
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-
-    def set_disable(self, value: bool):
-        self.__disable = value
-
-    def set_unready(self, value: bool):
-        self.__repair = value
-
-    def is_unready(self) -> bool:
-        return self.__repair
-
-    def is_disabled(self) -> bool:
-        return self.__disable
-
-    @property
-    def ready(self) -> bool:
-        return (not self.__repair) and (not self.__disable)
 
 
 class UserFunDataSchema(BaseModel):
