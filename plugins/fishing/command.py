@@ -141,7 +141,7 @@ enchant = base_matcher.on_command(
 sell_matcher_data = MatcherData(
     name="/卖鱼",
     description="卖鱼",
-    usage="/卖鱼 <鱼名>/<品质名>/all",
+    usage="/卖鱼 <鱼名>/<品质名>/全部",
 )
 sell = base_matcher.on_command(
     "卖鱼", priority=10, block=True, state=sell_matcher_data.model_dump()
@@ -307,7 +307,7 @@ async def handle_sell(bot: Bot, event: MessageEvent, arg: Message = CommandArg()
 
     try:
         price = 0
-        if msg == "all":
+        if msg == "全部":
             price = await sell_fish(event.user_id, sell_all=True)
             if price > 0:
                 await sell.send(f"成功出售所有鱼，获得了{price}钓鱼积分")
