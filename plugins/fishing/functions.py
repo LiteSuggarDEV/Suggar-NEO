@@ -261,13 +261,41 @@ async def sell_fish(
     user_id: int,
     fish_name: str | None = None,
     quality_name: str | None = None,
+    sell_all: bool = False,
 ) -> float:
     async with user_lock[user_id]:
         async with get_session() as session:
-            assert fish_name or quality_name
+            assert fish_name or quality_name or sell_all
             price = 0
             try:
-                if fish_name:
+                if sell_all:
+                    user_fishes = await get_user_fish(user_id, session)
+                    if not user_fishes:
+                        return 0
+
+                    total_price = 0
+                    quality_cache: dict[str, QualityMetaData] = {}
+
+                    for fish in user_fishes:
+                        fish_meta = await get_fish_meta_or_none(fish.fish_name, session)
+                        if not fish_meta:
+                            logger.warning(f"Fish meta not found for {fish.fish_name}")
+                            continue
+
+                        quality_of_fish = fish_meta.quality
+                        if quality_of_fish not in quality_cache:
+                            quality_cache[quality_of_fish] = await get_quality(
+                                quality_of_fish, session
+                            )
+
+                        quality = quality_cache[quality_of_fish]
+                        total_price += fish.length * quality.price_per_length
+
+                    uid = to_uuid(str(user_id))
+                    stmt = delete(FishRecord).where(FishRecord.user_id == uid)
+                    await session.execute(stmt)
+                    price = total_price
+                elif fish_name:
                     fish_meta = await get_fish_meta_or_none(fish_name, session)
                     if not fish_meta:
                         return 0
@@ -278,7 +306,14 @@ async def sell_fish(
                     )
                     result = await session.execute(stmt)
                     fishes = list(result.scalars().all())
+                    if not fishes:
+                        return 0
                     session.add_all(fishes)
+                    total_length = sum([fish.length for fish in fishes])
+                    price = float(total_length) * quality.price_per_length
+                    for fish in fishes:
+                        stmt = delete(FishRecord).where(FishRecord.id == fish.id)
+                        await session.execute(stmt)
                 else:
                     assert quality_name
                     quality = await get_quality(quality_name, session)
@@ -294,13 +329,13 @@ async def sell_fish(
                         data = (await session.execute(stmt)).scalars().all()
                         session.add_all(data)
                         fishes.extend(list(data))
-                if not fishes:
-                    return 0
-                total_length = sum([fish.length for fish in fishes])
-                price = float(total_length) * quality.price_per_length
-                for fish in fishes:
-                    stmt = delete(FishRecord).where(FishRecord.id == fish.id)
-                    await session.execute(stmt)
+                    if not fishes:
+                        return 0
+                    total_length = sum([fish.length for fish in fishes])
+                    price = float(total_length) * quality.price_per_length
+                    for fish in fishes:
+                        stmt = delete(FishRecord).where(FishRecord.id == fish.id)
+                        await session.execute(stmt)
             except Exception:
                 await session.rollback()
                 raise

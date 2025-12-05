@@ -141,7 +141,7 @@ enchant = base_matcher.on_command(
 sell_matcher_data = MatcherData(
     name="/卖鱼",
     description="卖鱼",
-    usage="/卖鱼 <鱼名>/<品质名>",
+    usage="/卖鱼 <鱼名>/<品质名>/全部",
 )
 sell = base_matcher.on_command(
     "卖鱼", priority=10, block=True, state=sell_matcher_data.model_dump()
@@ -306,19 +306,29 @@ async def handle_sell(bot: Bot, event: MessageEvent, arg: Message = CommandArg()
         return await sell.finish("这个不能出售哦")
 
     try:
-        # 尝试按鱼名出售
-        price = await sell_fish(event.user_id, fish_name=msg)
-        if price:
-            await sell.send(f"成功出售所有 {msg}，获得{price}钓鱼积分")
-        else:
-            # 尝试按品质出售
-            price = await sell_fish(event.user_id, quality_name=msg)
-            if price:
-                await sell.send(f"成功出售所有{msg}品质的鱼，获得{price}钓鱼积分")
+        price = 0
+        if msg == "全部":
+            price = await sell_fish(event.user_id, sell_all=True)
+            if price > 0:
+                await sell.send(f"成功出售所有鱼，获得了{price}钓鱼积分")
             else:
-                return await sell.finish("没有这个品质/名字的鱼")
-
-        await add_balance(to_uuid(event.get_user_id()), price, "卖鱼", FISHING_POINT.id)
+                return await sell.finish("你背包里没有鱼")
+        else:
+            # 尝试按鱼名出售
+            price = await sell_fish(event.user_id, fish_name=msg)
+            if price > 0:
+                await sell.send(f"成功出售所有 {msg}，获得{price}钓鱼积分")
+            else:
+                # 尝试按品质出售
+                price = await sell_fish(event.user_id, quality_name=msg)
+                if price > 0:
+                    await sell.send(f"成功出售所有{msg}品质的鱼，获得{price}钓鱼积分")
+                else:
+                    return await sell.finish("没有这个品质/名字的鱼")
+        if price > 0:
+            await add_balance(
+                to_uuid(event.get_user_id()), price, "卖鱼", FISHING_POINT.id
+            )
     except NoneBotException:
         raise
     except Exception as e:
