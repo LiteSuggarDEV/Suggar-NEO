@@ -4,7 +4,7 @@ from datetime import datetime
 
 from amrita.plugins.menu.models import MatcherData
 from nonebot import on_fullmatch
-from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment
+from nonebot.adapters.onebot.v11 import MessageEvent, MessageSegment
 from nonebot.matcher import Matcher
 from nonebot_plugin_orm import get_session
 from nonebot_plugin_value.api.api_balance import get_or_create_account
@@ -25,7 +25,7 @@ from suggar_utils.value import SUGGAR_EXP_ID, add_balance, to_uuid
     ),
     rule=is_enabled(FuncEnum.DAILY),
 ).handle()
-async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
+async def _(event: MessageEvent, matcher: Matcher):
     economy_data = await get_or_create_account(to_uuid(str(event.user_id)))
     exp_data = await get_or_create_account(to_uuid(str(event.user_id)), SUGGAR_EXP_ID)
     async with get_session() as session:
