@@ -1,16 +1,14 @@
 import random
 
-from amrita.plugins.chat.event import ChatEvent
-from amrita.plugins.chat.on_event import on_chat
+from amrita_core import CompletionEvent, on_completion
 from nonebot import logger
 from nonebot.adapters.onebot.v11 import MessageEvent
 
 from suggar_utils.value import SUGGAR_EXP_ID, add_balance
 
 
-@on_chat().handle()
-async def _(event: ChatEvent) -> None:
-    nonebot_event = event.get_nonebot_event()
+@on_completion(block=False).handle()
+async def _(event: CompletionEvent, nonebot_event: MessageEvent) -> None:
     assert isinstance(nonebot_event, MessageEvent)
     exp = float(random.randint(1, 15))
     coin = float(random.randint(1, 10))
